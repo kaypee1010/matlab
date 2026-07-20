@@ -349,7 +349,7 @@ body::before{
       </div>
     </div>
 
-    <div id="form-error" class="error-msg">⚠ Please fill in all required fields marked with *</div>
+    <div id="form-error" class="error-msg">⚠ Please fill in your Name, Roll Number, Section, Branch, and a valid Email.</div>
 
     <!-- SECTION 1: BASIC INFO -->
     <div class="sec-block">
@@ -411,7 +411,7 @@ body::before{
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Have you programmed before? <span class="req">*</span></label>
+        <label class="form-label">Have you programmed before?</label>
         <div class="chip-row" id="g-programmed">
           <div class="chip" data-v="Yes" onclick="pickOne('g-programmed',this)">Yes</div>
           <div class="chip" data-v="No" onclick="pickOne('g-programmed',this)">No</div>
@@ -432,7 +432,7 @@ body::before{
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Rate your programming confidence <span class="req">*</span></label>
+        <label class="form-label">Rate your programming confidence</label>
         <div class="scale-row" id="g-conf">
           <div class="scale-btn" data-v="1" onclick="pickOne('g-conf',this)">1</div>
           <div class="scale-btn" data-v="2" onclick="pickOne('g-conf',this)">2</div>
@@ -443,14 +443,14 @@ body::before{
         <div class="scale-labels"><span>1 = Beginner</span><span>5 = Very comfortable</span></div>
       </div>
       <div class="form-group">
-        <label class="form-label">Have you ever used MATLAB before? <span class="req">*</span></label>
+        <label class="form-label">Have you ever used MATLAB before?</label>
         <div class="chip-row" id="g-matlab">
           <div class="chip" data-v="Yes" onclick="pickOne('g-matlab',this)">Yes</div>
           <div class="chip" data-v="No" onclick="pickOne('g-matlab',this)">No</div>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Which operating system do you use? <span class="req">*</span></label>
+        <label class="form-label">Which operating system do you use?</label>
         <div class="chip-row" id="g-os">
           <div class="chip" data-v="Windows" onclick="pickOne('g-os',this)">Windows</div>
           <div class="chip" data-v="Linux" onclick="pickOne('g-os',this)">Linux</div>
@@ -469,7 +469,7 @@ body::before{
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Which teaching style helps you learn the most? <span class="req">*</span></label>
+        <label class="form-label">Which teaching style helps you learn the most?</label>
         <div class="chip-row" id="g-style">
           <div class="chip" data-v="Live coding" onclick="pickOne('g-style',this)">Live coding</div>
           <div class="chip" data-v="PPTs" onclick="pickOne('g-style',this)">PPTs</div>
@@ -479,7 +479,7 @@ body::before{
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Which engineering domain interests you the most? <span class="req">*</span></label>
+        <label class="form-label">Which engineering domain interests you the most?</label>
         <div class="chip-row" id="g-domain">
           <div class="chip" data-v="AI &amp; ML" onclick="pickOne('g-domain',this)">AI &amp; ML</div>
           <div class="chip" data-v="Robotics" onclick="pickOne('g-domain',this)">Robotics</div>
@@ -514,7 +514,7 @@ body::before{
         <textarea id="f-difficult" class="form-textarea" placeholder="e.g. loops, functions, pointers, debugging, logic building…"></textarea>
       </div>
       <div class="form-group">
-        <label class="form-label">What is your career goal? <span class="req">*</span></label>
+        <label class="form-label">What is your career goal?</label>
         <div class="chip-row" id="g-career">
           <div class="chip" data-v="Placement" onclick="pickOne('g-career',this)">Placement</div>
           <div class="chip" data-v="Higher Studies" onclick="pickOne('g-career',this)">Higher Studies</div>
@@ -572,6 +572,12 @@ body::before{
         <span class="pulse-dot" id="dot-saving"></span>
         <span id="txt-saving">Saving to records…</span>
       </div>
+      <div id="iq-result-box" style="display:none;border:1.5px solid var(--border);border-radius:var(--radius-md);background:var(--cream);padding:18px;margin-bottom:20px;text-align:center;">
+        <div style="font-family:'Inconsolata',monospace;font-size:10px;font-weight:700;color:var(--slate);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:8px;">Your Knowledge Check</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:38px;color:var(--accent);line-height:1;" id="iq-res-score">—</div>
+        <div style="font-family:'Inconsolata',monospace;font-size:13px;font-weight:700;color:var(--ink);margin-top:6px;" id="iq-res-level">—</div>
+        <div style="font-size:12px;color:var(--slate);margin-top:8px;line-height:1.6;" id="iq-res-msg"></div>
+      </div>
       <div class="sid-box">
         <div class="sid-label">Submission ID — keep as proof</div>
         <div class="sid-val" id="sid-val">—</div>
@@ -585,6 +591,7 @@ body::before{
 // ─────────── CONFIGURATION ───────────
 // PASTE YOUR NEW APPS SCRIPT WEB APP URL BELOW (deploy a fresh one for this form)
 const SHEET_URL = 'https://script.google.com/a/macros/sgtuniversity.org/s/AKfycbyFQADtgtEr3DD-zDig7YviRbhpXIqBrQWD7SS6QDTN79RHWA59zyoj6wE7plMUVvKz/exec';
+
 const FORM_CODE = 'MATLAB5-PROFILE';
 
 // ─────────── ICEBREAKER QUIZ DATA ───────────
@@ -719,7 +726,8 @@ function submitForm(){
 
   const emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  if(!name||!roll||!section||!branch||!emailOk||!programmed||!conf||!matlab||!os||!style||!domain||!career){
+  // Only identity fields are mandatory — everything else is optional
+  if(!name||!roll||!section||!branch||!emailOk){
     const err=$('form-error');
     err.style.display='block';
     err.scrollIntoView({behavior:'smooth',block:'center'});
@@ -771,6 +779,21 @@ function submitForm(){
   // Show success immediately (no-cors gives no readable response anyway)
   $('done-name').textContent=name.split(' ')[0];
   $('sid-val').textContent=sid;
+  // Reveal quiz result (only if attempted)
+  const iqr=iqResults();
+  if(iqr.attempted>0){
+    $('iq-result-box').style.display='block';
+    $('iq-res-score').textContent=iqr.score+'/'+iqr.total;
+    $('iq-res-level').textContent='Level: '+iqr.level;
+    const msgs={
+      'Beginner':'Perfect starting point — this course assumes zero background. You\'ll be surprised how fast MATLAB clicks.',
+      'Developing':'Good foundation! We\'ll build on what you know and fill the gaps along the way.',
+      'Comfortable':'Strong basics — expect some stretch problems from me to keep you challenged. 💪'
+    };
+    let msg=msgs[iqr.level]||'';
+    if(iqr.notSure>0) msg+=' (And thank you for the honest "Not sure" answers — that\'s exactly what helps me plan.)';
+    $('iq-res-msg').textContent=msg;
+  }
   showScreen('done-screen');
 
   fetch(SHEET_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)})
