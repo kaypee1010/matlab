@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practical 1 · Meet Your Workspace — MATLAB Lab | KP Singh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF6EC; --card:#FFFDF7; --ink:#2B2A28; --ink-soft:#5B5650; --rule:#E4DCC8;
+    --teal:#0C6B77; --teal-deep:#08414A;
+    --orange:#E2662B; --orange-soft:#FBE3D2;
+    --green:#3F7D58; --green-soft:#E3EFE4;
+    --red:#B4432E; --red-soft:#F6E2DC;
+    --royal:#A3294F; --royal-bg:#FBE7EE;
+    --mono-bg:#20242A; --mono-ink:#EDEAE0;
+    --radius:14px;
+    --shadow:0 2px 0 var(--rule);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Source Sans 3',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;}
+  h1,h2,h3,h4{font-family:'Fraunces',Georgia,serif;font-weight:700;letter-spacing:-.01em;color:var(--teal-deep);margin:0 0 .35em;}
+  code{font-family:'IBM Plex Mono',monospace;background:#F0EBDD;padding:1px 5px;border-radius:5px;font-size:.9em;}
+  a{color:var(--teal);}
+  .hand{font-family:'Dancing Script',cursive;font-weight:700;}
+
+  /* NAV */
+  .nav{position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:space-between;
+    background:rgba(250,246,236,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule);padding:10px 22px;}
+  .nav-brand{display:flex;align-items:center;gap:10px;}
+  .nav-logo{width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid var(--rule);background:#fff;}
+  .nav-name{font-weight:700;font-size:14.5px;font-family:'Source Sans 3',sans-serif;color:var(--ink);}
+  .nav-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);}
+  .nav-cta{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--teal);text-decoration:none;
+    border:1px solid var(--teal);padding:6px 12px;border-radius:20px;white-space:nowrap;}
+  .nav-cta:hover{background:var(--teal);color:#fff;}
+
+  .page{max-width:980px;margin:0 auto;padding:26px 20px 80px;}
+  .crumb{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);text-transform:uppercase;margin-bottom:14px;}
+  .crumb a{color:var(--teal);text-decoration:none;}
+
+  /* HERO */
+  .hero{position:relative;padding:30px 30px 26px;background:var(--card);border:1px solid var(--rule);
+    border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden;}
+  .hero::before{content:"";position:absolute;top:0;left:0;bottom:0;width:8px;background:linear-gradient(180deg,var(--orange),var(--teal));}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--teal);background:#E9F3F3;border:1px solid #CFE6E6;
+    padding:4px 10px;border-radius:100px;margin-bottom:12px;}
+  .hero h1{font-size:32px;line-height:1.15;}
+  .hero p.lede{font-size:16px;color:var(--ink-soft);max-width:640px;margin-top:8px;}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px;}
+  .meta-chip{font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);background:var(--paper);
+    border:1px solid var(--rule);border-radius:8px;padding:5px 10px;}
+
+  /* TABS - folder style */
+  .tabbar{display:flex;gap:5px;margin:0 0 -1px 4px;overflow-x:auto;padding-top:6px;}
+  .tabbtn{flex:0 0 auto;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.02em;
+    background:#EFE8D6;color:var(--ink-soft);border:1px solid var(--rule);border-bottom:none;
+    padding:9px 14px 11px;border-radius:10px 10px 0 0;cursor:pointer;position:relative;top:2px;white-space:nowrap;}
+  .tabbtn:hover{background:#F5EFE0;color:var(--ink);}
+  .tabbtn.active{background:var(--card);color:var(--teal-deep);font-weight:700;top:0;box-shadow:0 -2px 0 var(--orange) inset;}
+  .tabbtn.evaltab{color:var(--royal);}
+  .tabbtn.evaltab.active{box-shadow:0 -2px 0 var(--royal) inset;}
+  .panelwrap{background:var(--card);border:1px solid var(--rule);border-radius:0 12px 12px 12px;
+    padding:26px 28px 30px;box-shadow:var(--shadow);}
+  .tabpanel{display:none;animation:fade .25s ease;} .tabpanel.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  .small-caps{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);}
+  p.body-copy{font-size:15px;line-height:1.65;}
+
+  /* icon cards */
+  .card-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0;}
+  .icon-card{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:14px 15px 13px;}
+  .icon-card .ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:14px;margin-bottom:9px;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#fff;}
+  .ic.c1{background:var(--teal);} .ic.c2{background:var(--orange);} .ic.c3{background:var(--green);} .ic.c4{background:var(--red);}
+  .icon-card h4{font-size:15px;margin-bottom:4px;color:var(--ink);}
+  .icon-card p{font-size:13.5px;color:var(--ink-soft);margin:0;line-height:1.5;}
+
+  /* callouts */
+  details.callout{background:var(--orange-soft);border:1px solid #EFC6A2;border-radius:10px;padding:2px 16px;margin:14px 0;}
+  details.callout summary{cursor:pointer;font-weight:700;color:#8A3B12;padding:11px 0;list-style:none;
+    display:flex;align-items:center;gap:8px;font-size:14px;}
+  details.callout summary::-webkit-details-marker{display:none;}
+  details.callout summary::before{content:"▸";transition:transform .15s;}
+  details.callout[open] summary::before{transform:rotate(90deg);}
+  details.callout p,details.callout ul{font-size:13.8px;color:#5c3315;margin:0 0 13px;}
+  details.callout ul{padding-left:18px;}
+
+  /* task box - light royal red */
+  .task-box{background:var(--royal-bg);border-left:3px solid var(--royal);border-radius:0 10px 10px 0;
+    padding:12px 16px;margin:12px 0;}
+  .task-box p{margin:0;font-size:14.8px;color:#6b1633;}
+  .task-box b.lbl{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--royal);margin-bottom:5px;}
+
+  /* tables */
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px;}
+  th,td{border:1px solid var(--rule);padding:7px 10px;text-align:center;}
+  th{background:var(--paper);color:var(--teal-deep);font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;}
+  td.true{color:var(--green);font-weight:700;} td.false{color:var(--red);font-weight:700;}
+
+  /* code */
+  pre.code{background:var(--mono-bg);color:var(--mono-ink);border-radius:10px;padding:15px 17px;overflow-x:auto;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.65;margin:12px 0;}
+  pre.code .cm{color:#8B9B87;}
+  pre.code .fn{color:#7EC7D6;}
+  pre.code .str{color:#D6B370;}
+
+  /* handwritten margin annotation */
+  .annot{font-family:'Dancing Script',cursive;font-weight:700;color:var(--orange);font-size:21px;margin:-4px 0 14px 6px;}
+  .annot::before{content:"↖ ";}
+
+  /* checkpoint header */
+  .ckpt-head{margin-bottom:6px;}
+  .ckpt-head h2{margin:0;}
+
+  /* solution reveal */
+  .reveal-btn{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;background:var(--teal-deep);
+    color:#fff;border:none;border-radius:8px;padding:9px 16px;cursor:pointer;letter-spacing:.02em;margin-top:8px;}
+  .reveal-btn:hover{background:var(--teal);}
+  .solution-body{display:none;margin-top:11px;padding:13px 16px;background:var(--green-soft);border:1px solid #C7DECB;border-radius:10px;}
+  .solution-body.open{display:block;}
+  .solution-body p{margin:0 0 7px;font-size:13.5px;color:#2c4a35;}
+  .solution-body p:last-child{margin-bottom:0;}
+
+  /* calculator */
+  .calc{background:var(--teal-deep);color:#EFF7F7;border-radius:14px;padding:20px 22px;margin:18px 0;}
+  .calc h4{color:#fff;font-size:15.5px;margin-bottom:4px;}
+  .calc p.hint{color:#B9D6D8;font-size:12.5px;margin:0 0 12px;}
+  .calc input[type=text]{width:100%;padding:9px 11px;border-radius:8px;border:1px solid #1F5B63;
+    background:#0F4A52;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:13px;margin-bottom:9px;}
+  .calc-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
+  .calc input[type=number]{width:70px;padding:8px 9px;border-radius:8px;border:1px solid #1F5B63;background:#0F4A52;color:#fff;font-family:'IBM Plex Mono',monospace;}
+  .calc button{background:var(--orange);color:#fff;border:none;border-radius:8px;padding:9px 15px;font-weight:700;cursor:pointer;font-size:12.5px;}
+  .calc button:hover{background:#c9551f;}
+  .calc-out{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:9px;margin-top:14px;}
+  .calc-out .stat{background:#0F4A52;border-radius:10px;padding:11px 12px;text-align:center;}
+  .calc-out .stat .n{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;color:#fff;}
+  .calc-out .stat .l{font-size:10.5px;color:#9FC6C9;text-transform:uppercase;letter-spacing:.05em;}
+
+  /* chip row for worked example */
+  .chiprow{display:flex;gap:6px;overflow-x:auto;padding:6px 2px 4px;margin:10px 0;}
+  .chip{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:8px;
+    padding:6px 9px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;border:1px solid var(--rule);}
+  .chip .m{font-size:9px;color:var(--ink-soft);} .chip .v{font-weight:700;}
+  .chip.yes{background:var(--green-soft);border-color:var(--green);color:var(--green);}
+  .chip.no{background:var(--paper);color:var(--ink-soft);}
+
+  /* handwritten sticky key points */
+  .sticky-wrap{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0;}
+  .sticky{background:#FFE58A;border-radius:3px;padding:14px 16px;font-family:'Dancing Script',cursive;font-weight:700;font-size:22px;
+    line-height:1.3;color:#4a3a08;box-shadow:3px 4px 8px rgba(0,0,0,.14);flex:1 1 220px;transform:rotate(-1deg);}
+  .sticky:nth-child(2){transform:rotate(1deg);background:#FFD6C2;color:#5c2c10;}
+  .sticky:nth-child(3){transform:rotate(-.6deg);background:#D8F0DD;color:#20452c;}
+  .sticky:nth-child(4){transform:rotate(1.2deg);background:#DCEBF5;color:#123a52;}
+  .sticky:nth-child(5){transform:rotate(-1.4deg);background:#FFE58A;color:#4a3a08;}
+  .sticky:nth-child(6){transform:rotate(.8deg);background:#FFD6C2;color:#5c2c10;}
+  .sticky b{display:block;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:10px;text-transform:uppercase;
+    letter-spacing:.05em;margin-bottom:5px;opacity:.75;}
+
+  /* viva */
+  .viva-item{border:1px solid var(--rule);border-radius:10px;margin-bottom:9px;overflow:hidden;}
+  .viva-q{padding:12px 15px;cursor:pointer;font-weight:700;font-size:14px;color:var(--teal-deep);
+    display:flex;justify-content:space-between;align-items:center;background:var(--paper);}
+  .viva-q .plus{font-family:'IBM Plex Mono',monospace;color:var(--orange);font-size:17px;}
+  .viva-a{display:none;padding:2px 15px 14px;font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
+  .viva-a.open{display:block;}
+
+  ul.tight{margin:8px 0;padding-left:20px;} ul.tight li{margin-bottom:6px;font-size:14.5px;}
+
+  /* panel prev/next nav */
+  .panel-nav{display:flex;justify-content:space-between;align-items:center;margin-top:30px;
+    padding-top:16px;border-top:1px dashed var(--rule);}
+  .pnav-btn{background:var(--card);border:1px solid var(--teal-deep);color:var(--teal-deep);
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:700;padding:9px 17px;
+    border-radius:20px;cursor:pointer;}
+  .pnav-btn:hover{background:var(--teal-deep);color:#fff;}
+  .pnav-btn.nextb{margin-left:auto;}
+
+  /* evaluation tab */
+  .eval-card{background:var(--royal-bg);border:1px solid #EFC3D2;border-radius:14px;padding:26px 26px;text-align:center;}
+  .eval-card h2{color:var(--royal);}
+  .eval-card p{color:#6b1633;max-width:480px;margin:8px auto 18px;}
+  .eval-btn{display:inline-block;background:var(--royal);color:#fff;font-family:'IBM Plex Mono',monospace;
+    font-weight:700;font-size:13.5px;text-decoration:none;padding:12px 26px;border-radius:24px;}
+  .eval-btn:hover{background:#7f1e3e;}
+  .eval-note{margin-top:14px;font-size:12px;color:#9b3f5c;font-family:'IBM Plex Mono',monospace;}
+
+  footer{margin-top:36px;padding-top:16px;border-top:1px dashed var(--rule);}
+  .nav-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .nav-card{flex:1;min-width:180px;background:var(--card);border:1px solid var(--rule);border-radius:12px;
+    padding:11px 14px;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);}
+  .nav-card small{display:block;font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);font-size:10.5px;text-transform:uppercase;}
+
+  @media(max-width:640px){ .hero{padding:22px 18px;} .hero h1{font-size:25px;} .panelwrap{padding:18px 16px 22px;} }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <img class="nav-logo" src="KP_Singh.png" alt="K.P. Singh"/>
+    <div>
+      <div class="nav-name">K.P. Singh</div>
+      <div class="nav-sub">SGT University · BTech 5th Sem · Section C</div>
+    </div>
+  </div>
+  <a class="nav-cta" href="https://kpsingh.in" target="_blank">kpsingh.in ↗</a>
+</nav>
+
+<div class="page">
+  <div class="crumb"><a href="index.html">MATLAB Lab</a> / Practical 1</div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="eyebrow">● Session 1 · Lab Manual</span>
+    <h1>Meet Your Workspace</h1>
+    <p class="lede">Interface familiarisation, variables, and your first commands — using the <strong>Aarav &amp; Meera heart-rate dataset</strong> that follows you through the whole semester.</p>
+    <div class="hero-meta">
+      <span class="meta-chip">⏱ 60 min core + 20 min quiz</span>
+      <span class="meta-chip">📋 Prerequisite: none</span>
+      <span class="meta-chip">🎯 CO1 · MATLAB environment</span>
+      <span class="meta-chip">🟢 Track: Fitness Wearable</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabbar" id="tabbar">
+    <button class="tabbtn active" data-tab="overview">Overview</button>
+    <button class="tabbtn" data-tab="dataset">Dataset</button>
+    <button class="tabbtn" data-tab="warmup">Warm-Up</button>
+    <button class="tabbtn" data-tab="labtasks">Lab Tasks</button>
+    <button class="tabbtn" data-tab="ex1">Exercise 1</button>
+    <button class="tabbtn" data-tab="ex2">Exercise 2</button>
+    <button class="tabbtn" data-tab="ex3">Exercise 3</button>
+    <button class="tabbtn" data-tab="ex4">Exercise 4</button>
+    <button class="tabbtn" data-tab="viva">Recap &amp; Viva</button>
+    <button class="tabbtn evaltab" data-tab="eval">📝 Evaluation</button>
+  </div>
+
+  <div class="panelwrap">
+
+    <!-- OVERVIEW -->
+    <div class="tabpanel active" id="tab-overview">
+      <p class="small-caps">Why today matters</p>
+      <h2>You can't scale a stopwatch and a calculator</h2>
+      <p class="body-copy">If a coach hands you 15 heart-rate readings from a jog and asks "what was the average, and how many minutes were spent above 120 bpm?" — right now you'd be doing that by hand. Today you meet the tool that makes it instant, for 15 readings or 15,000.</p>
+
+      <div class="card-row">
+        <div class="icon-card"><div class="ic c1">V</div><h4>Variables &amp; Vectors</h4><p>Store a whole list of readings under one name instead of juggling loose numbers.</p></div>
+        <div class="icon-card"><div class="ic c2">D</div><h4>Display Commands</h4><p><code>disp</code> and <code>fprintf</code> — showing results the way you actually want them shown.</p></div>
+        <div class="icon-card"><div class="ic c3">H</div><h4>Workspace Housekeeping</h4><p><code>clc</code>, <code>clear</code>, <code>whos</code> — knowing what you're holding, and clearing the clutter.</p></div>
+        <div class="icon-card"><div class="ic c4">+</div><h4>Stats &amp; Comparisons</h4><p><code>mean</code>, <code>max</code>, <code>sum</code>, and a first taste of comparisons like <code>hr &gt; 120</code>.</p></div>
+      </div>
+
+      <details class="callout">
+        <summary>FAQ — MATLAB Desktop or MATLAB Online?</summary>
+        <p>Either is fine for this entire course. Everything taught works identically in both. Use whichever is already installed on your machine; if neither is installed, MATLAB Online (matlab.mathworks.com) needs no setup and runs in a browser.</p>
+      </details>
+    </div>
+
+    <!-- DATASET -->
+    <div class="tabpanel" id="tab-dataset">
+      <p class="small-caps">Case study</p>
+      <h2>Aarav &amp; Meera's Treadmill Jog</h2>
+      <p class="body-copy">A wearable strap logs heart rate every minute during a 15-minute jog, for two runners (bpm):</p>
+      <table>
+        <tr><th>Minute</th><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr>
+        <tr><th>Aarav (bpm)</th><td>72</td><td>75</td><td>88</td><td>102</td><td>110</td><td>118</td><td>124</td><td>129</td><td>131</td><td>128</td><td>122</td><td>115</td><td>104</td><td>95</td><td>84</td></tr>
+        <tr><th>Meera (bpm)</th><td>68</td><td>70</td><td>79</td><td>88</td><td>95</td><td>104</td><td>111</td><td>116</td><td>119</td><td>117</td><td>112</td><td>105</td><td>96</td><td>87</td><td>78</td></tr>
+      </table>
+
+      <p class="body-copy">A reading above <strong>120 bpm</strong> is flagged "cardio zone." A worked taste, first 6 minutes of Aarav's jog:</p>
+      <table>
+        <tr><th>HR (bpm)</th><td>72</td><td>75</td><td>88</td><td>102</td><td>110</td><td>118</td></tr>
+        <tr><th>Cardio zone? (HR &gt; 120)</th>
+          <td class="false">False</td><td class="false">False</td><td class="false">False</td><td class="false">False</td><td class="false">False</td><td class="false">False</td>
+        </tr>
+      </table>
+      <p class="body-copy" style="margin-top:-4px;">MATLAB stores that True/False row as a <strong>logical array</strong> — True counts as 1, False as 0. Add the row up with <code>sum(...)</code> and you get the count of cardio-zone minutes, no manual tallying required. You'll do this for the full 15 minutes in Exercise 2.</p>
+
+      <p class="body-copy">Type both runners into MATLAB now — every exercise below reuses these exact variable names:</p>
+      <pre class="code">aarav = [72 75 88 102 110 118 124 129 131 128 122 115 104 95 84];
+meera = [68 70 79 88 95 104 111 116 119 117 112 105 96 87 78];</pre>
+      <p class="annot hand">two vectors, typed once, used all session</p>
+
+      <div class="calc">
+        <h4>🫀 Try it yourself — live calculator</h4>
+        <p class="hint">Enter any readings separated by commas and compute. This mirrors exactly what <code>mean()</code>, <code>max()</code>, and a threshold check do inside MATLAB.</p>
+        <input type="text" id="hrInput" value="72, 75, 88, 102, 110, 118, 124, 129, 131, 128, 122, 115, 104, 95, 84">
+        <div class="calc-row">
+          <button onclick="computeHR()">Compute stats</button>
+          <span style="font-size:12px;color:#9FC6C9;">threshold&nbsp;=</span>
+          <input type="number" id="hrThreshold" value="120">
+        </div>
+        <div class="calc-out" id="hrOut"></div>
+      </div>
+    </div>
+
+    <!-- WARM-UP -->
+    <div class="tabpanel" id="tab-warmup">
+      <p class="small-caps">Before the real data</p>
+      <h2>Warm-Up: Core MATLAB Commands</h2>
+      <p class="body-copy">Four quick drills covering the interface essentials you'll use every session from here on.</p>
+
+      <div class="task-box"><b class="lbl">Drill 1 · Arithmetic + ans</b><p>Type <code>12 + 8</code> and press Enter (no semicolon). Then type <code>ans</code>.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('w1')">Show what happens</button>
+      <div class="solution-body" id="w1"><p>MATLAB prints <code>ans = 20</code>. Whenever you don't store a result in a named variable, MATLAB stashes it in <code>ans</code> automatically — and you can reuse it in the next line.</p></div>
+
+      <div class="task-box" style="margin-top:22px;"><b class="lbl">Drill 2 · The Colon Operator</b><p>Type <code>1:5</code>, then <code>1:2:10</code>.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('w2')">Show what happens</button>
+      <div class="solution-body" id="w2"><p><code>1:5</code> → <code>1 2 3 4 5</code>. <code>1:2:10</code> → <code>1 3 5 7 9</code> (the middle number is the step size). You'll use this for time axes and loops in later sessions.</p></div>
+
+      <div class="task-box" style="margin-top:22px;"><b class="lbl">Drill 3 · disp() vs Plain Echo</b><p>Type <code>x = 42</code> (no semicolon), then <code>disp(x)</code>.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('w3')">Show the difference</button>
+      <div class="solution-body" id="w3"><p><code>x = 42</code> without <code>;</code> prints <code>x = 42</code>. <code>disp(x)</code> prints just <code>42</code> — cleaner, no variable-name clutter. Use <code>fprintf</code> when you need a full formatted sentence.</p></div>
+
+      <div class="task-box" style="margin-top:22px;"><b class="lbl">Drill 4 · clc, clear, whos</b><p>Type <code>whos</code>. Then <code>clc</code>. Then <code>whos</code> again.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('w4')">Show the difference</button>
+      <div class="solution-body" id="w4"><p><code>clc</code> clears the <em>screen</em> only — <code>whos</code> still lists your variables untouched. <code>clear</code> (try separately) actually deletes them. Mixing these two up is the #1 reason people "lose" their data mid-session.</p></div>
+
+      <details class="callout" style="margin-top:20px;">
+        <summary>Common beginner mistakes</summary>
+        <ul>
+          <li><code>HR</code> and <code>hr</code> are different variables — MATLAB is case-sensitive.</li>
+          <li>Spaces or commas both work inside <code>[ ]</code> — <code>[1 2 3]</code> and <code>[1,2,3]</code> are identical.</li>
+          <li><code>=</code> assigns a value; <code>==</code> checks equality. Mixing them up is the most common early bug.</li>
+        </ul>
+      </details>
+    </div>
+
+    <!-- LAB TASKS -->
+    <div class="tabpanel" id="tab-labtasks">
+      <p class="small-caps">Optional — extra practice</p>
+      <h2>Lab Tasks</h2>
+      <p class="body-copy">These are <strong>optional</strong> and separate from the four core Exercises. Exercises 1–4 are required and build on each other; the tasks below don't — each is a standalone one-liner using a function not formally taught today (<code>round</code>, <code>sort</code>) that you can reasonably guess from its name. Try them once you've finished the Exercises, or skip them if you're short on time.</p>
+
+      <div class="task-box"><b class="lbl">Task 1</b><p>Find the range of Aarav's heart rate (highest reading minus lowest).</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t1')">Show solution</button>
+      <div class="solution-body" id="t1"><p><code>range_hr = max(aarav) - min(aarav);</code> → <b>59</b> (131 − 72)</p></div>
+
+      <div class="task-box" style="margin-top:18px;"><b class="lbl">Task 2</b><p>Round Aarav's average heart rate to the nearest whole number.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t2')">Show solution</button>
+      <div class="solution-body" id="t2"><p><code>round(mean(aarav))</code> → <b>106</b></p></div>
+
+      <div class="task-box" style="margin-top:18px;"><b class="lbl">Task 3</b><p>Sort Aarav's readings from lowest to highest.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t3')">Show solution</button>
+      <div class="solution-body" id="t3"><p><code>sort(aarav)</code> → <b>72 75 84 88 95 102 104 110 115 118 122 124 128 129 131</b></p></div>
+
+      <div class="task-box" style="margin-top:18px;"><b class="lbl">Task 4</b><p>Find how many readings were below 90 bpm (before the jog really got going).</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t4')">Show solution</button>
+      <div class="solution-body" id="t4"><p><code>sum(aarav &lt; 90)</code> → <b>4</b> (72, 75, 88, 84)</p></div>
+    </div>
+
+    <!-- EXERCISE 1 -->
+    <div class="tabpanel" id="tab-ex1">
+      <div class="ckpt-head"><h2>Checkpoint 1 — Basic Statistics</h2></div>
+      <div class="task-box"><b class="lbl">Your task</b><p>Fill in the blanks to find Aarav's average, peak, lowest reading, and reading count.</p></div>
+      <pre class="code">
+<span class="cm">% aarav is already in your workspace from the Dataset tab</span>
+avg_hr  = <span class="fn">____</span>(aarav);   <span class="cm">% average</span>
+peak_hr = <span class="fn">____</span>(aarav);   <span class="cm">% highest reading</span>
+rest_hr = <span class="fn">____</span>(aarav);   <span class="cm">% lowest reading</span>
+n       = <span class="fn">____</span>(aarav);   <span class="cm">% how many readings</span></pre>
+      <button class="reveal-btn" onclick="toggleSolution('s1')">Show solution</button>
+      <div class="solution-body" id="s1">
+        <p><code>avg_hr = mean(aarav);</code> → <b>106.47</b> &nbsp; <code>peak_hr = max(aarav);</code> → <b>131</b></p>
+        <p><code>rest_hr = min(aarav);</code> → <b>72</b> &nbsp; <code>n = length(aarav);</code> → <b>15</b></p>
+        <p><code>sum()</code> just adds everything up; <code>mean()</code> does that too, then divides by the count — that division is the only difference between them.</p>
+      </div>
+    </div>
+
+    <!-- EXERCISE 2 -->
+    <div class="tabpanel" id="tab-ex2">
+      <div class="ckpt-head"><h2>Checkpoint 2 — Cardio Zone Count</h2></div>
+      <p class="body-copy">Here's all 15 of Aarav's readings, checked against 120 bpm one at a time:</p>
+      <div class="chiprow" id="chiprow"></div>
+      <p class="body-copy" style="margin-bottom:0;">Count the green chips above — that's exactly what <code>sum(aarav &gt; 120)</code> does in one line instead of you counting by hand.</p>
+
+      <div class="task-box" style="margin-top:14px;"><b class="lbl">Your task</b><p>Complete the line that counts cardio-zone minutes, then print it as a sentence.</p></div>
+      <pre class="code">
+cardio_mins = sum(aarav <span class="fn">____</span> 120);
+<span class="fn">fprintf</span>(<span class="str">'You spent %d minutes above 120 bpm\n'</span>, <span class="fn">____</span>)</pre>
+      <p class="annot hand">compare, then sum — that's the whole trick</p>
+      <button class="reveal-btn" onclick="toggleSolution('s2')">Show solution</button>
+      <div class="solution-body" id="s2">
+        <p><code>cardio_mins = sum(aarav > 120);</code> &nbsp; <code>fprintf('You spent %d minutes above 120 bpm\n', cardio_mins);</code></p>
+        <p>Result: <b>5</b>.</p>
+      </div>
+
+      <details class="callout" style="margin-top:16px;">
+        <summary>Why does sum() work on a True/False list?</summary>
+        <p>MATLAB treats <code>true</code> as the number 1 and <code>false</code> as 0 internally. So <code>aarav &gt; 120</code> silently becomes a list of 1s and 0s, and <code>sum()</code> on that list is just counting how many 1s (trues) there were.</p>
+      </details>
+    </div>
+
+    <!-- EXERCISE 3 -->
+    <div class="tabpanel" id="tab-ex3">
+      <div class="ckpt-head"><h2>Checkpoint 3 — Compare a Second Runner</h2></div>
+      <div class="task-box"><b class="lbl">Your task</b><p>Using <code>meera</code>, find her average and peak. State whether her peak was higher or lower than Aarav's (131 bpm).</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('s3')">Show solution</button>
+      <div class="solution-body" id="s3">
+        <p><code>avg_meera = mean(meera);</code> → <b>96.33</b> &nbsp; <code>peak_meera = max(meera);</code> → <b>119</b></p>
+        <p>Meera's peak (119 bpm) is <b>lower</b> than Aarav's (131 bpm) — Aarav pushed harder at some point in his jog.</p>
+        <p><b>Bonus (optional) — a sneak peek of Session 5:</b> <code>plot(1:15, aarav, '-o', 1:15, meera, '-o');</code> draws both jogs on one graph. Try it — you'll get the formal version of this in the Visualization session.</p>
+      </div>
+    </div>
+
+    <!-- EXERCISE 4 -->
+    <div class="tabpanel" id="tab-ex4">
+      <div class="ckpt-head"><h2>Checkpoint 4 — Predict the Break</h2></div>
+      <div class="task-box"><b class="lbl">Your task</b><p>Imagine 7 runners' data from the same day. <strong>Before revealing anything</strong>, write down your own prediction first.</p></div>
+      <ul class="tight">
+        <li>Could you keep storing each one as <code>aarav</code>, <code>meera</code>, <code>runner3</code> ... <code>runner7</code>?</li>
+        <li>What's the first thing that gets annoying at 7 runners? At 30?</li>
+        <li>Could you plot all 7 runners together in one line of code, the way things stand today?</li>
+      </ul>
+      <button class="reveal-btn" onclick="toggleSolution('s4')">Show what actually happens</button>
+      <div class="solution-body" id="s4">
+        <p>It works for a while but stops scaling fast: you can't loop over separately-named variables automatically, can't plot all 7 in one line, and can't ask "what did everyone's heart rate look like at minute 5?" without opening each variable one by one. At 30 runners it's unworkable.</p>
+        <p><b>Loose end for next week:</b> stack all runners as rows inside one <b>matrix</b>, so the whole group lives in a single variable.</p>
+      </div>
+    </div>
+
+    <!-- RECAP & VIVA -->
+    <div class="tabpanel" id="tab-viva">
+      <p class="small-caps">Quick self-check</p>
+      <h2>Recap &amp; Viva Prep</h2>
+
+      <div class="sticky-wrap">
+        <div class="sticky"><b>Vectors</b>[ ] holds a whole list, not just one number.</div>
+        <div class="sticky"><b>Semicolon</b>; hides output. No ; shows it.</div>
+        <div class="sticky"><b>clc vs clear</b>clc wipes the screen. clear wipes your variables.</div>
+        <div class="sticky"><b>Stat functions</b>mean, max, min, length, sum — ready-made, no loops.</div>
+        <div class="sticky"><b>Logical counting</b>aarav&gt;120 gives 1s/0s. sum() counts the 1s.</div>
+        <div class="sticky"><b>Scaling limit</b>One var per dataset breaks at scale — matrices fix it next week.</div>
+      </div>
+
+      <p class="small-caps" style="margin-top:24px;">Be ready to answer</p>
+      <div id="vivalist"></div>
+    </div>
+
+    <!-- EVALUATION -->
+    <div class="tabpanel" id="tab-eval">
+      <div class="eval-card">
+        <span class="small-caps" style="color:var(--royal);">Session 1</span>
+        <h2>Lab 1 Evaluation</h2>
+        <p>A short quiz covering today's session — variables, vectors, basic statistics, and logical counting. Complete it once you've finished all four exercises.</p>
+        <a class="eval-btn" href="lab1-evaluation.html" target="_blank">Take the Evaluation ↗</a>
+        <div class="eval-note">Link will be updated once the quiz is published on kpsingh.in/matlab</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="nav-row">
+      <a class="nav-card" href="session-01.html"><small>Interactive</small>Class Session Page</a>
+      <a class="nav-card" href="index.html"><small>← Back to</small>Course Spine</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+  const TAB_ORDER = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'dataset',  label: 'Dataset' },
+    { id: 'warmup',   label: 'Warm-Up' },
+    { id: 'labtasks', label: 'Lab Tasks' },
+    { id: 'ex1',      label: 'Exercise 1' },
+    { id: 'ex2',      label: 'Exercise 2' },
+    { id: 'ex3',      label: 'Exercise 3' },
+    { id: 'ex4',      label: 'Exercise 4' },
+    { id: 'viva',     label: 'Recap & Viva' },
+    { id: 'eval',     label: 'Evaluation' }
+  ];
+
+  function showTab(id){
+    document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+    document.querySelector('.tabbtn[data-tab="'+id+'"]').classList.add('active');
+    document.getElementById('tab-'+id).classList.add('active');
+    document.getElementById('tabbar').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  document.querySelectorAll('.tabbtn').forEach(btn=>{
+    btn.addEventListener('click', ()=> showTab(btn.dataset.tab));
+  });
+
+  // Previous / Next links at the bottom of every panel
+  function buildPanelNav(){
+    TAB_ORDER.forEach((t, i)=>{
+      const panel = document.getElementById('tab-'+t.id);
+      if(!panel) return;
+      const prev = TAB_ORDER[i-1];
+      const next = TAB_ORDER[i+1];
+      const nav = document.createElement('div');
+      nav.className = 'panel-nav';
+      nav.innerHTML =
+        (prev ? '<button class="pnav-btn prevb" onclick="showTab(\''+prev.id+'\')">&larr; '+prev.label+'</button>' : '<span></span>') +
+        (next ? '<button class="pnav-btn nextb" onclick="showTab(\''+next.id+'\')">'+next.label+' &rarr;</button>' : '<span></span>');
+      panel.appendChild(nav);
+    });
+  }
+
+  function toggleSolution(id){
+    const el = document.getElementById(id);
+    const open = el.classList.toggle('open');
+    const btn = el.previousElementSibling;
+    const label = btn.textContent.includes('happens') ? 'Show what happens'
+                 : btn.textContent.includes('actually') ? 'Show what actually happens'
+                 : btn.textContent.includes('difference') ? 'Show the difference'
+                 : 'Show solution';
+    btn.textContent = open ? label.replace('Show','Hide') : label;
+  }
+
+  function computeHR(){
+    const raw = document.getElementById('hrInput').value;
+    const t = Number(document.getElementById('hrThreshold').value) || 0;
+    const nums = raw.split(',').map(s=>Number(s.trim())).filter(n=>!isNaN(n));
+    const out = document.getElementById('hrOut');
+    if(nums.length===0){ out.innerHTML = '<div class="stat"><div class="n">-</div><div class="l">enter numbers</div></div>'; return; }
+    const mean = (nums.reduce((a,b)=>a+b,0)/nums.length).toFixed(2);
+    const max = Math.max(...nums);
+    const min = Math.min(...nums);
+    const count = nums.filter(n=>n>t).length;
+    out.innerHTML =
+      '<div class="stat"><div class="n">'+mean+'</div><div class="l">mean</div></div>'+
+      '<div class="stat"><div class="n">'+max+'</div><div class="l">max</div></div>'+
+      '<div class="stat"><div class="n">'+min+'</div><div class="l">min</div></div>'+
+      '<div class="stat"><div class="n">'+nums.length+'</div><div class="l">n</div></div>'+
+      '<div class="stat"><div class="n">'+count+'</div><div class="l">above '+t+'</div></div>';
+  }
+  document.addEventListener('DOMContentLoaded', computeHR);
+  document.addEventListener('DOMContentLoaded', buildPanelNav);
+
+  (function(){
+    const data = [72,75,88,102,110,118,124,129,131,128,122,115,104,95,84];
+    const row = document.getElementById('chiprow');
+    data.forEach((v,i)=>{
+      const yes = v>120;
+      const el = document.createElement('div');
+      el.className = 'chip ' + (yes?'yes':'no');
+      el.innerHTML = '<span class="m">min '+(i+1)+'</span><span class="v">'+v+'</span><span>'+(yes?'&#10003;':'-')+'</span>';
+      row.appendChild(el);
+    });
+  })();
+
+  (function(){
+    const qa = [
+      ['What is a variable in MATLAB?','A named box that stores a number, or a list of numbers.'],
+      ['What does a semicolon do at the end of a line?','It suppresses (hides) the output of that line.'],
+      ['Difference between clc and clear?','clc only clears the screen; clear actually deletes your variables.'],
+      ['What does 1:2:10 produce?','1 3 5 7 9 - start at 1, step by 2, stop at or before 10.'],
+      ['Difference between mean() and sum()?','sum() adds up all values; mean() adds them and divides by the count.'],
+      ['How would you count values in v greater than 100?','sum(v > 100)'],
+      ['What does whos do?','Lists every variable currently in your workspace.'],
+      ['Why can\u2019t you keep adding runner3, runner4... indefinitely?','It doesn\u2019t scale - no way to loop or compute across all of them at once. A matrix (next session) solves this.']
+    ];
+    const wrap = document.getElementById('vivalist');
+    qa.forEach(([q,a])=>{
+      const item = document.createElement('div');
+      item.className = 'viva-item';
+      const qDiv = document.createElement('div');
+      qDiv.className = 'viva-q';
+      qDiv.innerHTML = '<span>'+q+'</span><span class="plus">+</span>';
+      const aDiv = document.createElement('div');
+      aDiv.className = 'viva-a';
+      aDiv.innerHTML = '<p>'+a+'</p>';
+      qDiv.addEventListener('click', ()=>{
+        const open = aDiv.classList.toggle('open');
+        qDiv.querySelector('.plus').textContent = open ? '-' : '+';
+      });
+      item.appendChild(qDiv); item.appendChild(aDiv);
+      wrap.appendChild(item);
+    });
+  })();
+</script>
+</body>
+</html>
