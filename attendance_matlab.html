@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATLAB Attendance — BTech Sem 5 Sec C</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Georgia',serif;background:linear-gradient(135deg,#f5f1e8,#e8e3d8);min-height:100vh;padding:20px}
+.card{max-width:480px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.12);overflow:hidden}
+.header{background:linear-gradient(135deg,#8B3A3A,#6B2D2D);color:#fff;padding:24px 28px;display:flex;gap:16px;align-items:center}
+.logo{width:60px;height:60px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);overflow:hidden;flex-shrink:0}
+.logo img{width:100%;height:100%;object-fit:cover}
+.hinfo h1{font-size:20px;margin-bottom:3px}
+.hinfo p{font-size:13px;opacity:.9}
+.hinfo a{color:#ffd89b;font-size:12px;text-decoration:none;border:1px solid rgba(255,216,155,.4);padding:2px 8px;border-radius:3px;display:inline-block;margin-top:6px}
+.body{padding:28px}
+.field{margin-bottom:18px}
+label{display:block;font-weight:600;font-size:13px;color:#444;margin-bottom:6px}
+.locked-badge{display:inline-block;background:#8B3A3A;color:#fff;font-size:12px;padding:2px 8px;border-radius:3px;margin-left:8px;vertical-align:middle}
+.prefilled{width:100%;padding:11px 13px;border:1px solid #d0c8b8;border-radius:5px;font-size:14px;background:#f0ebe0;color:#5a3a1a;font-weight:600;font-family:inherit}
+input[type=text]{width:100%;padding:11px 13px;border:1px solid #d0c8b8;border-radius:5px;font-size:15px;background:#fafafa;font-family:inherit;transition:border-color .2s,box-shadow .2s}
+input:focus{outline:none;border-color:#8B3A3A;box-shadow:0 0 0 3px rgba(139,58,58,.1);background:#fff}
+.name-box{background:#f0ebe0;border:1px solid #c8b89a;border-radius:5px;padding:12px 14px;font-size:15px;font-weight:600;color:#5a3a1a;min-height:44px;display:flex;align-items:center}
+.gps-status{padding:10px 14px;border-radius:5px;font-size:13px;margin-bottom:18px;display:none}
+.gps-ok{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.gps-warn{background:#fff3cd;color:#856404;border:1px solid #ffeeba}
+.btn{width:100%;padding:14px;background:#8B3A3A;color:#fff;border:none;border-radius:5px;font-size:16px;font-weight:700;cursor:pointer;transition:background .2s;font-family:inherit}
+.btn:hover{background:#6B2D2D}
+.btn:disabled{background:#aaa;cursor:not-allowed}
+.msg{padding:14px;border-radius:5px;margin-bottom:18px;font-size:14px;display:none;text-align:center}
+.msg.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.msg.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.footer{text-align:center;font-size:11px;color:#999;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="logo"><img src="KP_Singh.png" alt="KP Singh"></div>
+    <div class="hinfo">
+      <h1>MATLAB — Sem 5</h1>
+      <p>BTech Section C · SGT University</p>
+      <a href="https://kpsingh.in" target="_blank">🌐 kpsingh.in</a>
+    </div>
+  </div>
+  <div class="body">
+    <div id="msg" class="msg"></div>
+
+    <!-- Pre-filled locked fields -->
+    <div class="field">
+      <label>Subject <span class="locked-badge">🔒 Fixed</span></label>
+      <div class="prefilled">MATLAB — BTech Sem 5</div>
+    </div>
+    <div class="field">
+      <label>Section <span class="locked-badge">🔒 Fixed</span></label>
+      <div class="prefilled">Section C</div>
+    </div>
+
+    <div class="field">
+      <label>Registration Number *</label>
+      <input type="text" id="reg" placeholder="e.g. 241302055" maxlength="12">
+    </div>
+
+    <div class="field">
+      <label>Name (auto-filled from roster)</label>
+      <div class="name-box" id="nameBox">—</div>
+    </div>
+
+    <div class="field">
+      <label>Today's OTP (shown on projector) *</label>
+      <input type="text" id="otp" placeholder="Enter 6-digit OTP" maxlength="6"
+             style="letter-spacing:4px;font-size:20px;text-align:center">
+    </div>
+
+    <div id="gpsStatus" class="gps-status"></div>
+
+    <button class="btn" id="submitBtn" onclick="submitAttendance()">Mark Attendance</button>
+
+    <div class="footer">Dr. Kamalpreet Singh · MATLAB · BTech Sem 5 Sec C<br>Attendance window: 7 minutes from OTP generation</div>
+  </div>
+</div>
+
+<script>
+// ===================== ROSTER — BTech Sem 5 Sec C =====================
+const ROSTER = [
+  {reg:'241302002',name:'Rakshita Hooda'},{reg:'241302004',name:'Prarit Sharma'},
+  {reg:'241302005',name:'Krrish Sharma'},{reg:'241302008',name:'Tarun'},
+  {reg:'241302010',name:'Kiran'},{reg:'241302013',name:'Mayank Nehra'},
+  {reg:'241302017',name:'Mohit Kumar Mishra'},{reg:'241302020',name:'Vanshik Sehrawat'},
+  {reg:'241302021',name:'Suryansh Choudhary'},{reg:'241302029',name:'Jatin Chauhan'},
+  {reg:'241302033',name:'Priyanshu'},{reg:'241302036',name:'Nikhil'},
+  {reg:'241302039',name:'Kyan V Singh'},{reg:'241302042',name:'Vincent Chinlal'},
+  {reg:'241302049',name:'Vansh Gulia'},{reg:'241302051',name:'Shreya Singh'},
+  {reg:'241302052',name:'Ngachammi Khapudang'},{reg:'241302053',name:'Chaitanya Garg'},
+  {reg:'241302055',name:'Umang Sharma'},{reg:'241302057',name:'Prem Kumar'},
+  {reg:'241302058',name:'Gourav Shokeen'},{reg:'241302059',name:'Rachna Rai'},
+  {reg:'241302065',name:'Shaili Yadav'},{reg:'241302068',name:'Sarika Yadav'},
+  {reg:'241302069',name:'Sameer Yadav'},{reg:'241302070',name:'Ruben Rajeev George'},
+  {reg:'241302071',name:'Divyansh Tanwar'},{reg:'241302075',name:'Rahul Gulia'},
+  {reg:'241302077',name:'Sahil Choudhary'},{reg:'241302078',name:'Rahul'},
+  {reg:'241302079',name:'Yash Aswal'},{reg:'241302081',name:'Harshit Khemani'},
+  {reg:'241302087',name:'Sanket Kumar Prasad'},{reg:'241302090',name:'Omyansh Rawat'},
+  {reg:'241302096',name:'Chalcy'},{reg:'241302097',name:'Yash Phalswal'},
+  {reg:'241302099',name:'Manmeet Saroa'},{reg:'241302100',name:'Madhav Bassi'},
+  {reg:'241302101',name:'Amit Kumar Patra'},{reg:'241302104',name:'Ekta'},
+  {reg:'241302106',name:'Gaurav Joon'},{reg:'241302107',name:'Binit Kumar'},
+  {reg:'241302108',name:'Tanisha'},{reg:'241302109',name:'Kushagra Agrawal'},
+  {reg:'241302112',name:'Randeep Gir'},{reg:'241302113',name:'Harshit Singh'},
+  {reg:'241302117',name:'Geetika'},{reg:'241302118',name:'Harshit'},
+  {reg:'241302122',name:'Kush Ahuja'},{reg:'241302125',name:'Keshav Sood'},
+  {reg:'241302126',name:'Rishabh'},{reg:'241302131',name:'Vaibhav Soni'},
+  {reg:'241302133',name:'Vansh Sindhu'},{reg:'241302138',name:'Kanupriya'},
+  {reg:'241302140',name:'Rijul Jain'},{reg:'241302141',name:'Eleesa Merin Jacob'},
+  {reg:'241302142',name:'Joncy'},
+];
+
+// ===================== CONFIG =====================
+const SGT_LAT=28.4089, SGT_LNG=76.9957, RADIUS_M=400;
+const GAS_URL='https://script.google.com/macros/s/AKfycbynasJuGrlxiCeY5EmoqMLiTOqbKAED9B3nCdC5Rqnpdi_x-GOayl-nnCfR19Pg2mFt/exec';
+
+let resolvedName='', gpsLat=null, gpsLng=null, gpsAccuracy=null, gpsStatus='pending';
+
+// ===================== GPS =====================
+function startGPS() {
+  if (!navigator.geolocation) { gpsStatus='unavailable'; return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      gpsLat=pos.coords.latitude; gpsLng=pos.coords.longitude;
+      gpsAccuracy=Math.round(pos.coords.accuracy);
+      const dist=haversine(gpsLat,gpsLng,SGT_LAT,SGT_LNG);
+      gpsStatus=dist<=RADIUS_M?'on-campus':'off-campus';
+      const el=document.getElementById('gpsStatus');
+      el.style.display='block';
+      if(gpsStatus==='on-campus'){
+        el.className='gps-status gps-ok';
+        el.textContent=`✅ Location verified — you are on campus (±${gpsAccuracy}m)`;
+      } else {
+        el.className='gps-status gps-warn';
+        el.textContent=`⚠️ You appear ${Math.round(dist)}m from campus. Submission will be flagged.`;
+      }
+    },
+    ()=>{
+      gpsStatus='denied';
+      const el=document.getElementById('gpsStatus');
+      el.style.display='block';
+      el.className='gps-status gps-warn';
+      el.textContent='⚠️ Location access denied. Submission will be marked GPS-unverified.';
+    },
+    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
+  );
+}
+
+function haversine(la1,lo1,la2,lo2){
+  const R=6371000,dL=(la2-la1)*Math.PI/180,dO=(lo2-lo1)*Math.PI/180;
+  const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// ===================== ROSTER LOOKUP =====================
+document.getElementById('reg').addEventListener('input', function(){
+  const reg=this.value.trim();
+  const box=document.getElementById('nameBox');
+  if(reg.length<9){box.textContent='—';box.style.color='#5a3a1a';resolvedName='';return;}
+  const found=ROSTER.find(s=>s.reg===reg);
+  if(found){
+    box.textContent=found.name; box.style.color='#1a5c2a'; resolvedName=found.name;
+  } else {
+    box.textContent='❌ Not found in Sem 5 Sec C roster'; box.style.color='#7c1c24'; resolvedName='';
+  }
+});
+
+// ===================== SUBMIT =====================
+function submitAttendance(){
+  const reg=document.getElementById('reg').value.trim();
+  const otp=document.getElementById('otp').value.trim();
+  const btn=document.getElementById('submitBtn');
+
+  if(!reg)          return showMsg('Please enter your registration number.','error');
+  if(!resolvedName) return showMsg('Registration number not found in Sec C roster. Check your number.','error');
+  if(!otp)          return showMsg('Please enter the OTP shown on the projector.','error');
+
+  btn.disabled=true; btn.textContent='Submitting...';
+
+  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+  const payload={
+    type:'attendance', subject:'MATLAB', section:'C',
+    reg, name:resolvedName, otp,
+    date:today, time,
+    gpsStatus,
+    gpsLat:gpsLat||'N/A', gpsLng:gpsLng||'N/A', gpsAccuracy:gpsAccuracy||'N/A'
+  };
+
+  fetch(GAS_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)});
+
+  setTimeout(()=>{
+    showMsg(`✅ Attendance marked for ${resolvedName} on ${today}`,'success');
+    document.getElementById('reg').value='';
+    document.getElementById('otp').value='';
+    document.getElementById('nameBox').textContent='—';
+    document.getElementById('nameBox').style.color='#5a3a1a';
+    resolvedName='';
+    btn.disabled=false; btn.textContent='Mark Attendance';
+  },1500);
+}
+
+function showMsg(text,type){
+  const el=document.getElementById('msg');
+  el.textContent=text; el.className='msg '+type; el.style.display='block';
+  if(type==='success') setTimeout(()=>el.style.display='none',6000);
+}
+
+startGPS();
+</script>
+</body>
+</html>
