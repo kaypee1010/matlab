@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practical 2 · Stack It Into a Grid — MATLAB Lab | KP Singh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF6EC; --card:#FFFDF7; --ink:#2B2A28; --ink-soft:#5B5650; --rule:#E4DCC8;
+    --teal:#0C6B77; --teal-deep:#08414A;
+    --orange:#E2662B; --orange-soft:#FBE3D2;
+    --green:#3F7D58; --green-soft:#E3EFE4;
+    --red:#B4432E; --red-soft:#F6E2DC;
+    --royal:#A3294F; --royal-bg:#FBE7EE;
+    --mono-bg:#20242A; --mono-ink:#EDEAE0;
+    --radius:14px;
+    --shadow:0 2px 0 var(--rule);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Source Sans 3',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;}
+  h1,h2,h3,h4{font-family:'Fraunces',Georgia,serif;font-weight:700;letter-spacing:-.01em;color:var(--teal-deep);margin:0 0 .35em;}
+  code{font-family:'IBM Plex Mono',monospace;background:#F0EBDD;padding:1px 5px;border-radius:5px;font-size:.9em;}
+  a{color:var(--teal);}
+  .hand{font-family:'Dancing Script',cursive;font-weight:700;}
+
+  /* NAV */
+  .nav{position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:space-between;
+    background:rgba(250,246,236,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule);padding:10px 22px;}
+  .nav-brand{display:flex;align-items:center;gap:10px;}
+  .nav-logo{width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid var(--rule);background:#fff;}
+  .nav-name{font-weight:700;font-size:14.5px;font-family:'Source Sans 3',sans-serif;color:var(--ink);}
+  .nav-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);}
+  .nav-cta{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--teal);text-decoration:none;
+    border:1px solid var(--teal);padding:6px 12px;border-radius:20px;white-space:nowrap;}
+  .nav-cta:hover{background:var(--teal);color:#fff;}
+
+  .page{max-width:980px;margin:0 auto;padding:26px 20px 80px;}
+  .crumb{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);text-transform:uppercase;margin-bottom:14px;}
+  .crumb a{color:var(--teal);text-decoration:none;}
+
+  /* HERO */
+  .hero{position:relative;padding:30px 30px 26px;background:var(--card);border:1px solid var(--rule);
+    border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden;}
+  .hero::before{content:"";position:absolute;top:0;left:0;bottom:0;width:8px;background:linear-gradient(180deg,var(--orange),var(--teal));}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--teal);background:#E9F3F3;border:1px solid #CFE6E6;
+    padding:4px 10px;border-radius:100px;margin-bottom:12px;}
+  .hero h1{font-size:32px;line-height:1.15;}
+  .hero p.lede{font-size:16px;color:var(--ink-soft);max-width:640px;margin-top:8px;}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px;}
+  .meta-chip{font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);background:var(--paper);
+    border:1px solid var(--rule);border-radius:8px;padding:5px 10px;}
+
+  /* TABS - folder style */
+  .tabbar{display:flex;gap:5px;margin:0 0 -1px 4px;overflow-x:auto;padding-top:6px;}
+  .tabbtn{flex:0 0 auto;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.02em;
+    background:#EFE8D6;color:var(--ink-soft);border:1px solid var(--rule);border-bottom:none;
+    padding:9px 14px 11px;border-radius:10px 10px 0 0;cursor:pointer;position:relative;top:2px;white-space:nowrap;}
+  .tabbtn:hover{background:#F5EFE0;color:var(--ink);}
+  .tabbtn.active{background:var(--card);color:var(--teal-deep);font-weight:700;top:0;box-shadow:0 -2px 0 var(--orange) inset;}
+  .tabbtn.evaltab{color:var(--royal);}
+  .tabbtn.evaltab.active{box-shadow:0 -2px 0 var(--royal) inset;}
+  .panelwrap{background:var(--card);border:1px solid var(--rule);border-radius:0 12px 12px 12px;
+    padding:26px 28px 30px;box-shadow:var(--shadow);}
+  .tabpanel{display:none;animation:fade .25s ease;} .tabpanel.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  .small-caps{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);}
+  p.body-copy{font-size:15px;line-height:1.65;}
+
+  /* icon cards */
+  .card-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0;}
+  .icon-card{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:14px 15px 13px;}
+  .icon-card .ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:14px;margin-bottom:9px;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#fff;}
+  .ic.c1{background:var(--teal);} .ic.c2{background:var(--orange);} .ic.c3{background:var(--green);} .ic.c4{background:var(--red);}
+  .icon-card h4{font-size:15px;margin-bottom:4px;color:var(--ink);}
+  .icon-card p{font-size:13.5px;color:var(--ink-soft);margin:0;line-height:1.5;}
+
+  /* callouts */
+  details.callout{background:var(--orange-soft);border:1px solid #EFC6A2;border-radius:10px;padding:2px 16px;margin:14px 0;}
+  details.callout summary{cursor:pointer;font-weight:700;color:#8A3B12;padding:11px 0;list-style:none;
+    display:flex;align-items:center;gap:8px;font-size:14px;}
+  details.callout summary::-webkit-details-marker{display:none;}
+  details.callout summary::before{content:"▸";transition:transform .15s;}
+  details.callout[open] summary::before{transform:rotate(90deg);}
+  details.callout p,details.callout ul{font-size:13.8px;color:#5c3315;margin:0 0 13px;}
+  details.callout ul{padding-left:18px;}
+
+  /* task box - light royal red */
+  .task-box{background:var(--royal-bg);border-left:3px solid var(--royal);border-radius:0 10px 10px 0;
+    padding:12px 16px;margin:12px 0;}
+  .task-box p{margin:0;font-size:14.8px;color:#6b1633;}
+  .task-box p + p{margin-top:7px;}
+  .task-box b.lbl{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--royal);margin-bottom:5px;}
+  .task-box ol,.task-box ul{margin:6px 0 0;padding-left:20px;color:#6b1633;font-size:14.6px;}
+  .task-box li{margin-bottom:5px;}
+
+  /* tables */
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px;}
+  th,td{border:1px solid var(--rule);padding:7px 10px;text-align:center;}
+  th{background:var(--paper);color:var(--teal-deep);font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;}
+  td.true{color:var(--green);font-weight:700;} td.false{color:var(--red);font-weight:700;}
+  td.lbl-cell{font-family:'IBM Plex Mono',monospace;color:var(--teal-deep);font-weight:600;}
+
+  /* code */
+  pre.code{background:var(--mono-bg);color:var(--mono-ink);border-radius:10px;padding:15px 17px;overflow-x:auto;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.65;margin:12px 0;}
+  pre.code .cm{color:#8B9B87;}
+  pre.code .fn{color:#7EC7D6;}
+  pre.code .str{color:#D6B370;}
+
+  /* handwritten margin annotation */
+  .annot{font-family:'Dancing Script',cursive;font-weight:700;color:var(--orange);font-size:21px;margin:-4px 0 14px 6px;}
+  .annot::before{content:"↖ ";}
+
+  /* checkpoint header */
+  .ckpt-head{margin-bottom:6px;}
+  .ckpt-head h2{margin:0;}
+  .indep{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--orange);margin:0 0 10px;}
+
+  /* solution reveal */
+  .reveal-btn{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;background:var(--teal-deep);
+    color:#fff;border:none;border-radius:8px;padding:9px 16px;cursor:pointer;letter-spacing:.02em;margin-top:8px;}
+  .reveal-btn:hover{background:var(--teal);}
+  .solution-body{display:none;margin-top:11px;padding:13px 16px;background:var(--green-soft);border:1px solid #C7DECB;border-radius:10px;}
+  .solution-body.open{display:block;}
+  .solution-body p{margin:0 0 7px;font-size:13.5px;color:#2c4a35;}
+  .solution-body p:last-child{margin-bottom:0;}
+  .solution-body pre.code{margin:9px 0;font-size:12.5px;}
+
+  /* matrix playground */
+  .calc{background:var(--teal-deep);color:#EFF7F7;border-radius:14px;padding:20px 22px;margin:18px 0;}
+  .calc h4{color:#fff;font-size:15.5px;margin-bottom:4px;}
+  .calc p.hint{color:#B9D6D8;font-size:12.5px;margin:0 0 12px;}
+  .calc-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:4px;}
+  .calc button{background:#0F4A52;color:#DCEFF0;border:1px solid #1F5B63;border-radius:8px;padding:8px 13px;
+    font-weight:700;cursor:pointer;font-size:12px;font-family:'IBM Plex Mono',monospace;}
+  .calc button:hover{background:#146068;color:#fff;}
+  .calc button.on{background:var(--orange);border-color:var(--orange);color:#fff;}
+  .mx-stage{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;margin-top:14px;}
+  .mx-box{background:#0F4A52;border-radius:10px;padding:12px 14px;}
+  .mx-box .cap{font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
+    color:#9FC6C9;margin-bottom:7px;}
+  table.mx{border-collapse:collapse;margin:0;width:auto;}
+  table.mx td{border:1px solid #1F5B63;padding:6px 10px;font-family:'IBM Plex Mono',monospace;font-size:13px;
+    color:#fff;text-align:right;min-width:58px;}
+  table.mx td.hdr{color:#9FC6C9;font-size:10px;text-transform:uppercase;border:none;text-align:center;padding-bottom:4px;}
+  table.mx td.rowlbl{color:#9FC6C9;font-size:10.5px;border:none;text-align:right;padding-right:8px;}
+  .mx-shape{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#9FC6C9;margin-top:7px;}
+  .mx-verdict{margin-top:14px;font-size:13.5px;padding:11px 14px;border-radius:9px;line-height:1.55;}
+  .mx-verdict.good{background:#12545C;color:#D6EFE4;border-left:3px solid #6FC6A0;}
+  .mx-verdict.bad{background:#5A2A20;color:#F6D9CF;border-left:3px solid var(--orange);}
+  .mx-verdict.err{background:#4E2027;color:#F6D4D9;border-left:3px solid #E2708A;}
+  .mx-verdict b{color:#fff;}
+
+  /* chip row for shape checks */
+  .chiprow{display:flex;gap:6px;overflow-x:auto;padding:6px 2px 4px;margin:10px 0;}
+  .chip{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:8px;
+    padding:6px 9px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;border:1px solid var(--rule);}
+  .chip .m{font-size:9px;color:var(--ink-soft);} .chip .v{font-weight:700;}
+  .chip.yes{background:var(--green-soft);border-color:var(--green);color:var(--green);}
+  .chip.no{background:var(--red-soft);border-color:var(--red);color:var(--red);}
+  .chip.meh{background:var(--orange-soft);border-color:var(--orange);color:#8A3B12;}
+
+  /* handwritten sticky key points */
+  .sticky-wrap{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0;}
+  .sticky{background:#FFE58A;border-radius:3px;padding:14px 16px;font-family:'Dancing Script',cursive;font-weight:700;font-size:22px;
+    line-height:1.3;color:#4a3a08;box-shadow:3px 4px 8px rgba(0,0,0,.14);flex:1 1 220px;transform:rotate(-1deg);}
+  .sticky:nth-child(2){transform:rotate(1deg);background:#FFD6C2;color:#5c2c10;}
+  .sticky:nth-child(3){transform:rotate(-.6deg);background:#D8F0DD;color:#20452c;}
+  .sticky:nth-child(4){transform:rotate(1.2deg);background:#DCEBF5;color:#123a52;}
+  .sticky:nth-child(5){transform:rotate(-1.4deg);background:#FFE58A;color:#4a3a08;}
+  .sticky:nth-child(6){transform:rotate(.8deg);background:#FFD6C2;color:#5c2c10;}
+  .sticky b{display:block;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:10px;text-transform:uppercase;
+    letter-spacing:.05em;margin-bottom:5px;opacity:.75;}
+
+  /* viva */
+  .viva-item{border:1px solid var(--rule);border-radius:10px;margin-bottom:9px;overflow:hidden;}
+  .viva-q{padding:12px 15px;cursor:pointer;font-weight:700;font-size:14px;color:var(--teal-deep);
+    display:flex;justify-content:space-between;align-items:center;background:var(--paper);gap:10px;}
+  .viva-q .plus{font-family:'IBM Plex Mono',monospace;color:var(--orange);font-size:17px;}
+  .viva-a{display:none;padding:2px 15px 14px;font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
+  .viva-a.open{display:block;}
+
+  ul.tight{margin:8px 0;padding-left:20px;} ul.tight li{margin-bottom:6px;font-size:14.5px;}
+  ol.tight{margin:8px 0;padding-left:22px;} ol.tight li{margin-bottom:7px;font-size:14.5px;}
+
+  /* trade-off grid for Watch Out */
+  .tradeoff{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:16px 0;}
+  .to-card{border:1px solid var(--rule);border-radius:12px;padding:15px 16px;background:var(--paper);}
+  .to-card .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.07em;text-transform:uppercase;
+    padding:3px 8px;border-radius:20px;display:inline-block;margin-bottom:8px;font-weight:700;}
+  .to-card.right .tag{background:var(--green-soft);color:var(--green);border:1px solid var(--green);}
+  .to-card.wrong .tag{background:var(--red-soft);color:var(--red);border:1px solid var(--red);}
+  .to-card h4{font-size:14.5px;color:var(--ink);margin-bottom:5px;}
+  .to-card p{margin:0;font-size:13.5px;color:var(--ink-soft);line-height:1.5;}
+
+  /* panel prev/next nav */
+  .panel-nav{display:flex;justify-content:space-between;align-items:center;margin-top:30px;
+    padding-top:16px;border-top:1px dashed var(--rule);}
+  .pnav-btn{background:var(--card);border:1px solid var(--teal-deep);color:var(--teal-deep);
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:700;padding:9px 17px;
+    border-radius:20px;cursor:pointer;}
+  .pnav-btn:hover{background:var(--teal-deep);color:#fff;}
+  .pnav-btn.nextb{margin-left:auto;}
+
+  /* evaluation tab */
+  .eval-card{background:var(--royal-bg);border:1px solid #EFC3D2;border-radius:14px;padding:26px 26px;text-align:center;}
+  .eval-card h2{color:var(--royal);}
+  .eval-card p{color:#6b1633;max-width:480px;margin:8px auto 18px;}
+  .eval-btn{display:inline-block;background:var(--royal);color:#fff;font-family:'IBM Plex Mono',monospace;
+    font-weight:700;font-size:13.5px;text-decoration:none;padding:12px 26px;border-radius:24px;}
+  .eval-btn:hover{background:#7f1e3e;}
+  .eval-note{margin-top:14px;font-size:12px;color:#9b3f5c;font-family:'IBM Plex Mono',monospace;}
+
+  footer{margin-top:36px;padding-top:16px;border-top:1px dashed var(--rule);}
+  .nav-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .nav-card{flex:1;min-width:180px;background:var(--card);border:1px solid var(--rule);border-radius:12px;
+    padding:11px 14px;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);}
+  .nav-card small{display:block;font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);font-size:10.5px;text-transform:uppercase;}
+
+  @media(max-width:640px){ .hero{padding:22px 18px;} .hero h1{font-size:25px;} .panelwrap{padding:18px 16px 22px;} }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <img class="nav-logo" src="KP_Singh.png" alt="K.P. Singh"/>
+    <div>
+      <div class="nav-name">K.P. Singh</div>
+      <div class="nav-sub">SGT University · BTech 5th Sem · Section C</div>
+    </div>
+  </div>
+  <a class="nav-cta" href="https://kpsingh.in" target="_blank">kpsingh.in ↗</a>
+</nav>
+
+<div class="page">
+  <div class="crumb"><a href="index.html">MATLAB Lab</a> / Practical 2</div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <span class="eyebrow">● Session 2 · Lab Manual</span>
+    <h1>Stack It Into a Grid</h1>
+    <p class="lede">Last week you left a loose end: separate variables stop working once the data grows. Today you merge <strong>3 days of heart rate, steps and calories</strong> into one matrix — and then add, scale, multiply and invert it.</p>
+    <div class="hero-meta">
+      <span class="meta-chip">⏱ 60 min core + 20 min quiz</span>
+      <span class="meta-chip">📋 Prerequisite: Practical 1</span>
+      <span class="meta-chip">🎯 CO1 · CO2 · Matrix operations</span>
+      <span class="meta-chip">🟢 Track: Fitness Wearable</span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabbar" id="tabbar">
+    <button class="tabbtn active" data-tab="problem">The Problem</button>
+    <button class="tabbtn" data-tab="dataset">Dataset</button>
+    <button class="tabbtn" data-tab="tool">Meet the Tool</button>
+    <button class="tabbtn" data-tab="labtasks">Lab Tasks</button>
+    <button class="tabbtn" data-tab="ex1">Exercise 1</button>
+    <button class="tabbtn" data-tab="ex2">Exercise 2</button>
+    <button class="tabbtn" data-tab="ex3">Exercise 3</button>
+    <button class="tabbtn" data-tab="ex4">Exercise 4</button>
+    <button class="tabbtn" data-tab="watchout">Watch Out</button>
+    <button class="tabbtn" data-tab="viva">Recap &amp; Viva</button>
+    <button class="tabbtn evaltab" data-tab="eval">📝 Evaluation</button>
+  </div>
+
+  <div class="panelwrap">
+
+    <!-- ══════════ THE PROBLEM ══════════ -->
+    <div class="tabpanel active" id="tab-problem">
+      <p class="small-caps">Step 1 · 5 min · hands off the keyboard</p>
+      <h2>Nine variables for one week is nine too many</h2>
+      <p class="body-copy">Aarav's wearable now logs three things every day, not one: average heart rate, step count, and calories burned. The coach wants <strong>three days</strong> of it. For Aarav <em>and</em> Meera.</p>
+      <p class="body-copy">With last week's tools, that means typing this:</p>
+
+      <pre class="code"><span class="cm">% Monday</span>
+aarav_mon_hr = 106;  aarav_mon_steps = 8200;  aarav_mon_cal = 310;
+<span class="cm">% Tuesday</span>
+aarav_tue_hr =  98;  aarav_tue_steps = 6400;  aarav_tue_cal = 245;
+<span class="cm">% Wednesday ... and now do all of that again for Meera</span></pre>
+
+      <p class="body-copy">That's <strong>18 variables</strong> before you've computed anything. Now answer these, out loud, without touching MATLAB:</p>
+      <ul class="tight">
+        <li>What were Aarav's total steps across the three days?</li>
+        <li>Which day did he burn the most calories?</li>
+        <li>What's the combined step count for both runners, day by day?</li>
+        <li>Thursday's data arrives. How many lines do you edit?</li>
+      </ul>
+      <p class="annot hand">every answer needs you to hunt through 18 names</p>
+
+      <p class="small-caps" style="margin-top:26px;">Step 2 · 3 min</p>
+      <h2>And the quick fix doesn't save you</h2>
+      <p class="body-copy">"I'll just do it in Excel." Fair — for three days you can. Here's where that breaks:</p>
+
+      <div class="card-row">
+        <div class="icon-card"><div class="ic c4">1</div><h4>It doesn't remember how</h4><p>Drag a formula down and you've got answers, not a method. Next week's data means doing the whole thing again by hand.</p></div>
+        <div class="icon-card"><div class="ic c4">2</div><h4>It can't be looped</h4><p>You cannot write "do this for every runner" over eighteen separately-named variables. There's nothing to loop <em>over</em>.</p></div>
+        <div class="icon-card"><div class="ic c4">3</div><h4>It stops at three</h4><p>Practical 1's data was one runner. Today it's two. An EV battery pack has 8 cells. A drone has 4 IMUs. The approach has to survive that.</p></div>
+      </div>
+
+      <div class="task-box">
+        <b class="lbl">The promise from last week</b>
+        <p>At the end of Practical 1 you predicted this exact wall. The fix you guessed was right: <strong>put the whole thing in one grid.</strong> That grid is called a <strong>matrix</strong>, and today you learn the four things you can do to it.</p>
+      </div>
+
+      <div class="card-row">
+        <div class="icon-card"><div class="ic c1">M</div><h4>Merge &amp; address</h4><p>One name holds the whole table. <code>A(2,3)</code> reaches any single number inside it.</p></div>
+        <div class="icon-card"><div class="ic c2">±</div><h4>Add, subtract, scale</h4><p>Combine two runners' logs, or find the gap between them, in one character.</p></div>
+        <div class="icon-card"><div class="ic c3">×</div><h4>Multiply</h4><p>Turn a table of raw counts into one score per day using a rulebook.</p></div>
+        <div class="icon-card"><div class="ic c4">÷</div><h4>Invert</h4><p>Run the maths backwards to recover a rulebook nobody gave you.</p></div>
+      </div>
+    </div>
+
+    <!-- ══════════ DATASET ══════════ -->
+    <div class="tabpanel" id="tab-dataset">
+      <p class="small-caps">Case study · same runners, more data</p>
+      <h2>Aarav &amp; Meera's Three-Day Log</h2>
+      <p class="body-copy">Each <strong>row</strong> is a day. Each <strong>column</strong> is a metric. Nine numbers, one name.</p>
+
+      <p class="small-caps" style="margin-top:18px;">Aarav</p>
+      <table>
+        <tr><th>Day</th><th>Avg HR (bpm)</th><th>Steps</th><th>Calories</th></tr>
+        <tr><td class="lbl-cell">Mon</td><td>106</td><td>8200</td><td>310</td></tr>
+        <tr><td class="lbl-cell">Tue</td><td>98</td><td>6400</td><td>245</td></tr>
+        <tr><td class="lbl-cell">Wed</td><td>112</td><td>9750</td><td>388</td></tr>
+      </table>
+
+      <p class="small-caps" style="margin-top:18px;">Meera</p>
+      <table>
+        <tr><th>Day</th><th>Avg HR (bpm)</th><th>Steps</th><th>Calories</th></tr>
+        <tr><td class="lbl-cell">Mon</td><td>96</td><td>9100</td><td>355</td></tr>
+        <tr><td class="lbl-cell">Tue</td><td>92</td><td>7300</td><td>280</td></tr>
+        <tr><td class="lbl-cell">Wed</td><td>101</td><td>10400</td><td>402</td></tr>
+      </table>
+
+      <p class="body-copy">Type both into MATLAB now — every exercise below reuses these exact names:</p>
+      <pre class="code">aarav = [106  8200  310
+          98  6400  245
+         112  9750  388];
+
+meera = [ 96  9100  355
+          92  7300  280
+         101 10400  402];</pre>
+      <p class="annot hand">3 rows = 3 days · 3 columns = 3 metrics</p>
+
+      <details class="callout">
+        <summary>How does MATLAB know where the rows end?</summary>
+        <p>Inside <code>[ ]</code>, a <strong>space or comma</strong> moves you along the current row. A <strong>semicolon or a new line</strong> starts the next row. So <code>[1 2 3]</code> is one row of three, and <code>[1;2;3]</code> is three rows of one. They are different shapes and MATLAB treats them differently.</p>
+        <p>Lining the numbers up in columns like the code above is purely for your eyes — MATLAB ignores the extra spaces. Do it anyway; you will be reading this file again in the viva.</p>
+      </details>
+
+      <details class="callout">
+        <summary>Wait — the columns have different units. Is that allowed?</summary>
+        <p>Yes, and it's normal. A matrix is just a grid of numbers; it doesn't know or care that column 1 is bpm and column 2 is steps. Each <strong>column</strong> is one consistent quantity, which is what matters.</p>
+        <p>The catch: because the units differ across a row, <em>adding along a row is meaningless</em>. <code>106 + 8200 + 310</code> is not a number that describes Monday. You'll see MATLAB compute exactly that nonsense in Exercise 2 — happily and without a single warning.</p>
+      </details>
+
+      <div class="calc">
+        <h4>🔢 Try it yourself — live matrix playground</h4>
+        <p class="hint">Pick an operation. You'll see the result grid, its shape, and whether the answer actually means anything. This is exactly what MATLAB does when you type the same thing.</p>
+        <div class="calc-row" id="mxButtons"></div>
+        <div class="mx-stage" id="mxStage"></div>
+        <div class="mx-verdict good" id="mxVerdict"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ MEET THE TOOL ══════════ -->
+    <div class="tabpanel" id="tab-tool">
+      <p class="small-caps">Step 3 · 7 min · syntax on tiny examples</p>
+      <h2>Meet the Tool: four drills</h2>
+      <p class="body-copy">Small numbers, so you can check every answer in your head. Do these before touching the real data.</p>
+
+      <div class="task-box"><b class="lbl">Drill 1 · A vector is already a matrix</b><p>Type <code>size(aarav)</code>. Then bring back last week's vector: <code>hr = [72 75 88 102 110];</code> and type <code>size(hr)</code>.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('d1')">Show what happens</button>
+      <div class="solution-body" id="d1">
+        <p><code>size(aarav)</code> → <b>3 3</b> &nbsp;·&nbsp; <code>size(hr)</code> → <b>1 5</b></p>
+        <p>Nothing new happened last week — <code>hr</code> was always a matrix with one row. <code>size</code> always answers <strong>rows first, then columns</strong>. Every list you made in Practical 1 was a 1 × n matrix.</p>
+      </div>
+
+      <div class="task-box" style="margin-top:22px;"><b class="lbl">Drill 2 · Reaching inside</b><p>Type <code>aarav(2,3)</code>, then <code>aarav(:,2)</code>, then <code>aarav(3,:)</code>, then <code>aarav(end,end)</code>.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('d2')">Show what happens</button>
+      <div class="solution-body" id="d2">
+        <p><code>aarav(2,3)</code> → <b>245</b> — row 2, column 3. Tuesday's calories.</p>
+        <p><code>aarav(:,2)</code> → <b>8200; 6400; 9750</b> — the colon means "all of them", so this is the whole Steps column.</p>
+        <p><code>aarav(3,:)</code> → <b>112 9750 388</b> — all of Wednesday.</p>
+        <p><code>aarav(end,end)</code> → <b>388</b> — <code>end</code> means "last", so this is the bottom-right corner.</p>
+        <p><b>Row first, column second, counting from 1.</b> <code>aarav(3,2)</code> and <code>aarav(2,3)</code> are different numbers. Get this backwards and you'll report Tuesday's calories as Wednesday's step count.</p>
+      </div>
+
+      <div class="task-box" style="margin-top:22px;"><b class="lbl">Drill 3 · Add, subtract, scale</b><p>Build two tiny grids and try all three:</p>
+        <p><code>P = [1 2; 3 4];</code> &nbsp; <code>Q = [10 20; 30 40];</code></p>
+        <p>Type <code>P + Q</code>, then <code>Q - P</code>, then <code>10 * P</code>, then <code>P + [1 2 3]</code>.</p>
+      </div>
+      <button class="reveal-btn" onclick="toggleSolution('d3')">Show what happens</button>
+      <div class="solution-body" id="d3">
+        <p><code>P + Q</code> → <b>11 22 / 33 44</b> — matching positions added.</p>
+        <p><code>Q - P</code> → <b>9 18 / 27 36</b> — matching positions subtracted.</p>
+        <p><code>10 * P</code> → <b>10 20 / 30 40</b> — a single number multiplies <em>every</em> element. Always allowed, any shape.</p>
+        <p><code>P + [1 2 3]</code> → <b>error.</b> P is 2×2, that's 1×3. To add or subtract two grids, <strong>the shapes must match exactly</strong>.</p>
+      </div>
+
+      <div class="task-box" style="margin-top:22px;"><b class="lbl">Drill 4 · The dot changes everything</b><p>With the same P and Q, type <code>P .* Q</code> and then <code>P * Q</code>. They give different answers.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('d4')">Show the difference</button>
+      <div class="solution-body" id="d4">
+        <p><code>P .* Q</code> → <b>10 40 / 90 160</b> — the dot means "position by position". 1×10, 2×20, 3×30, 4×40. Shapes must match.</p>
+        <p><code>P * Q</code> → <b>70 100 / 150 220</b> — no dot means <strong>real matrix multiplication</strong>: walk along a row of P, down a column of Q, multiply the pairs, add them up. Top-left is 1×10 + 2×30 = 70.</p>
+        <p><b>The shape rule for <code>*</code>:</b> write the two shapes side by side. (2×<b>2</b>)·(<b>2</b>×2). If the two <em>inner</em> numbers match, it's allowed, and the answer takes the two <em>outer</em> numbers. Here that's 2×2.</p>
+        <p>That rule is the single most useful thing in today's session. You'll use it in Exercise 3 to turn a table of counts into one score per day.</p>
+      </div>
+
+      <details class="callout" style="margin-top:20px;">
+        <summary>Common beginner mistakes</summary>
+        <ul>
+          <li><code>aarav(0,1)</code> is an error. MATLAB counts from <strong>1</strong>, not 0 — different from C and Java.</li>
+          <li><code>aarav(3,4)</code> is an error too: there is no 4th column. Use <code>size</code> when you're unsure.</li>
+          <li>Building a column with commas: <code>[1,2,3]</code> is a <em>row</em>. Columns need semicolons: <code>[1;2;3]</code>.</li>
+          <li><code>*</code> and <code>.*</code> both often run without complaint, and give <strong>different answers</strong>. That's worse than an error, because nothing tells you.</li>
+        </ul>
+      </details>
+    </div>
+
+    <!-- ══════════ LAB TASKS ══════════ -->
+    <div class="tabpanel" id="tab-labtasks">
+      <p class="small-caps">Optional — extra practice</p>
+      <h2>Lab Tasks</h2>
+      <p class="body-copy">These are <strong>optional</strong> and separate from the four core Exercises. Each is a standalone one-liner on the same data, using a function you can reasonably guess from its name. Try them once the Exercises are done, or skip them if you're short on time.</p>
+
+      <div class="task-box"><b class="lbl">Task 1</b><p>Find Aarav's total steps across all three days.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t1')">Show solution</button>
+      <div class="solution-body" id="t1"><p><code>sum(aarav(:,2))</code> → <b>24350</b>. Pull the Steps column out first, then sum it.</p></div>
+
+      <div class="task-box" style="margin-top:18px;"><b class="lbl">Task 2</b><p>Find Aarav's highest single-day calorie burn.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t2')">Show solution</button>
+      <div class="solution-body" id="t2"><p><code>max(aarav(:,3))</code> → <b>388</b> (Wednesday). To also get <em>which</em> day: <code>[val, day] = max(aarav(:,3))</code> → val 388, day 3.</p></div>
+
+      <div class="task-box" style="margin-top:18px;"><b class="lbl">Task 3</b><p>Find Aarav's average heart rate over the three days.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t3')">Show solution</button>
+      <div class="solution-body" id="t3"><p><code>mean(aarav(:,1))</code> → <b>105.33</b>. Note it must be <code>mean</code>, not <code>sum</code> — three heart rates added together is not a heart rate.</p></div>
+
+      <div class="task-box" style="margin-top:18px;"><b class="lbl">Task 4</b><p>Flip the table so days become columns and metrics become rows.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t4')">Show solution</button>
+      <div class="solution-body" id="t4"><p><code>aarav'</code> — the apostrophe is <strong>transpose</strong>. <code>size(aarav')</code> → <b>3 3</b> here because it's square, but try it on <code>aarav(:,1:2)</code>: a 3×2 becomes a 2×3.</p></div>
+
+      <div class="task-box" style="margin-top:18px;"><b class="lbl">Task 5</b><p>Convert Aarav's step counts to kilometres, assuming a stride of 0.75 m.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t5')">Show solution</button>
+      <div class="solution-body" id="t5"><p><code>aarav(:,2) * 0.75 / 1000</code> → <b>6.15, 4.80, 7.3125</b> km. A scalar multiplying a column — no shape worries at all.</p></div>
+    </div>
+
+    <!-- ══════════ EXERCISE 1 ══════════ -->
+    <div class="tabpanel" id="tab-ex1">
+      <div class="ckpt-head"><h2>Checkpoint 1 — Merge and Inspect</h2></div>
+      <p class="indep">Scaffolding: fill in the blanks</p>
+      <p class="body-copy">Before you can operate on a matrix you have to be able to describe it and reach into it. Four blanks.</p>
+
+      <div class="task-box"><b class="lbl">Your task</b><p>Report the shape of Aarav's log, how many numbers it holds, Tuesday's calorie burn, and the whole Steps column.</p></div>
+      <pre class="code">
+<span class="cm">% aarav is already in your workspace from the Dataset tab</span>
+shape    = <span class="fn">____</span>(aarav);      <span class="cm">% rows and columns</span>
+how_many = <span class="fn">____</span>(aarav);      <span class="cm">% total numbers inside</span>
+tue_cal  = aarav(<span class="fn">__</span>,<span class="fn">__</span>);     <span class="cm">% Tuesday's calories</span>
+all_steps = aarav(<span class="fn">__</span>,<span class="fn">__</span>);   <span class="cm">% every day's step count</span></pre>
+      <button class="reveal-btn" onclick="toggleSolution('s1')">Show solution</button>
+      <div class="solution-body" id="s1">
+        <p><code>shape = size(aarav);</code> → <b>3 3</b> &nbsp;·&nbsp; <code>how_many = numel(aarav);</code> → <b>9</b></p>
+        <p><code>tue_cal = aarav(2,3);</code> → <b>245</b> — Tuesday is row 2, calories is column 3.</p>
+        <p><code>all_steps = aarav(:,2);</code> → <b>8200; 6400; 9750</b> — the colon takes every row.</p>
+        <p>Compare that last line to Practical 1, where reaching one reading meant <code>aarav(4)</code>. A matrix needs two coordinates instead of one. That's the only real change.</p>
+      </div>
+    </div>
+
+    <!-- ══════════ EXERCISE 2 ══════════ -->
+    <div class="tabpanel" id="tab-ex2">
+      <div class="ckpt-head"><h2>Checkpoint 2 — Team Totals and the Gap</h2></div>
+      <p class="indep">Scaffolding: partial code, you finish the lines</p>
+      <p class="body-copy">The coach wants two things: the pair's combined effort, and how far apart the two runners are.</p>
+
+      <div class="task-box"><b class="lbl">Your task</b>
+        <ol>
+          <li>Build <code>team</code> — both runners' logs combined.</li>
+          <li>Build <code>gap</code> — Meera minus Aarav. Look at the signs and write one comment line saying what a negative number means here.</li>
+          <li>Add up each <strong>column</strong> of Aarav's log. Then add up each <strong>row</strong>. One of those two answers is nonsense — say which, and why.</li>
+        </ol>
+      </div>
+      <pre class="code">
+team = aarav <span class="fn">__</span> meera;
+gap  = meera <span class="fn">__</span> aarav;
+
+down_columns  = <span class="fn">sum</span>(aarav);      <span class="cm">% what does each number mean?</span>
+across_rows   = <span class="fn">sum</span>(aarav, <span class="fn">__</span>);   <span class="cm">% and each of these?</span></pre>
+      <p class="annot hand">MATLAB will not warn you about the nonsense one</p>
+      <button class="reveal-btn" onclick="toggleSolution('s2')">Show solution</button>
+      <div class="solution-body" id="s2">
+        <p><code>team = aarav + meera;</code></p>
+        <pre class="code">   202   17300     665
+   190   13700     525
+   213   20150     790</pre>
+        <p><code>gap = meera - aarav;</code></p>
+        <pre class="code">   -10     900      45
+    -6     900      35
+   -11     650      14</pre>
+        <p>Column 1 is negative every day: <b>Meera's heart rate was lower than Aarav's on all three days</b>, while her steps and calories were higher. She did more work at a calmer heart rate.</p>
+        <p><code>sum(aarav)</code> → <b>316 &nbsp; 24350 &nbsp; 943</b> — sums go <em>down the columns</em> by default. So: three days of HR added together, total steps, total calories. Steps and calories are useful; <b>316 "total heart rate" is meaningless</b> — for that column you want <code>mean(aarav(:,1))</code> = 105.33.</p>
+        <p><code>sum(aarav,2)</code> → <b>8616 &nbsp; 6743 &nbsp; 10250</b> — the <code>2</code> means "go across the rows instead". This is the <b>nonsense one</b>: 106 + 8200 + 310 adds a heart rate to a step count to a calorie count. MATLAB computes it instantly and says nothing. <em>Legal is not the same as sensible.</em></p>
+      </div>
+
+      <details class="callout" style="margin-top:16px;">
+        <summary>Why does team = aarav + meera work at all?</summary>
+        <p>Because both are 3×3. Addition and subtraction work position by position, so they need <strong>identical shapes</strong> — same rows, same columns. Try <code>aarav + aarav(:,1)</code> and you'll see MATLAB do something surprising rather than refuse; that's a convenience feature called implicit expansion, and it's a common source of silent bugs. For now: match your shapes deliberately.</p>
+      </details>
+    </div>
+
+    <!-- ══════════ EXERCISE 3 ══════════ -->
+    <div class="tabpanel" id="tab-ex3">
+      <div class="ckpt-head"><h2>Checkpoint 3 — One Score Per Day</h2></div>
+      <p class="indep">Scaffolding: hints only, no skeleton</p>
+      <p class="body-copy">The college fitness challenge has a rulebook:</p>
+      <ul class="tight">
+        <li>Heart rate isn't scored at all — <b>0 points</b> per bpm.</li>
+        <li><b>1 point</b> per 1,000 steps → 0.001 points per step.</li>
+        <li><b>2 points</b> per 100 calories → 0.02 points per calorie.</li>
+      </ul>
+      <p class="body-copy">You need one Fit Points number per day, per runner. Notice what that actually asks for: walk along a day's row, multiply each metric by its rate, add the three results. <strong>That is matrix multiplication.</strong></p>
+
+      <div class="task-box"><b class="lbl">Your task</b>
+        <ol>
+          <li>Build the rulebook as a <strong>column</strong> called <code>rates</code>.</li>
+          <li><em>Before running anything</em>, write in a comment: what shape will <code>aarav * rates</code> be, and why? Use the inner-number rule.</li>
+          <li>Compute daily Fit Points for both runners, then each runner's three-day total.</li>
+          <li>Try <code>rates * aarav</code>. Record what happens and explain it in one line.</li>
+          <li>Try <code>aarav * meera</code>. It runs. Say in one line why the result is garbage.</li>
+        </ol>
+      </div>
+
+      <p class="body-copy" style="margin-top:18px;">Shape check first — which of these are even allowed?</p>
+      <div class="chiprow" id="shapechips"></div>
+      <p class="body-copy" style="margin-top:-2px;font-size:14px;color:var(--ink-soft);">Green = allowed and sensible. Orange = MATLAB allows it but the answer means nothing. Red = error.</p>
+
+      <details class="callout" style="margin-top:14px;">
+        <summary>Hint — why rates must be a column</summary>
+        <p><code>aarav</code> is 3×3. Write the shapes side by side and check the inner pair: (3×<b>3</b>)·(<b>3</b>×1) — inner numbers both 3, so it's allowed, and the answer is 3×1. Three rows, one column: <strong>one score per day.</strong> Exactly what you wanted.</p>
+        <p>If you build <code>rates</code> with commas you get a 1×3 row, and (3×<b>3</b>)·(<b>1</b>×3) has inner numbers 3 and 1 — error. Semicolons make columns.</p>
+      </details>
+
+      <button class="reveal-btn" onclick="toggleSolution('s3')">Show solution</button>
+      <div class="solution-body" id="s3">
+        <pre class="code">rates = [0; 0.001; 0.02];   <span class="cm">% per bpm; per step; per calorie</span>
+
+points_a = aarav * rates;   <span class="cm">% (3x3)*(3x1) -> 3x1, one score per day</span>
+points_m = meera * rates;
+
+total_a = sum(points_a);
+total_m = sum(points_m);</pre>
+        <p><b>Aarav:</b> 14.40, 11.30, 17.51 → total <b>43.21</b></p>
+        <p><b>Meera:</b> 16.20, 12.90, 18.44 → total <b>47.54</b></p>
+        <p>Check Monday for Aarav by hand: 0×106 + 0.001×8200 + 0.02×310 = 0 + 8.2 + 6.2 = <b>14.4</b>. That single number is one row of the matrix meeting one column of the rulebook. Nine such calculations happen in one keystroke.</p>
+        <p><b>Meera wins the challenge</b> despite a lower heart rate every day — the rulebook rewards steps and calories, not effort.</p>
+        <p><code>rates * aarav</code> → <b>error.</b> (3×<b>1</b>)·(<b>3</b>×3): inner numbers 1 and 3 don't match. Order matters — matrix multiplication is <em>not</em> like ordinary multiplication where 3×4 = 4×3.</p>
+        <p><code>aarav * meera</code> → runs fine, gives a 3×3. Both are 3×3 so the inner numbers match. But the result mixes Aarav's heart rate with Meera's step counts by row-and-column position. It's arithmetically valid and physically meaningless — <b>nobody warns you.</b></p>
+      </div>
+    </div>
+
+    <!-- ══════════ EXERCISE 4 ══════════ -->
+    <div class="tabpanel" id="tab-ex4">
+      <div class="ckpt-head"><h2>Checkpoint 4 — Recover the Missing Rulebook</h2></div>
+      <p class="indep">Scaffolding: none — you're on your own</p>
+      <p class="body-copy">The challenge results are up on the noticeboard: three students, three final Fit Points scores. But the page with the <strong>rulebook</strong> has been torn off. Nobody knows how many points a thousand steps was worth.</p>
+      <p class="body-copy">You do have each student's logged quantities:</p>
+      <table>
+        <tr><th>Student</th><th>Steps (thousands)</th><th>Calories (hundreds)</th><th>Active (10-min blocks)</th><th>Published points</th></tr>
+        <tr><td class="lbl-cell">Ravi</td><td>4</td><td>2</td><td>6</td><td>20</td></tr>
+        <tr><td class="lbl-cell">Priya</td><td>3</td><td>5</td><td>2</td><td>23</td></tr>
+        <tr><td class="lbl-cell">Kabir</td><td>6</td><td>1</td><td>4</td><td>19</td></tr>
+      </table>
+      <p class="body-copy">In Exercise 3 you had the rulebook and computed the scores. This is the same equation read backwards: you have the quantities and the scores, and the <em>rulebook</em> is the unknown.</p>
+
+      <div class="task-box"><b class="lbl">Your task</b>
+        <ol>
+          <li>Build the 3×3 quantity matrix <code>Q</code> (one student per row) and the scores column <code>t</code>.</li>
+          <li>Check whether a unique answer even exists — use <code>det</code> and <code>rank</code> — <em>before</em> you try to find it.</li>
+          <li>Solve it two ways: with <code>inv</code>, and with the backslash <code>\</code>.</li>
+          <li>Verify. Multiply <code>Q</code> by your answer and check you get <code>t</code> back.</li>
+          <li>Print the three point-rates as three readable sentences with <code>fprintf</code>.</li>
+        </ol>
+      </div>
+
+      <details class="callout">
+        <summary>Hint — setting the equation up</summary>
+        <p>You are looking for a column of three unknown rates, call it <code>r</code>. Each student's score is their row of quantities times that rate column. All three at once: <code>Q * r = t</code>, with Q being 3×3 and t being 3×1.</p>
+        <p>To get <code>r</code> out, you need to undo the multiplication by Q. Multiplying by the <strong>inverse</strong> of Q does that, the same way multiplying by ⅓ undoes multiplying by 3. In MATLAB that's <code>inv(Q)*t</code> — or better, <code>Q\t</code>.</p>
+        <p>If your <code>t</code> prints as one row, you built it with commas. Rebuild it with semicolons.</p>
+      </details>
+
+      <button class="reveal-btn" onclick="toggleSolution('s4')">Show solution</button>
+      <div class="solution-body" id="s4">
+        <pre class="code">Q = [4 2 6
+     3 5 2
+     6 1 4];
+t = [20; 23; 19];
+
+det(Q)          <span class="cm">% -90  : not zero, so an inverse exists</span>
+rank(Q)         <span class="cm">%   3  : full rank, so the answer is unique</span>
+
+r_inv = inv(Q)*t
+r_bs  = Q\t     <span class="cm">% same answer, and the better habit</span>
+
+Q*r_bs          <span class="cm">% 20 23 19 — matches t, so we're right</span></pre>
+        <p>Both methods give <b>r = 2, 3, 1</b>. The missing rulebook was: <b>2 points per 1,000 steps, 3 points per 100 calories, 1 point per 10 active minutes.</b></p>
+        <p>Hand-check Ravi: 4×2 + 2×3 + 6×1 = 8 + 6 + 6 = <b>20</b>. ✓</p>
+        <p><b>Why check <code>det</code> first?</b> If <code>det(Q)</code> had been 0, there would be no inverse and no unique answer — and you'd want to know that <em>before</em> wasting time. <code>rank</code> tells you how badly it failed: a rank of 3 on a 3×3 means all three rows carry genuinely new information.</p>
+        <p><b>Why prefer <code>Q\t</code>?</b> Backslash solves the equation directly instead of building a whole inverse matrix and then throwing it away. It's faster and more accurate. Reach for <code>inv</code> only when you actually want the inverse matrix itself as an object.</p>
+        <p><b>Loose end for next week:</b> Aarav's wearable reports raw sensor counts, not true bpm — and the calibration constants that convert one to the other are unknown. That's the same trick you just did, on a system that <em>doesn't</em> have a neat square matrix. Next session: solving linear equations properly, and finding out when inverting is the wrong move.</p>
+      </div>
+    </div>
+
+    <!-- ══════════ WATCH OUT ══════════ -->
+    <div class="tabpanel" id="tab-watchout">
+      <p class="small-caps">Step 5 · 3 min · the trade-off</p>
+      <h2>Watch Out: when the grid is the wrong tool</h2>
+      <p class="body-copy">A matrix is powerful because it treats everything as an anonymous grid of numbers. That's also exactly what makes it dangerous.</p>
+
+      <div class="tradeoff">
+        <div class="to-card right"><span class="tag">Right tool</span><h4>Same kind of thing, rectangular</h4><p>3 days × 3 metrics. 8 battery cells × 2 readings. 4 IMUs × 3 axes. Every row the same length, every column one consistent quantity.</p></div>
+        <div class="to-card wrong"><span class="tag">Wrong tool</span><h4>Ragged data</h4><p>Monday you logged 15 readings, Tuesday only 9. A matrix must be rectangular, so you'd have to pad with fakes. Later sessions give you tables and cell arrays for this.</p></div>
+        <div class="to-card wrong"><span class="tag">Wrong tool</span><h4>Text mixed with numbers</h4><p>Runner names, day labels, device IDs. A numeric matrix can't hold them. Keep labels in a separate variable — that's why we kept day names out of the grid.</p></div>
+        <div class="to-card right"><span class="tag">Right tool</span><h4>Same operation, every element</h4><p>Convert all steps to kilometres, add two weeks together, score a whole table against a rulebook. One line, no loop.</p></div>
+      </div>
+
+      <p class="small-caps" style="margin-top:24px;">Four ways today's tools bite quietly</p>
+      <table>
+        <tr><th>Trap</th><th>What it looks like</th><th>How to avoid it</th></tr>
+        <tr>
+          <td class="lbl-cell">Row sums across<br>mixed units</td>
+          <td><code>sum(aarav,2)</code> returns 8616. No error, no warning.</td>
+          <td>Ask "does this number have a unit?" before trusting it.</td>
+        </tr>
+        <tr>
+          <td class="lbl-cell"><code>*</code> where you<br>meant <code>.*</code></td>
+          <td>Both run on two 3×3 grids. Different answers. Silence.</td>
+          <td>Hand-check one entry against a calculator, every time.</td>
+        </tr>
+        <tr>
+          <td class="lbl-cell">Assuming order<br>doesn't matter</td>
+          <td><code>rates*aarav</code> errors; <code>aarav*rates</code> works.</td>
+          <td>Write both shapes down. Check the inner pair first.</td>
+        </tr>
+        <tr>
+          <td class="lbl-cell">Inverting without<br>checking</td>
+          <td><code>inv</code> returns <code>Inf</code> everywhere and a warning you scrolled past.</td>
+          <td>Check <code>det</code> and <code>rank</code> first. Use <code>\</code> to solve.</td>
+        </tr>
+      </table>
+
+      <details class="callout">
+        <summary>Try breaking the inverse on purpose (30 seconds)</summary>
+        <p>Suppose Priya's log had been <em>exactly double</em> Ravi's — same activities, twice as much of everything:</p>
+        <p><code>Qbad = [4 2 6; 8 4 12; 6 1 4];</code></p>
+        <p>Run <code>det(Qbad)</code> → <b>0</b>, and <code>rank(Qbad)</code> → <b>2</b>. Then <code>inv(Qbad)</code> warns that the matrix is <em>singular to working precision</em> and hands you <code>Inf</code>.</p>
+        <p>Why: Priya's row tells you nothing Ravi's row didn't already say. Two real facts, three unknowns — the rulebook can't be pinned down. That's a <strong>data</strong> problem, not a coding one, and no amount of retyping will fix it.</p>
+      </details>
+
+      <details class="callout">
+        <summary>One more oddity you'll hit: −0.0000</summary>
+        <p>Type <code>Q*inv(Q)</code>. You should get the identity matrix — 1s down the diagonal, 0s elsewhere. You'll mostly get that, plus the odd <code>-0.0000</code>, and <code>isequal(Q*inv(Q), eye(3))</code> will say <b>false</b>.</p>
+        <p>Nothing is broken. Computers store decimals approximately, so the answer lands about 0.0000000000000001 away from exact. When you need to check "is this the identity?", compare with a tolerance instead: <code>norm(Q*inv(Q) - eye(3)) &lt; 1e-10</code>.</p>
+      </details>
+    </div>
+
+    <!-- ══════════ RECAP & VIVA ══════════ -->
+    <div class="tabpanel" id="tab-viva">
+      <p class="small-caps">Step 6 · 7 min · quick self-check</p>
+      <h2>Recap &amp; Viva Prep</h2>
+
+      <div class="sticky-wrap">
+        <div class="sticky"><b>Shape first</b>size(A) = rows, then columns. Always that order.</div>
+        <div class="sticky"><b>Two coordinates</b>A(2,3) = row 2, column 3. Counting from 1.</div>
+        <div class="sticky"><b>+ and −</b>Shapes must match exactly. A scalar is always allowed.</div>
+        <div class="sticky"><b>The dot rule</b>.* is position-by-position. * is rows meeting columns.</div>
+        <div class="sticky"><b>Inner numbers</b>(3×3)·(3×1) works → answer is 3×1. Check before you type.</div>
+        <div class="sticky"><b>Before inverting</b>det ≠ 0 and full rank. Then use A\b, not inv.</div>
+      </div>
+
+      <p class="small-caps" style="margin-top:24px;">Be ready to answer</p>
+      <div id="vivalist"></div>
+
+      <div class="task-box" style="margin-top:22px;">
+        <b class="lbl">Before you leave</b>
+        <p>Save your script as <code>&lt;YourRoll&gt;_Lab2.m</code> with every exercise commented by number, and submit it as directed. Keep a copy — Practical 3 starts from the matrices you built today.</p>
+      </div>
+    </div>
+
+    <!-- ══════════ EVALUATION ══════════ -->
+    <div class="tabpanel" id="tab-eval">
+      <div class="eval-card">
+        <span class="small-caps" style="color:var(--royal);">Session 2</span>
+        <h2>Lab 2 Evaluation</h2>
+        <p>A short quiz covering today's session — building and addressing matrices, addition and subtraction, the dot rule, matrix multiplication, and inversion. Complete it once you've finished all four exercises.</p>
+        <a class="eval-btn" href="lab2-evaluation.html" target="_blank">Take the Evaluation ↗</a>
+        <div class="eval-note">Link will be updated once the quiz is published on kpsingh.in/matlab</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="nav-row">
+      <a class="nav-card" href="session-02.html"><small>Interactive</small>Class Session Page</a>
+      <a class="nav-card" href="practical-1.html"><small>← Previous</small>Practical 1 · Meet Your Workspace</a>
+      <a class="nav-card" href="index.html"><small>← Back to</small>Course Spine</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+  const TAB_ORDER = [
+    { id: 'problem',  label: 'The Problem' },
+    { id: 'dataset',  label: 'Dataset' },
+    { id: 'tool',     label: 'Meet the Tool' },
+    { id: 'labtasks', label: 'Lab Tasks' },
+    { id: 'ex1',      label: 'Exercise 1' },
+    { id: 'ex2',      label: 'Exercise 2' },
+    { id: 'ex3',      label: 'Exercise 3' },
+    { id: 'ex4',      label: 'Exercise 4' },
+    { id: 'watchout', label: 'Watch Out' },
+    { id: 'viva',     label: 'Recap & Viva' },
+    { id: 'eval',     label: 'Evaluation' }
+  ];
+
+  function showTab(id){
+    document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+    document.querySelector('.tabbtn[data-tab="'+id+'"]').classList.add('active');
+    document.getElementById('tab-'+id).classList.add('active');
+    document.getElementById('tabbar').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  document.querySelectorAll('.tabbtn').forEach(btn=>{
+    btn.addEventListener('click', ()=> showTab(btn.dataset.tab));
+  });
+
+  function buildPanelNav(){
+    TAB_ORDER.forEach((t, i)=>{
+      const panel = document.getElementById('tab-'+t.id);
+      if(!panel) return;
+      const prev = TAB_ORDER[i-1];
+      const next = TAB_ORDER[i+1];
+      const nav = document.createElement('div');
+      nav.className = 'panel-nav';
+      nav.innerHTML =
+        (prev ? '<button class="pnav-btn prevb" onclick="showTab(\''+prev.id+'\')">&larr; '+prev.label+'</button>' : '<span></span>') +
+        (next ? '<button class="pnav-btn nextb" onclick="showTab(\''+next.id+'\')">'+next.label+' &rarr;</button>' : '<span></span>');
+      panel.appendChild(nav);
+    });
+  }
+
+  function toggleSolution(id){
+    const el = document.getElementById(id);
+    const open = el.classList.toggle('open');
+    const btn = el.previousElementSibling;
+    const label = btn.textContent.includes('happens') ? 'Show what happens'
+                 : btn.textContent.includes('actually') ? 'Show what actually happens'
+                 : btn.textContent.includes('difference') ? 'Show the difference'
+                 : 'Show solution';
+    btn.textContent = open ? label.replace('Show','Hide') : label;
+  }
+
+  /* ───────── live matrix playground ───────── */
+  (function(){
+    const AARAV = [[106,8200,310],[98,6400,245],[112,9750,388]];
+    const MEERA = [[96,9100,355],[92,7300,280],[101,10400,402]];
+    const RATES = [[0],[0.001],[0.02]];
+    const DAYS  = ['Mon','Tue','Wed'];
+    const METS  = ['avgHR','steps','cal'];
+
+    const OPS = [
+      { key:'add',   label:'aarav + meera', kind:'good' },
+      { key:'sub',   label:'meera - aarav', kind:'good' },
+      { key:'scal',  label:'2 * aarav',     kind:'good' },
+      { key:'mul',   label:'aarav * rates', kind:'good' },
+      { key:'dot',   label:'aarav .* meera',kind:'bad'  },
+      { key:'mm',    label:'aarav * meera', kind:'bad'  },
+      { key:'bad',   label:'rates * aarav', kind:'err'  },
+      { key:'rowsum',label:'sum(aarav,2)',  kind:'bad'  }
+    ];
+
+    const NOTES = {
+      add:   ['Allowed and useful.','Both grids are 3&times;3, so matching positions add up. Monday steps: 8200 + 9100 = <b>17300</b>. Result stays 3&times;3.'],
+      sub:   ['Allowed and useful.','Column 1 is negative every day &mdash; Meera ran at a <b>lower heart rate</b> than Aarav all three days, while logging more steps and calories.'],
+      scal:  ['Always allowed.','A single number multiplies every element. Shapes never matter for a scalar. Useful for unit conversion.'],
+      mul:   ['This is the payoff.','(3&times;<b>3</b>)&middot;(<b>3</b>&times;1): inner numbers match, so the answer is 3&times;1 &mdash; <b>one Fit Points score per day</b>. Monday: 0&times;106 + 0.001&times;8200 + 0.02&times;310 = 14.4'],
+      dot:   ['Runs, but meaningless.','The dot multiplies matching positions, so this gives bpm&times;bpm and steps&times;steps. Arithmetically fine, physically nonsense. <b>No warning appears.</b>'],
+      mm:    ['Runs, but meaningless.','Both are 3&times;3 so the inner numbers match. But it mixes Aarav&rsquo;s heart rate with Meera&rsquo;s step counts by position. <b>The most dangerous kind of mistake &mdash; it looks like an answer.</b>'],
+      bad:   ['Error.','(3&times;<b>1</b>)&middot;(<b>3</b>&times;3): inner numbers 1 and 3 disagree, so MATLAB refuses. <b>Order matters</b> in matrix multiplication.'],
+      rowsum:['Runs, but meaningless.','Adding across a row means 106 + 8200 + 310 &mdash; a heart rate plus a step count plus a calorie count. The columns have different units, so the row total has no unit at all.']
+    };
+
+    const btnRow = document.getElementById('mxButtons');
+    const stage  = document.getElementById('mxStage');
+    const verdict= document.getElementById('mxVerdict');
+
+    function grid(m, cap, rowLabels, colLabels){
+      let h = '<div class="mx-box"><div class="cap">'+cap+'</div><table class="mx">';
+      if(colLabels){
+        h += '<tr><td class="rowlbl"></td>';
+        colLabels.forEach(c=> h += '<td class="hdr">'+c+'</td>');
+        h += '</tr>';
+      }
+      m.forEach((row,i)=>{
+        h += '<tr>';
+        h += '<td class="rowlbl">'+(rowLabels ? rowLabels[i] : '')+'</td>';
+        row.forEach(v=>{
+          let s = (Math.abs(v) >= 1000 || Number.isInteger(v)) ? v.toLocaleString('en-US')
+                 : (Math.abs(v) < 1 ? v.toString() : v.toFixed(2));
+          h += '<td>'+s+'</td>';
+        });
+        h += '</tr>';
+      });
+      h += '</table><div class="mx-shape">'+m.length+' &times; '+m[0].length+'</div></div>';
+      return h;
+    }
+
+    function ew(A,B,f){ return A.map((r,i)=> r.map((v,j)=> f(v, B[i][j]))); }
+    function matmul(A,B){
+      const n=A.length, m=B[0].length, k=B.length;
+      const out=[];
+      for(let i=0;i<n;i++){
+        out.push([]);
+        for(let j=0;j<m;j++){
+          let s=0;
+          for(let x=0;x<k;x++) s += A[i][x]*B[x][j];
+          out[i].push(Math.round(s*1000)/1000);
+        }
+      }
+      return out;
+    }
+
+    function run(key){
+      document.querySelectorAll('#mxButtons button').forEach(b=>b.classList.toggle('on', b.dataset.key===key));
+      const op = OPS.find(o=>o.key===key);
+      let html = '';
+      let res = null, cap = '', rl = DAYS, cl = METS;
+
+      if(key==='add'){ res = ew(AARAV,MEERA,(a,b)=>a+b); cap='aarav + meera'; }
+      if(key==='sub'){ res = ew(MEERA,AARAV,(a,b)=>a-b); cap='meera - aarav'; }
+      if(key==='scal'){ res = AARAV.map(r=>r.map(v=>v*2)); cap='2 * aarav'; }
+      if(key==='dot'){ res = ew(AARAV,MEERA,(a,b)=>a*b); cap='aarav .* meera'; }
+      if(key==='mul'){ res = matmul(AARAV,RATES); cap='aarav * rates'; cl=['points']; }
+      if(key==='mm'){ res = matmul(AARAV,MEERA); cap='aarav * meera'; cl=['?','?','?']; }
+      if(key==='rowsum'){ res = AARAV.map(r=>[r.reduce((a,b)=>a+b,0)]); cap='sum(aarav,2)'; cl=['?']; }
+
+      html += grid(AARAV,'aarav',DAYS,METS);
+      if(key==='add'||key==='sub'||key==='dot'||key==='mm') html += grid(MEERA,'meera',DAYS,METS);
+      if(key==='mul'||key==='bad') html += grid(RATES,'rates',METS,['pts/unit']);
+
+      if(key==='bad'){
+        html += '<div class="mx-box"><div class="cap">rates * aarav</div>'+
+                '<table class="mx"><tr><td style="color:#F6D4D9;border-color:#7A3540;">Error</td></tr></table>'+
+                '<div class="mx-shape">(3 &times; 1) &middot; (3 &times; 3)</div></div>';
+      } else if(res){
+        html += grid(res, cap, key==='rowsum'?DAYS:DAYS, cl);
+      }
+
+      stage.innerHTML = html;
+      verdict.className = 'mx-verdict ' + op.kind;
+      verdict.innerHTML = '<b>'+NOTES[key][0]+'</b> ' + NOTES[key][1];
+    }
+
+    OPS.forEach(o=>{
+      const b = document.createElement('button');
+      b.textContent = o.label;
+      b.dataset.key = o.key;
+      b.addEventListener('click', ()=> run(o.key));
+      btnRow.appendChild(b);
+    });
+
+    document.addEventListener('DOMContentLoaded', ()=> run('add'));
+  })();
+
+  /* ───────── shape-check chips (Exercise 3) ───────── */
+  (function(){
+    const checks = [
+      ['aarav + meera',   '3x3 + 3x3',   'yes'],
+      ['aarav * rates',   '3x3 · 3x1',   'yes'],
+      ['aarav .* meera',  '3x3 .* 3x3',  'meh'],
+      ['aarav * meera',   '3x3 · 3x3',   'meh'],
+      ['rates * aarav',   '3x1 · 3x3',   'no' ],
+      ['aarav + rates',   '3x3 + 3x1',   'no' ],
+      ["aarav * meera'",  '3x3 · 3x3',   'meh'],
+      ['2 * aarav',       'scalar · 3x3','yes']
+    ];
+    const row = document.getElementById('shapechips');
+    if(!row) return;
+    checks.forEach(([expr, shape, verdict])=>{
+      const mark = verdict==='yes' ? '&#10003;' : verdict==='no' ? '&#10007;' : '!';
+      const el = document.createElement('div');
+      el.className = 'chip ' + verdict;
+      el.innerHTML = '<span class="m">'+shape+'</span><span class="v">'+expr+'</span><span>'+mark+'</span>';
+      row.appendChild(el);
+    });
+  })();
+
+  /* ───────── viva accordion ───────── */
+  (function(){
+    const qa = [
+      ['What does size(A) tell you, and in what order?','Rows first, then columns. For a 3-day, 3-metric log it returns 3 3. numel(A) is different - it counts all nine numbers.'],
+      ['How do you get every day\u2019s step count in one command?','aarav(:,2) - the colon means "all rows", 2 is the Steps column.'],
+      ['Why does aarav(3,2) differ from aarav(2,3)?','Because the first number is always the row and the second is always the column. One is Wednesday\u2019s steps, the other is Tuesday\u2019s calories.'],
+      ['What rule decides whether A + B is allowed?','The shapes must match exactly - same rows, same columns. A single number (scalar) is the exception; it can multiply or add to anything.'],
+      ['Difference between A .* B and A * B?','.* multiplies matching positions and needs identical shapes. * is matrix multiplication - it walks a row of A against a column of B - and needs the inner dimensions to match.'],
+      ['aarav is 3x3 and rates is 3x1. What shape is aarav*rates, and why?','3x1. Write it as (3x3)(3x1): the inner numbers are both 3 so it is allowed, and the answer takes the outer numbers. One score per day.'],
+      ['Is matrix multiplication commutative?','No. aarav*rates works; rates*aarav is an error. Even when both orders are legal, the answers usually differ.'],
+      ['sum(aarav) gives 316 for the first column. What is wrong with that number?','Nothing arithmetically, but three heart rates added together is not a heart rate. That column needs mean(), not sum().'],
+      ['What must be true before a matrix can be inverted?','It must be square, and non-singular - det not zero, equivalently full rank. Check with det and rank.'],
+      ['Difference between inv(Q)*t and Q\\t?','Both solve Q*r = t. Backslash solves it directly without building the inverse, so it is faster and more accurate. Prefer Q\\t.'],
+      ['inv() returns Inf everywhere. What does that tell you?','The matrix is singular - some row repeats information another row already gave. It is a problem with the data, not with your code.'],
+      ['Why does isequal(Q*inv(Q), eye(3)) return false?','Decimals are stored approximately, so the result lands about 1e-16 away from exact. Compare with a tolerance instead of exact equality.']
+    ];
+    const wrap = document.getElementById('vivalist');
+    if(!wrap) return;
+    qa.forEach(([q,a])=>{
+      const item = document.createElement('div');
+      item.className = 'viva-item';
+      const qDiv = document.createElement('div');
+      qDiv.className = 'viva-q';
+      qDiv.innerHTML = '<span>'+q+'</span><span class="plus">+</span>';
+      const aDiv = document.createElement('div');
+      aDiv.className = 'viva-a';
+      aDiv.innerHTML = '<p>'+a+'</p>';
+      qDiv.addEventListener('click', ()=>{
+        const open = aDiv.classList.toggle('open');
+        qDiv.querySelector('.plus').textContent = open ? '-' : '+';
+      });
+      item.appendChild(qDiv); item.appendChild(aDiv);
+      wrap.appendChild(item);
+    });
+  })();
+
+  document.addEventListener('DOMContentLoaded', buildPanelNav);
+</script>
+</body>
+</html>
