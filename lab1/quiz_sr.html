@@ -2024,37 +2024,54 @@
     const weakest = sortedTopics.slice(0, 2).map(t => t[0]).join(', ');
     topicHtml += `<div class="focus-next">📌 Focus next: ${weakest}</div>`;
 
-    // Reflection (Layer 2)
+    // Reflection (Layer 2) — short, per-topic-accurate note (max 2 highlights, not one line per topic)
     let reflectionHtml = '';
     if (QUIZ_CONFIG.reflectionLayerEnabled) {
-      const reflectionLines = [];
-      sortedTopics.forEach(([topic, stats]) => {
-        const acc = stats.correct / stats.total;
-        const avgConf = Object.values(confAnswers).filter(c => c !== null).length > 0
-          ? Object.entries(studentAnswers).reduce((sum, [i, ans]) => sum + (confAnswers[i] || 0), 0) / Object.values(confAnswers).filter(c => c !== null).length
-          : 0;
-
-        if (acc >= 0.75 && avgConf >= 2.5) {
-          reflectionLines.push(`You backed yourself on <strong>${topic}</strong> and delivered — great judgement. 🎯`);
-        } else if (acc < 0.5 && avgConf >= 2) {
-          reflectionLines.push(`You felt sure on <strong>${topic}</strong>, but a few slipped away — a focused revisit will lock it in.`);
-        } else if (acc >= 0.75 && avgConf < 2) {
-          reflectionLines.push(`You knew more about <strong>${topic}</strong> than you gave yourself credit for — trust that instinct.`);
-        } else if (acc < 0.5 && avgConf < 2) {
-          reflectionLines.push(`You sensed <strong>${topic}</strong> needed work, and you were right — that awareness is where improvement starts.`);
+      // Per-topic average confidence (only over that topic's own questions)
+      const topicConf = {};
+      quizQuestions.forEach((q, i) => {
+        const t = q.tag;
+        if (!topicConf[t]) topicConf[t] = { sum: 0, count: 0 };
+        if (confAnswers[i]) {
+          topicConf[t].sum += confAnswers[i];
+          topicConf[t].count++;
         }
       });
 
+      const topicSummaries = sortedTopics.map(([topic, stats]) => {
+        const c = topicConf[topic];
+        return {
+          topic,
+          acc: stats.correct / stats.total,
+          avgConf: c && c.count > 0 ? c.sum / c.count : 0
+        };
+      });
+
+      const strongest = topicSummaries.reduce((best, t) => (t.acc > best.acc ? t : best), topicSummaries[0]);
+      const weakest = topicSummaries[0]; // sortedTopics is sorted ascending by accuracy
+
+      const reflectionLines = [];
+
+      if (strongest.acc >= 0.75) {
+        reflectionLines.push(strongest.avgConf >= 2.5
+          ? `You backed yourself on <strong>${strongest.topic}</strong> and delivered — great judgement. 🎯`
+          : `You knew more about <strong>${strongest.topic}</strong> than you gave yourself credit for.`);
+      }
+
+      if (weakest.topic !== strongest.topic && weakest.acc < 0.75) {
+        reflectionLines.push(weakest.avgConf >= 2
+          ? `You felt sure on <strong>${weakest.topic}</strong>, but a few slipped away — worth a quick revisit.`
+          : `<strong>${weakest.topic}</strong> is your best next focus area.`);
+      }
+
       reflectionLines.push("Keep going — this is how mastery is built. 🚀");
 
-      if (reflectionLines.length > 0) {
-        reflectionHtml = `
-          <div class="reflection-block show" id="reflection-block">
-            <div class="reflection-title">A Note on Your Quiz</div>
-            ${reflectionLines.map(line => `<div class="reflection-text">${line}</div>`).join('')}
-          </div>
-        `;
-      }
+      reflectionHtml = `
+        <div class="reflection-block show" id="reflection-block">
+          <div class="reflection-title">A Note on Your Quiz</div>
+          ${reflectionLines.map(line => `<div class="reflection-text">${line}</div>`).join('')}
+        </div>
+      `;
     }
 
     // Render result screen
