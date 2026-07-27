@@ -2197,24 +2197,66 @@
 
   function loadLeaderboard() {
     const widgetBody = document.getElementById('lb-widget-body');
-    widgetBody.innerHTML = '<div class="lb-spinner">Loading...</div>';
-    // Simulated leaderboard (in production, fetch from backend)
-    setTimeout(() => {
-      widgetBody.innerHTML = `
-        <div class="lb-row">
-          <div class="lb-medal">🥇</div>
-          <div class="lb-rank">1</div>
-          <div class="lb-name">Priya Sharma</div>
-          <div class="lb-details">DD221BCA001 · C</div>
-          <div class="lb-score">28/30</div>
-        </div>
-      `;
-    }, 500);
+    widgetBody.innerHTML = '<div class="lb-spinner">Loading leaderboard...</div>';
+
+    fetch(`${QUIZ_CONFIG.sheetUrl}?action=leaderboard`)
+      .then(res => res.json())
+      .then(data => renderLeaderboardWidget(data))
+      .catch(() => {
+        widgetBody.innerHTML = '<div class="lb-empty">Leaderboard unavailable right now.</div>';
+      });
+  }
+
+  function renderLeaderboardWidget(data) {
+    const widgetBody = document.getElementById('lb-widget-body');
+    if (!data || data.length === 0) {
+      widgetBody.innerHTML = '<div class="lb-empty">No submissions yet — be the first!</div>';
+      return;
+    }
+    const medals = ['🥇', '🥈', '🥉'];
+    widgetBody.innerHTML = data.map((s, i) => `
+      <div class="lb-row">
+        <div class="lb-medal">${medals[i] || ''}</div>
+        <div class="lb-rank">${i + 1}</div>
+        <div class="lb-name">${s.name || '—'}</div>
+        <div class="lb-details">${s.roll || ''} · ${s.section || ''}</div>
+        <div class="lb-score">${s.score}/${s.total}</div>
+      </div>
+    `).join('');
   }
 
   function showLeaderboard() {
     showScreen('lb-screen');
-    document.getElementById('lb-table-body').innerHTML = '<div style="padding: 32px; text-align: center; color: var(--ink-soft); font-size: 13px;">Loading leaderboard...</div>';
+    const tableBody = document.getElementById('lb-table-body');
+    tableBody.innerHTML = '<div style="padding: 32px; text-align: center; color: var(--ink-soft); font-size: 13px;">Loading leaderboard...</div>';
+
+    fetch(`${QUIZ_CONFIG.sheetUrl}?action=leaderboard`)
+      .then(res => res.json())
+      .then(data => renderLeaderboardTable(data))
+      .catch(() => {
+        tableBody.innerHTML = '<div style="padding: 32px; text-align: center; color: var(--rose); font-size: 13px;">Could not load leaderboard. Check your connection and try again.</div>';
+      });
+  }
+
+  function renderLeaderboardTable(data) {
+    const tableBody = document.getElementById('lb-table-body');
+    if (!data || data.length === 0) {
+      tableBody.innerHTML = '<div style="padding: 32px; text-align: center; color: var(--ink-soft); font-size: 13px;">No submissions yet.</div>';
+      return;
+    }
+    const medals = ['🥇', '🥈', '🥉'];
+    tableBody.innerHTML = data.map((s, i) => `
+      <div class="lb-table-row">
+        <div class="lb-table-medal">${medals[i] || (i + 1)}</div>
+        <div>
+          <div class="lb-table-name">${s.name || '—'}</div>
+          <div class="lb-table-roll">${s.roll || ''}</div>
+        </div>
+        <div class="lb-table-score">${s.score}/${s.total}</div>
+        <div class="lb-table-cell">${s.percentage}%</div>
+        <div class="lb-table-grade">${s.grade || '—'}</div>
+      </div>
+    `).join('');
   }
 
   function backFromLeaderboard() {
