@@ -1320,7 +1320,7 @@
     <!-- Leaderboard Widget -->
     <div class="lb-widget">
       <div class="lb-header">
-        <span class="lb-live-dot"></span>🏆 Top 5 Students
+        <span class="lb-live-dot"></span>🏆 Top 10 Students
       </div>
       <div class="lb-body" id="lb-widget-body">
         <div class="lb-spinner">Loading leaderboard...</div>
@@ -1418,7 +1418,7 @@
   <div class="lb-container">
     <a class="lb-back-btn" href="#" onclick="backFromLeaderboard(); return false;">← Back</a>
     <h1 class="lb-title">🏆 Leaderboard</h1>
-    <p class="lb-subtitle">MATLAB Lab 1 Quiz · Top 5 · Best Attempt Per Student</p>
+    <p class="lb-subtitle">MATLAB Lab 1 Quiz · Top 10 · Best Attempt Per Student</p>
     
     <div class="lb-table">
       <div class="lb-table-header">
@@ -1444,10 +1444,10 @@
     quizCode: 'MATLAB-L1-SR',
     elicitationMode: 'SR',
     reflectionLayerEnabled: true,
-    sheetUrl: 'https://script.google.com/macros/s/AKfycbwQ3nR7V6LJxt2CbNSkXtuKX3CkuEw1oPGZIWEcBD9ZGHx7y6BgQSJWpEVxnF5HwJ-g/exec',
+    sheetUrl: 'https://script.google.com/macros/s/AKfycbwblUz24djFrXXHM8bJMkDey9GIiP1drlp2SWLom81WABlB7XjqEgz8vXZK8zxLEOd5/exec',
     timeLimit: 15 * 60, // seconds
     totalQuestions: 30,
-    lbSize: 5
+    lbSize: 10
   };
 
   // ═══ QUIZ DATA ═══
@@ -1739,6 +1739,7 @@
   let quizQuestions = [];
   let questionIndexMap = {};
   let tabSwitchCount = 0;
+  let submitWarningShown = false;
 
   // ═══ INITIALIZATION ═══
   function init() {
@@ -1746,6 +1747,11 @@
     loadLeaderboard();
     setupTimerUpdate();
     setupTabSwitchDetection();
+  }
+
+  function setupTimerUpdate() {
+    // Timer countdown itself is driven by startTimer() once the quiz begins;
+    // nothing to wire up before then.
   }
 
   function shuffleQuestions() {
@@ -1944,12 +1950,12 @@
 
   function submitQuiz() {
     const unanswered = Object.values(studentAnswers).filter(a => a === null).length;
-    const unrated = Object.values(confAnswers).filter(c => c === null).length;
 
-    if (unanswered > 0) {
+    if (unanswered > 0 && !submitWarningShown) {
       const warn = document.getElementById('unanswered-warning');
-      warn.textContent = `⚠️ ${unanswered} question(s) not answered. You may still submit.`;
+      warn.textContent = `⚠️ ${unanswered} question(s) not answered. This is your one-time warning — click "Submit Quiz" again to confirm and finish.`;
       warn.classList.add('show');
+      submitWarningShown = true;
       return;
     }
 
