@@ -1277,6 +1277,7 @@
             <li>Vector Operations</li>
             <li>Data Output & Formatting</li>
             <li>Data Analysis Workflow</li>
+            <li>Problem Scaling & Matrices</li>
           </ul>
         </div>
 
@@ -1443,7 +1444,7 @@
     quizCode: 'MATLAB-L1-SR',
     elicitationMode: 'SR',
     reflectionLayerEnabled: true,
-    sheetUrl: 'https://script.google.com/macros/s/AKfycbytAxGPtX500Tj3PRKFB1syPBQpWCB-mG-L4raUlCk5IGi60fAPfY56ecOaSWbKDnZR/exec',
+    sheetUrl: 'https://script.google.com/macros/s/AKfycbwblUz24djFrXXHM8bJMkDey9GIiP1drlp2SWLom81WABlB7XjqEgz8vXZK8zxLEOd5/exec',
     timeLimit: 15 * 60, // seconds
     totalQuestions: 30,
     lbSize: 10
@@ -2029,7 +2030,7 @@
       const reflectionLines = [];
       sortedTopics.forEach(([topic, stats]) => {
         const acc = stats.correct / stats.total;
-        const avgConf = confAnswers.filter(c => c !== null).length > 0
+        const avgConf = Object.values(confAnswers).filter(c => c !== null).length > 0
           ? Object.entries(studentAnswers).reduce((sum, [i, ans]) => sum + (confAnswers[i] || 0), 0) / Object.values(confAnswers).filter(c => c !== null).length
           : 0;
 
