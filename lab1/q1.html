@@ -706,6 +706,66 @@
       line-height: 1.5;
     }
 
+    /* ═══ REVIEW MODE STATES ═══ */
+    .option-btn.review-disabled {
+      cursor: default;
+    }
+
+    .option-btn.review-disabled:hover {
+      transform: none;
+    }
+
+    .option-btn.correct-answer {
+      background: var(--green-pale);
+      border-color: var(--green);
+    }
+
+    .option-btn.correct-answer .option-letter {
+      background: var(--green);
+      color: white;
+    }
+
+    .option-btn.wrong-answer {
+      background: var(--rose-pale);
+      border-color: var(--rose);
+    }
+
+    .option-btn.wrong-answer .option-letter {
+      background: var(--rose);
+      color: white;
+    }
+
+    .review-tag {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    .review-tag.correct {
+      background: var(--green);
+      color: white;
+    }
+
+    .review-tag.wrong {
+      background: var(--rose);
+      color: white;
+    }
+
+    .review-tag.skipped {
+      background: var(--ink-soft);
+      color: white;
+    }
+
+    .confidence-pill.review-disabled {
+      cursor: default;
+      opacity: 0.85;
+    }
+
     /* ═══ ELICITATION ROW (SR Mode) ═══ */
     .elicitation-row {
       border-top: 1px solid var(--border);
@@ -1354,7 +1414,8 @@
 
   <div id="submit-wrap">
     <div class="unanswered-warning" id="unanswered-warning"></div>
-    <button class="submit-btn" onclick="submitQuiz()">Submit Quiz ✓</button>
+    <button class="submit-btn" id="submit-btn" onclick="submitQuiz()">Submit Quiz ✓</button>
+    <button class="submit-btn" id="back-to-results-btn" onclick="backToResults()" style="display:none; background: var(--slate);">← Back to Results</button>
   </div>
 </div>
 
@@ -1744,6 +1805,7 @@
   let questionIndexMap = {};
   let tabSwitchCount = 0;
   let submitWarningShown = false; // tracks whether the "unanswered questions" warning has already been shown once
+  let reviewMode = false; // true when quiz-screen is being shown as a read-only review after submission
 
   // ═══ SAMPLE LEADERBOARD DATA (5 students) ═══
   const sampleLeaderboard = [
@@ -1822,6 +1884,10 @@
     }
 
     submitWarningShown = false;
+    reviewMode = false;
+    document.getElementById('submit-btn').style.display = 'block';
+    document.getElementById('back-to-results-btn').style.display = 'none';
+    document.getElementById('unanswered-warning').classList.remove('show');
 
     showScreen('quiz-screen');
     startTime = Date.now();
@@ -2204,7 +2270,120 @@
   }
 
   function reviewAnswers() {
+    reviewMode = true;
+    renderReviewQuiz();
+
+    // Swap the timer for a static "Review" label, hide the submit button,
+    // and show the "Back to Results" button instead.
+    const timerEl = document.getElementById('quiz-timer');
+    timerEl.textContent = 'Review';
+    timerEl.classList.remove('warn');
+
+    document.getElementById('submit-btn').style.display = 'none';
+    document.getElementById('back-to-results-btn').style.display = 'block';
+    document.getElementById('unanswered-warning').classList.remove('show');
+
     showScreen('quiz-screen');
+    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  }
+
+  function backToResults() {
+    reviewMode = false;
+    showScreen('result-screen');
+  }
+
+  function renderReviewQuiz() {
+    const content = document.getElementById('quiz-content');
+    content.innerHTML = '';
+
+    let qIndex = 0;
+    const sections = [
+      { name: 'Analogy-Based MCQs', subtitle: 'Real-world analogies for technical concepts' },
+      { name: 'Witty Concept MCQs', subtitle: 'Light sarcasm, still academically accurate' },
+      { name: 'Riddle / Puzzle MCQs', subtitle: 'Describe it, guess it' },
+      { name: 'Scenario-Based MCQs', subtitle: 'Student-life situations requiring the right tool' },
+      { name: 'Misconception Busters', subtitle: 'Correct commonly-held wrong beliefs' },
+      { name: 'Debug the Mistake', subtitle: 'Find the flaw in logic or reasoning' },
+      { name: 'Concept Application', subtitle: 'Mini-caselets and who am I?' },
+      { name: 'Spot the Best Definition', subtitle: 'Four close definitions—pick the most accurate' },
+      { name: 'Sequence / Order the Steps', subtitle: 'Choose the correct sequence' },
+      { name: 'Cause → Effect Reasoning', subtitle: 'Identify the correct cause or effect' }
+    ];
+
+    const qPerSection = QUIZ_CONFIG.totalQuestions / 10;
+
+    sections.forEach((section) => {
+      const header = document.createElement('div');
+      header.className = 'section-header';
+      header.innerHTML = `
+        <div class="section-line"></div>
+        <div class="section-pill">
+          ${section.name}
+          <span class="section-subtitle">${section.subtitle}</span>
+        </div>
+        <div class="section-line"></div>
+      `;
+      content.appendChild(header);
+
+      for (let s = 0; s < qPerSection; s++) {
+        const q = quizQuestions[qIndex];
+        const qCard = createReviewQuestionCard(qIndex, q);
+        content.appendChild(qCard);
+        qIndex++;
+      }
+    });
+  }
+
+  function createReviewQuestionCard(qIdx, q) {
+    const card = document.createElement('div');
+    const studentPick = studentAnswers[qIdx];
+    const wasCorrect = studentPick === q.a;
+    const wasSkipped = studentPick === null || studentPick === undefined;
+
+    card.className = 'question-card answered';
+    card.id = `q-${qIdx}`;
+
+    let optionsHtml = '<div class="options">';
+    q.opts.forEach((opt, oIdx) => {
+      let stateClass = '';
+      if (oIdx === q.a) {
+        stateClass = 'correct-answer';
+      } else if (oIdx === studentPick && !wasCorrect) {
+        stateClass = 'wrong-answer';
+      }
+      optionsHtml += `
+        <button class="option-btn review-disabled ${stateClass}" disabled>
+          <div class="option-letter">${String.fromCharCode(65 + oIdx)}</div>
+          <div class="option-text">${opt}</div>
+        </button>
+      `;
+    });
+    optionsHtml += '</div>';
+
+    const confLabel = { 1: 'Not Sure', 2: 'Somewhat Sure', 3: 'Very Sure' }[confAnswers[qIdx]] || 'Not answered';
+    const elicitationHtml = `
+      <div class="elicitation-row">
+        <div class="elicitation-label">Your confidence: ${confLabel}</div>
+      </div>
+    `;
+
+    const tagClass = wasSkipped ? 'skipped' : (wasCorrect ? 'correct' : 'wrong');
+    const tagText = wasSkipped ? 'Skipped' : (wasCorrect ? 'Correct' : 'Incorrect');
+
+    card.innerHTML = `
+      <div class="question-header">
+        <div class="question-number">${qIdx + 1}</div>
+        <div class="question-meta">
+          <span class="tag-badge">${q.tag}</span>
+          <span class="review-tag ${tagClass}">${tagText}</span>
+        </div>
+      </div>
+      <div class="question-stem">${q.q}</div>
+      ${optionsHtml}
+      ${elicitationHtml}
+    `;
+
+    return card;
   }
 
   // ═══ LEADERBOARD RENDERING (5 students) ═══
