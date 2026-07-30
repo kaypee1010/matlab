@@ -1431,7 +1431,7 @@
         <div>Score</div>
         <div>%</div>
         <div>Grade</div>
-      </div>1
+      </div>
       <div id="lb-table-body">
         <div style="padding: 32px; text-align: center; color: var(--ink-soft); font-size: 13px;">
           Loading leaderboard...
@@ -1743,11 +1743,9 @@
   let quizQuestions = [];
   let questionIndexMap = {};
   let tabSwitchCount = 0;
-  let submitWarningShown = false; // NEW: tracks whether the "unanswered questions" warning has already been shown once
+  let submitWarningShown = false; // tracks whether the "unanswered questions" warning has already been shown once
 
   // ═══ SAMPLE LEADERBOARD DATA (5 students) ═══
-  // In production this would come from the backend sheet; shown here so the
-  // registration widget and full leaderboard screen both display 5 students.
   const sampleLeaderboard = [
     { name: 'Priya Sharma', roll: 'DD221BCA001', section: 'C', score: 28, total: 30 },
     { name: 'Arjun Mehta', roll: 'DD221BCA014', section: 'A', score: 27, total: 30 },
@@ -1977,6 +1975,8 @@
   // ═══ SUBMIT LOGIC ═══
   // First click with unanswered questions: show a one-time warning and stop.
   // Second click (or first click with everything answered): allow submission.
+  // Students are always allowed to submit with unanswered questions — this
+  // is just a courtesy heads-up, not a hard block.
   function submitQuiz() {
     const unanswered = Object.values(studentAnswers).filter(a => a === null).length;
 
@@ -2047,14 +2047,21 @@
     topicHtml += `<div class="focus-next">📌 Focus next: ${weakest}</div>`;
 
     // Reflection (Layer 2)
+    // FIX: confAnswers is a plain object (keyed by question index), not an
+    // array, so calling .filter() directly on it threw a TypeError and
+    // silently aborted finalize() -- which is why Submit looked broken.
+    // We now convert it to an array with Object.values() before filtering.
     let reflectionHtml = '';
     if (QUIZ_CONFIG.reflectionLayerEnabled) {
       const reflectionLines = [];
+      const answeredConfValues = Object.values(confAnswers).filter(c => c !== null);
+      const avgConfOverall = answeredConfValues.length > 0
+        ? answeredConfValues.reduce((sum, c) => sum + c, 0) / answeredConfValues.length
+        : 0;
+
       sortedTopics.forEach(([topic, stats]) => {
         const acc = stats.correct / stats.total;
-        const avgConf = confAnswers.filter(c => c !== null).length > 0
-          ? Object.entries(studentAnswers).reduce((sum, [i, ans]) => sum + (confAnswers[i] || 0), 0) / Object.values(confAnswers).filter(c => c !== null).length
-          : 0;
+        const avgConf = avgConfOverall;
 
         if (acc >= 0.75 && avgConf >= 2.5) {
           reflectionLines.push(`You backed yourself on <strong>${topic}</strong> and delivered — great judgement. 🎯`);
