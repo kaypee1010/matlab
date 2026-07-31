@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practical 1B · Inside the Toolbox — MATLAB Lab | KP Singh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF6EC; --card:#FFFDF7; --ink:#2B2A28; --ink-soft:#5B5650; --rule:#E4DCC8;
+    --teal:#0C6B77; --teal-deep:#08414A;
+    --orange:#E2662B; --orange-soft:#FBE3D2;
+    --green:#3F7D58; --green-soft:#E3EFE4;
+    --red:#B4432E; --red-soft:#F6E2DC;
+    --royal:#A3294F; --royal-bg:#FBE7EE;
+    --mono-bg:#20242A; --mono-ink:#EDEAE0;
+    --radius:14px;
+    --shadow:0 2px 0 var(--rule);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Source Sans 3',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;}
+  h1,h2,h3,h4{font-family:'Fraunces',Georgia,serif;font-weight:700;letter-spacing:-.01em;color:var(--teal-deep);margin:0 0 .35em;}
+  code{font-family:'IBM Plex Mono',monospace;background:#F0EBDD;padding:1px 5px;border-radius:5px;font-size:.9em;}
+  a{color:var(--teal);}
+  .hand{font-family:'Dancing Script',cursive;font-weight:700;}
+
+  .nav{position:sticky;top:0;z-index:60;display:flex;align-items:center;justify-content:space-between;
+    background:rgba(250,246,236,.95);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule);padding:10px 22px;}
+  .nav-brand{display:flex;align-items:center;gap:10px;}
+  .nav-logo{width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid var(--rule);background:#fff;}
+  .nav-name{font-weight:700;font-size:14.5px;font-family:'Source Sans 3',sans-serif;color:var(--ink);}
+  .nav-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);}
+  .nav-cta{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--teal);text-decoration:none;
+    border:1px solid var(--teal);padding:6px 12px;border-radius:20px;white-space:nowrap;}
+  .nav-cta:hover{background:var(--teal);color:#fff;}
+
+  .page{max-width:980px;margin:0 auto;padding:26px 20px 80px;}
+  .crumb{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);text-transform:uppercase;margin-bottom:14px;}
+  .crumb a{color:var(--teal);text-decoration:none;}
+
+  .hero{position:relative;padding:30px 30px 26px;background:var(--card);border:1px solid var(--rule);
+    border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:22px;overflow:hidden;}
+  .hero::before{content:"";position:absolute;top:0;left:0;bottom:0;width:8px;background:linear-gradient(180deg,var(--orange),var(--teal));}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--teal);background:#E9F3F3;border:1px solid #CFE6E6;
+    padding:4px 10px;border-radius:100px;margin-bottom:12px;}
+  .hero h1{font-size:32px;line-height:1.15;}
+  .hero p.lede{font-size:16px;color:var(--ink-soft);max-width:640px;margin-top:8px;}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px;}
+  .meta-chip{font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);background:var(--paper);
+    border:1px solid var(--rule);border-radius:8px;padding:5px 10px;}
+
+  .tabbar{display:flex;gap:5px;margin:0 0 -1px 4px;overflow-x:auto;padding-top:6px;}
+  .tabbtn{flex:0 0 auto;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.02em;
+    background:#EFE8D6;color:var(--ink-soft);border:1px solid var(--rule);border-bottom:none;
+    padding:9px 14px 11px;border-radius:10px 10px 0 0;cursor:pointer;position:relative;top:2px;white-space:nowrap;}
+  .tabbtn:hover{background:#F5EFE0;color:var(--ink);}
+  .tabbtn.active{background:var(--card);color:var(--teal-deep);font-weight:700;top:0;box-shadow:0 -2px 0 var(--orange) inset;}
+  .tabbtn.evaltab{color:var(--royal);}
+  .tabbtn.evaltab.active{box-shadow:0 -2px 0 var(--royal) inset;}
+  .panelwrap{background:var(--card);border:1px solid var(--rule);border-radius:0 12px 12px 12px;
+    padding:26px 28px 30px;box-shadow:var(--shadow);}
+  .tabpanel{display:none;animation:fade .25s ease;} .tabpanel.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  .small-caps{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);}
+  p.body-copy{font-size:15px;line-height:1.65;}
+
+  .card-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0;}
+  .icon-card{background:var(--paper);border:1px solid var(--rule);border-radius:12px;padding:14px 15px 13px;}
+  .icon-card .ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:14px;margin-bottom:9px;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#fff;}
+  .ic.c1{background:var(--teal);} .ic.c2{background:var(--orange);} .ic.c3{background:var(--green);} .ic.c4{background:var(--red);}
+  .icon-card h4{font-size:15px;margin-bottom:4px;color:var(--ink);}
+  .icon-card p{font-size:13.5px;color:var(--ink-soft);margin:0;line-height:1.5;}
+
+  details.callout{background:var(--orange-soft);border:1px solid #EFC6A2;border-radius:10px;padding:2px 16px;margin:14px 0;}
+  details.callout summary{cursor:pointer;font-weight:700;color:#8A3B12;padding:11px 0;list-style:none;
+    display:flex;align-items:center;gap:8px;font-size:14px;}
+  details.callout summary::-webkit-details-marker{display:none;}
+  details.callout summary::before{content:"▸";transition:transform .15s;}
+  details.callout[open] summary::before{transform:rotate(90deg);}
+  details.callout p,details.callout ul{font-size:13.8px;color:#5c3315;margin:0 0 13px;}
+  details.callout ul{padding-left:18px;}
+
+  .task-box{background:var(--royal-bg);border-left:3px solid var(--royal);border-radius:0 10px 10px 0;
+    padding:12px 16px;margin:12px 0;}
+  .task-box p{margin:0;font-size:14.8px;color:#6b1633;}
+  .task-box b.lbl{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--royal);margin-bottom:5px;}
+
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px;}
+  th,td{border:1px solid var(--rule);padding:7px 10px;text-align:center;}
+  th{background:var(--paper);color:var(--teal-deep);font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;}
+  td.true{color:var(--green);font-weight:700;} td.false{color:var(--red);font-weight:700;}
+
+  pre.code{background:var(--mono-bg);color:var(--mono-ink);border-radius:10px;padding:15px 17px;overflow-x:auto;
+    font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.65;margin:12px 0;}
+  pre.code .cm{color:#8B9B87;}
+  pre.code .fn{color:#7EC7D6;}
+  pre.code .str{color:#D6B370;}
+
+  .annot{font-family:'Dancing Script',cursive;font-weight:700;color:var(--orange);font-size:21px;margin:-4px 0 14px 6px;}
+  .annot::before{content:"↖ ";}
+
+  .ckpt-head{margin-bottom:6px;}
+  .ckpt-head h2{margin:0;}
+
+  .reveal-btn{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;background:var(--teal-deep);
+    color:#fff;border:none;border-radius:8px;padding:9px 16px;cursor:pointer;letter-spacing:.02em;margin-top:8px;}
+  .reveal-btn:hover{background:var(--teal);}
+  .solution-body{display:none;margin-top:11px;padding:13px 16px;background:var(--green-soft);border:1px solid #C7DECB;border-radius:10px;}
+  .solution-body.open{display:block;}
+  .solution-body p{margin:0 0 7px;font-size:13.5px;color:#2c4a35;}
+  .solution-body p:last-child{margin-bottom:0;}
+
+  .calc{background:var(--teal-deep);color:#EFF7F7;border-radius:14px;padding:20px 22px;margin:18px 0;}
+  .calc h4{color:#fff;font-size:15.5px;margin-bottom:4px;}
+  .calc p.hint{color:#B9D6D8;font-size:12.5px;margin:0 0 12px;}
+  .calc input[type=text]{width:100%;padding:9px 11px;border-radius:8px;border:1px solid #1F5B63;
+    background:#0F4A52;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:13px;margin-bottom:9px;}
+  .calc-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
+  .calc button{background:var(--orange);color:#fff;border:none;border-radius:8px;padding:9px 15px;font-weight:700;cursor:pointer;font-size:12.5px;}
+  .calc button:hover{background:#c9551f;}
+  .calc-out{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:9px;margin-top:14px;}
+  .calc-out .stat{background:#0F4A52;border-radius:10px;padding:11px 12px;text-align:center;}
+  .calc-out .stat .n{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:#fff;}
+  .calc-out .stat .l{font-size:10.5px;color:#9FC6C9;text-transform:uppercase;letter-spacing:.05em;}
+
+  .chiprow{display:flex;gap:6px;overflow-x:auto;padding:6px 2px 4px;margin:10px 0;flex-wrap:wrap;}
+  .chip{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:8px;
+    padding:6px 9px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;border:1px solid var(--rule);}
+  .chip .m{font-size:9px;color:var(--ink-soft);} .chip .v{font-weight:700;}
+  .chip.yes{background:var(--green-soft);border-color:var(--green);color:var(--green);}
+  .chip.no{background:var(--paper);color:var(--ink-soft);}
+
+  .sticky-wrap{display:flex;flex-wrap:wrap;gap:14px;margin:16px 0;}
+  .sticky{background:#FFE58A;border-radius:3px;padding:14px 16px;font-family:'Dancing Script',cursive;font-weight:700;font-size:21px;
+    line-height:1.3;color:#4a3a08;box-shadow:3px 4px 8px rgba(0,0,0,.14);flex:1 1 220px;transform:rotate(-1deg);}
+  .sticky:nth-child(2){transform:rotate(1deg);background:#FFD6C2;color:#5c2c10;}
+  .sticky:nth-child(3){transform:rotate(-.6deg);background:#D8F0DD;color:#20452c;}
+  .sticky:nth-child(4){transform:rotate(1.2deg);background:#DCEBF5;color:#123a52;}
+  .sticky:nth-child(5){transform:rotate(-1.4deg);background:#FFE58A;color:#4a3a08;}
+  .sticky:nth-child(6){transform:rotate(.8deg);background:#FFD6C2;color:#5c2c10;}
+  .sticky b{display:block;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:10px;text-transform:uppercase;
+    letter-spacing:.05em;margin-bottom:5px;opacity:.75;}
+
+  .viva-item{border:1px solid var(--rule);border-radius:10px;margin-bottom:9px;overflow:hidden;}
+  .viva-q{padding:12px 15px;cursor:pointer;font-weight:700;font-size:14px;color:var(--teal-deep);
+    display:flex;justify-content:space-between;align-items:center;background:var(--paper);}
+  .viva-q .plus{font-family:'IBM Plex Mono',monospace;color:var(--orange);font-size:17px;}
+  .viva-a{display:none;padding:2px 15px 14px;font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
+  .viva-a.open{display:block;}
+
+  ul.tight{margin:8px 0;padding-left:20px;} ul.tight li{margin-bottom:6px;font-size:14.5px;}
+
+  .panel-nav{display:flex;justify-content:space-between;align-items:center;margin-top:30px;
+    padding-top:16px;border-top:1px dashed var(--rule);}
+  .pnav-btn{background:var(--card);border:1px solid var(--teal-deep);color:var(--teal-deep);
+    font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:700;padding:9px 17px;
+    border-radius:20px;cursor:pointer;}
+  .pnav-btn:hover{background:var(--teal-deep);color:#fff;}
+  .pnav-btn.nextb{margin-left:auto;}
+
+  .eval-card{background:var(--royal-bg);border:1px solid #EFC3D2;border-radius:14px;padding:26px 26px;text-align:center;}
+  .eval-card h2{color:var(--royal);}
+  .eval-card p{color:#6b1633;max-width:480px;margin:8px auto 18px;}
+  .eval-btn{display:inline-block;background:var(--royal);color:#fff;font-family:'IBM Plex Mono',monospace;
+    font-weight:700;font-size:13.5px;text-decoration:none;padding:12px 26px;border-radius:24px;}
+  .eval-btn:hover{background:#7f1e3e;}
+  .eval-note{margin-top:14px;font-size:12px;color:#9b3f5c;font-family:'IBM Plex Mono',monospace;}
+
+  footer{margin-top:36px;padding-top:16px;border-top:1px dashed var(--rule);}
+  .nav-row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .nav-card{flex:1;min-width:180px;background:var(--card);border:1px solid var(--rule);border-radius:12px;
+    padding:11px 14px;text-decoration:none;color:var(--ink);box-shadow:var(--shadow);}
+  .nav-card small{display:block;font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);font-size:10.5px;text-transform:uppercase;}
+
+  /* Interface mock-up */
+  .desktop-mock{background:#EFE8D6;border:1px solid var(--rule);border-radius:12px;padding:10px;margin:16px 0;
+    display:grid;grid-template-columns:1.4fr 2.6fr 1.4fr;grid-template-rows:auto auto;gap:8px;}
+  .mock-pane{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 11px;min-height:80px;cursor:pointer;transition:box-shadow .15s;}
+  .mock-pane:hover{box-shadow:0 0 0 2px var(--teal);}
+  .mock-pane .mp-title{font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--teal);font-weight:700;margin-bottom:6px;}
+  .mock-pane .mp-note{font-size:11.5px;color:var(--ink-soft);}
+  .mock-editor{grid-column:2;grid-row:1;}
+  .mock-workspace{grid-column:3;grid-row:1;}
+  .mock-cmd{grid-column:2;grid-row:2;}
+  .mock-folder{grid-column:1;grid-row:1;}
+  .mock-history{grid-column:1;grid-row:2;}
+  .mock-cmdw{grid-column:3;grid-row:2;}
+  @media(max-width:720px){.desktop-mock{grid-template-columns:1fr;grid-template-rows:auto;}
+    .mock-editor,.mock-workspace,.mock-cmd,.mock-folder,.mock-history,.mock-cmdw{grid-column:1;grid-row:auto;}}
+  .pane-detail{display:none;margin-top:10px;padding:11px 14px;background:var(--green-soft);border:1px solid #C7DECB;border-radius:10px;font-size:13.5px;color:#2c4a35;}
+  .pane-detail.open{display:block;}
+
+  @media(max-width:640px){ .hero{padding:22px 18px;} .hero h1{font-size:25px;} .panelwrap{padding:18px 16px 22px;} }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <img class="nav-logo" src="KP_Singh.png" alt="K.P. Singh"/>
+    <div>
+      <div class="nav-name">K.P. Singh</div>
+      <div class="nav-sub">SGT University · BTech 5th Sem · Section C</div>
+    </div>
+  </div>
+  <a class="nav-cta" href="https://kpsingh.in" target="_blank">kpsingh.in ↗</a>
+</nav>
+
+<div class="page">
+  <div class="crumb"><a href="index.html">MATLAB Lab</a> / Practical 1B</div>
+
+  <div class="hero">
+    <span class="eyebrow">● Session 1 · Part B</span>
+    <h1>Inside the Toolbox</h1>
+    <p class="lede">The interface panels you've been clicking past, the data types living inside your variables, and your first real script file — built around the <strong>Campus Canteen billing counter</strong>.</p>
+    <div class="hero-meta">
+      <span class="meta-chip">⏱ 50 min core + 15 min quiz</span>
+      <span class="meta-chip">📋 Prerequisite: Practical 1 (Meet Your Workspace)</span>
+      <span class="meta-chip">🎯 CO1 · MATLAB environment</span>
+      <span class="meta-chip">🟠 Track: Campus Canteen</span>
+    </div>
+  </div>
+
+  <div class="tabbar" id="tabbar">
+    <button class="tabbtn active" data-tab="overview">Overview</button>
+    <button class="tabbtn" data-tab="interface">Interface Tour</button>
+    <button class="tabbtn" data-tab="warmup">Warm-Up</button>
+    <button class="tabbtn" data-tab="labtasks">Lab Tasks</button>
+    <button class="tabbtn" data-tab="ex1">Exercise 1</button>
+    <button class="tabbtn" data-tab="ex2">Exercise 2</button>
+    <button class="tabbtn" data-tab="ex3">Exercise 3</button>
+    <button class="tabbtn" data-tab="ex4">Exercise 4</button>
+    <button class="tabbtn" data-tab="viva">Recap &amp; Viva</button>
+    <button class="tabbtn evaltab" data-tab="eval">📝 Evaluation</button>
+  </div>
+
+  <div class="panelwrap">
+
+    <!-- OVERVIEW -->
+    <div class="tabpanel active" id="tab-overview">
+      <p class="small-caps">Why today matters</p>
+      <h2>A vector was the "what" — today is the "where" and "how"</h2>
+      <p class="body-copy">Last session you stored numbers in vectors and ran commands one at a time. But you never really looked at <em>where</em> those commands were going, what <em>kind</em> of thing MATLAB thought each variable was, or how to save your work so you're not retyping fifteen lines every time you reopen MATLAB. That's today's job.</p>
+
+      <div class="card-row">
+        <div class="icon-card"><div class="ic c1">P</div><h4>The Desktop Panels</h4><p>Editor, Command Window, Workspace, Current Folder, Command History — what each one is actually for.</p></div>
+        <div class="icon-card"><div class="ic c2">T</div><h4>Data Types</h4><p><code>double</code>, <code>char</code>, <code>string</code>, <code>logical</code> — MATLAB quietly tags every variable with one of these.</p></div>
+        <div class="icon-card"><div class="ic c3">S</div><h4>Script Files</h4><p>Writing a reusable <code>.m</code> file instead of retyping commands into the Command Window every time.</p></div>
+        <div class="icon-card"><div class="ic c4">#</div><h4>Precision &amp; Input</h4><p><code>format</code>, and taking a number in from the person running the script with <code>input()</code>.</p></div>
+      </div>
+
+      <details class="callout">
+        <summary>FAQ — Do I have to use the Editor, or can I keep typing into the Command Window?</summary>
+        <p>The Command Window is fine for one-off checks, but it forgets everything the moment you close MATLAB unless you explicitly save your workspace. A script file is a plain text recipe you can re-run, edit, and hand to someone else. From today onward, every exercise assumes you're working in a script.</p>
+      </details>
+    </div>
+
+    <!-- INTERFACE TOUR -->
+    <div class="tabpanel" id="tab-interface">
+      <p class="small-caps">Look before you type</p>
+      <h2>The Five Panels You'll Live In</h2>
+      <p class="body-copy">Open MATLAB and you'll see something like the layout below (yours may be arranged slightly differently — that's fine, every panel can be dragged around). Click each panel to see what it's for.</p>
+
+      <div class="desktop-mock">
+        <div class="mock-pane mock-folder" onclick="togglePane('p-folder')"><div class="mp-title">Current Folder</div><div class="mp-note">Files in this project</div></div>
+        <div class="mock-pane mock-editor" onclick="togglePane('p-editor')"><div class="mp-title">Editor</div><div class="mp-note">Where you write .m scripts</div></div>
+        <div class="mock-pane mock-workspace" onclick="togglePane('p-workspace')"><div class="mp-title">Workspace</div><div class="mp-note">Every variable, live</div></div>
+        <div class="mock-pane mock-history" onclick="togglePane('p-history')"><div class="mp-title">Command History</div><div class="mp-note">Everything you've typed</div></div>
+        <div class="mock-pane mock-cmd" onclick="togglePane('p-cmd')"><div class="mp-title">Command Window</div><div class="mp-note">Type &amp; run one line at a time</div></div>
+        <div class="mock-pane mock-cmdw" onclick="togglePane('p-cmdw')"><div class="mp-title">Details / Preview</div><div class="mp-note">Selected variable's values</div></div>
+      </div>
+      <div class="pane-detail" id="p-folder">Shows every file in your current project folder — your <code>.m</code> scripts, saved <code>.mat</code> data, everything. Double-click a file here to open it in the Editor.</div>
+      <div class="pane-detail" id="p-editor">A plain text editor for <code>.m</code> script files. Write several lines, save with <code>Ctrl+S</code>, then hit <b>Run</b> (or press F5) to execute the whole script top to bottom.</div>
+      <div class="pane-detail" id="p-workspace">A live list of every variable currently defined, with its size and class. Double-click a variable here to open it in a spreadsheet-style grid — handy for checking a vector didn't come out the shape you expected.</div>
+      <div class="pane-detail" id="p-history">A running log of every command you've ever typed into the Command Window, oldest at the top. Double-click any old line to re-run it.</div>
+      <div class="pane-detail" id="p-cmd">The interactive prompt (<code>&gt;&gt;</code>). Great for quick one-line checks, but nothing here is saved automatically once you close MATLAB.</div>
+      <div class="pane-detail" id="p-cmdw">A preview of whatever variable is currently selected in the Workspace panel — a quick way to peek at values without typing <code>disp()</code>.</div>
+
+      <p class="annot hand">script in the Editor, quick checks in the Command Window</p>
+
+      <details class="callout">
+        <summary>Why does my Workspace panel matter more than I think?</summary>
+        <p>It's the fastest way to catch bugs. If you expect a 1×15 vector and the Workspace shows 15×1, you've transposed something by accident — you'll spot that instantly here, long before it causes a confusing error three lines later.</p>
+      </details>
+    </div>
+
+    <!-- WARM-UP -->
+    <div class="tabpanel" id="tab-warmup">
+      <p class="small-caps">Before the canteen data</p>
+      <h2>Warm-Up: Operators, Types &amp; Precision</h2>
+      <p class="body-copy">Four drills — try each directly in the Command Window before reading the reveal.</p>
+
+      <div class="task-box"><b class="lbl">Drill 1 · Operator Precedence</b><p>Type <code>2 + 3 * 4</code>. Then type <code>(2 + 3) * 4</code>.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('w1')">Show what happens</button>
+      <div class="solution-body" id="w1"><p><code>2 + 3 * 4</code> → <b>14</b> — multiplication happens before addition, same BODMAS rule as on paper. Parentheses force the order you want: <code>(2+3)*4</code> → <b>20</b>. <code>^</code> (power) binds even tighter than <code>*</code> and <code>/</code>.</p></div>
+
+      <div class="task-box" style="margin-top:22px;"><b class="lbl">Drill 2 · class()</b><p>Type <code>class(5)</code>, <code>class('hi')</code>, <code>class("hi")</code>, and <code>class(5 &gt; 3)</code>.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('w2')">Show what happens</button>
+      <div class="solution-body" id="w2"><p><code>class(5)</code> → <b>double</b>. <code>class('hi')</code> → <b>char</b> (single quotes = a character array). <code>class("hi")</code> → <b>string</b> (double quotes = a string object — newer, and usually easier to work with). <code>class(5&gt;3)</code> → <b>logical</b>. MATLAB decides the type automatically — you never declare it up front.</p></div>
+
+      <div class="task-box" style="margin-top:22px;"><b class="lbl">Drill 3 · format short vs long</b><p>Type <code>pi</code>. Then <code>format long</code>, then <code>pi</code> again. Then <code>format short</code> to go back.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('w3')">Show what happens</button>
+      <div class="solution-body" id="w3"><p><code>format short</code> (the default) shows <b>3.1416</b>. <code>format long</code> shows <b>3.141592653589793</b>. MATLAB was never rounding the actual stored value — only what got displayed. <code>format</code> stays changed for the rest of the session until you switch it back.</p></div>
+
+      <div class="task-box" style="margin-top:22px;"><b class="lbl">Drill 4 · Comments</b><p>In the Editor, type a line starting with <code>%</code>, then a normal code line below it, and run the script.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('w4')">Show what happens</button>
+      <div class="solution-body" id="w4"><p>The <code>%</code> line is skipped entirely — comments exist purely for you and your reader, MATLAB ignores them. For a whole block, wrap it between <code>%{</code> and <code>%}</code> on their own lines.</p></div>
+
+      <details class="callout" style="margin-top:20px;">
+        <summary>Common beginner mistakes</summary>
+        <ul>
+          <li>A variable name can't start with a digit — <code>2ndPrice</code> is invalid, <code>price2</code> is fine.</li>
+          <li>Don't name a variable <code>i</code> or <code>j</code> if you'll need the imaginary unit later — you'll silently overwrite it.</li>
+          <li>Forgetting to save the <code>.m</code> file before running it — MATLAB runs the last <em>saved</em> version, not what's currently on screen.</li>
+        </ul>
+      </details>
+    </div>
+
+    <!-- LAB TASKS -->
+    <div class="tabpanel" id="tab-labtasks">
+      <p class="small-caps">Optional — extra practice</p>
+      <h2>Lab Tasks</h2>
+      <p class="body-copy">Optional, and separate from the four core Exercises. Use the canteen data below (type it into a script first):</p>
+      <pre class="code">items  = {'Samosa','Tea','Sandwich','Maggi','Cold Coffee','Burger'};
+prices = [15 10 40 35 45 60];
+qty    = [22 40 15 18 25 10];</pre>
+      <p class="body-copy"><code>items</code> is a <b>cell array</b> — a container that can hold text of different lengths side by side, something a normal vector can't do.</p>
+
+      <div class="task-box"><b class="lbl">Task 1</b><p>Find the total number of items sold today, across all six items.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t1')">Show solution</button>
+      <div class="solution-body" id="t1"><p><code>sum(qty)</code> → <b>130</b></p></div>
+
+      <div class="task-box" style="margin-top:18px;"><b class="lbl">Task 2</b><p>Find today's total revenue (price × quantity, summed across all items).</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t2')">Show solution</button>
+      <div class="solution-body" id="t2"><p><code>sum(prices .* qty)</code> → <b>4685</b> — the <code>.*</code> multiplies each price by its matching quantity, item by item, before <code>sum</code> adds them all up.</p></div>
+
+      <div class="task-box" style="margin-top:18px;"><b class="lbl">Task 3</b><p>Check whether every item priced above ₹30 also sold at least 10 units (a sanity check that nothing expensive is going unsold).</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t3')">Show solution</button>
+      <div class="solution-body" id="t3"><p><code>all(qty(prices &gt; 30) &gt;= 10)</code> → <b>1 (true)</b> — <code>prices &gt; 30</code> picks out which items to check, and <code>all()</code> confirms every one of them clears the bar.</p></div>
+
+      <div class="task-box" style="margin-top:18px;"><b class="lbl">Task 4</b><p>Find the typical spread in prices across the menu (how much prices vary, not just their average).</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('t4')">Show solution</button>
+      <div class="solution-body" id="t4"><p><code>std(prices)</code> → <b>≈ 17.94</b> — the standard deviation. A small value would mean the menu is priced narrowly; this one tells you there's a real spread from ₹10 tea to ₹60 burgers.</p></div>
+    </div>
+
+    <!-- EXERCISE 1 -->
+    <div class="tabpanel" id="tab-ex1">
+      <div class="ckpt-head"><h2>Checkpoint 1 — A Script That Asks a Question</h2></div>
+      <div class="task-box"><b class="lbl">Your task</b><p>Fill in the blanks so the script asks the user how many samosas (₹15 each) they want, then prints the cost.</p></div>
+      <pre class="code">
+<span class="cm">% prices(1) is the samosa price from the canteen data above</span>
+n    = <span class="fn">____</span>(<span class="str">'How many samosas? '</span>);   <span class="cm">% reads a number typed by the user</span>
+cost = n * prices(1);
+<span class="fn">fprintf</span>(<span class="str">'That will be Rs. %d\n'</span>, <span class="fn">____</span>);</pre>
+      <button class="reveal-btn" onclick="toggleSolution('s1')">Show solution</button>
+      <div class="solution-body" id="s1">
+        <p><code>n = input('How many samosas? ');</code> &nbsp; <code>fprintf('That will be Rs. %d\n', cost);</code></p>
+        <p><code>input()</code> pauses the script and waits — whatever the person types becomes the value of <code>n</code>. This is the first time your script reacts to someone other than you.</p>
+      </div>
+    </div>
+
+    <!-- EXERCISE 2 -->
+    <div class="tabpanel" id="tab-ex2">
+      <div class="ckpt-head"><h2>Checkpoint 2 — Naming the Best Seller</h2></div>
+      <p class="body-copy">You already know <code>max()</code> returns the largest value. It can also tell you <em>where</em> that value sits — its position — if you ask for a second output.</p>
+      <div class="task-box"><b class="lbl">Your task</b><p>Fill in the blanks to find which item sold the most, and print its name in a sentence.</p></div>
+      <pre class="code">
+[bestQty, bestIdx] = <span class="fn">____</span>(qty);     <span class="cm">% bestIdx = position of the largest value</span>
+bestItem = items{<span class="fn">____</span>};             <span class="cm">% curly braces pull text out of a cell array</span>
+<span class="fn">fprintf</span>(<span class="str">'Today\'s best seller is %s, sold %d times\n'</span>, bestItem, bestQty);</pre>
+      <p class="annot hand">curly braces unwrap a cell — square brackets would keep it wrapped</p>
+      <button class="reveal-btn" onclick="toggleSolution('s2')">Show solution</button>
+      <div class="solution-body" id="s2">
+        <p><code>[bestQty, bestIdx] = max(qty);</code> &nbsp; <code>bestItem = items{bestIdx};</code></p>
+        <p>Result: <b>Today's best seller is Tea, sold 40 times</b>. <code>%s</code> in <code>fprintf</code> inserts text; <code>%d</code> inserts a whole number.</p>
+      </div>
+    </div>
+
+    <!-- EXERCISE 3 -->
+    <div class="tabpanel" id="tab-ex3">
+      <div class="ckpt-head"><h2>Checkpoint 3 — A Sanity-Check Script</h2></div>
+      <div class="task-box"><b class="lbl">Your task</b><p>Before trusting today's numbers, check two things: (a) that no item's quantity is negative or zero, and (b) whether at least one item is priced at ₹50 or more.</p></div>
+      <button class="reveal-btn" onclick="toggleSolution('s3')">Show solution</button>
+      <div class="solution-body" id="s3">
+        <p><code>all(qty &gt; 0)</code> → <b>1 (true)</b> — every quantity is a sane, positive number.</p>
+        <p><code>any(prices &gt;= 50)</code> → <b>1 (true)</b> — the burger at ₹60 clears that bar.</p>
+        <p><code>all()</code> demands every element pass; <code>any()</code> only needs one. That's the whole difference between them.</p>
+      </div>
+    </div>
+
+    <!-- EXERCISE 4 -->
+    <div class="tabpanel" id="tab-ex4">
+      <div class="ckpt-head"><h2>Checkpoint 4 — Predict the Break</h2></div>
+      <div class="task-box"><b class="lbl">Your task</b><p>Imagine tracking the canteen for a full Monday–Saturday week, not just one day. <strong>Before revealing anything</strong>, write down your own prediction.</p></div>
+      <ul class="tight">
+        <li>Could you keep today's <code>qty</code> vector and just add a second vector <code>qtyTue</code>, <code>qtyWed</code>...?</li>
+        <li>What breaks first — finding the busiest single day, or finding the best-selling item across the whole week?</li>
+        <li>What single MATLAB object could hold six days × six items in one place?</li>
+      </ul>
+      <button class="reveal-btn" onclick="toggleSolution('s4')">Show what actually happens</button>
+      <div class="solution-body" id="s4">
+        <p>Six separate vectors work for a day or two, but "which day sold the most Maggi?" already needs you to open all six and compare by eye. Ask for a whole week's total per item, or per day, and there's no clean one-line answer with separate vectors.</p>
+        <p><b>Loose end for next week:</b> stack all six days as rows inside one <b>matrix</b> — one variable, six days × six items — and let row/column sums answer both questions in a single line.</p>
+      </div>
+    </div>
+
+    <!-- RECAP & VIVA -->
+    <div class="tabpanel" id="tab-viva">
+      <p class="small-caps">Quick self-check</p>
+      <h2>Recap &amp; Viva Prep</h2>
+
+      <div class="sticky-wrap">
+        <div class="sticky"><b>Precedence</b>^ before * and / before + and -. Parens override all.</div>
+        <div class="sticky"><b>class()</b>double, char, string, logical — MATLAB tags every value.</div>
+        <div class="sticky"><b>' vs "</b>Single quotes = char array. Double quotes = string object.</div>
+        <div class="sticky"><b>format</b>short/long changes the display only, never the stored value.</div>
+        <div class="sticky"><b>any / all</b>any() needs one true; all() needs every element true.</div>
+        <div class="sticky"><b>Cell arrays</b>{ } holds mixed text; curly braces {i} unwrap one entry.</div>
+      </div>
+
+      <p class="small-caps" style="margin-top:24px;">Be ready to answer</p>
+      <div id="vivalist"></div>
+    </div>
+
+    <!-- EVALUATION -->
+    <div class="tabpanel" id="tab-eval">
+      <div class="eval-card">
+        <span class="small-caps" style="color:var(--royal);">Session 1 · Part B</span>
+        <h2>Lab 1B Evaluation</h2>
+        <p>A short quiz covering the interface panels, data types, operator precedence, and script files. Complete it once you've finished all four exercises.</p>
+        <a class="eval-btn" href="lab1b-evaluation.html" target="_blank">Take the Evaluation ↗</a>
+        <div class="eval-note">Link will be updated once the quiz is published on kpsingh.in/matlab</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="nav-row">
+      <a class="nav-card" href="session-01.html"><small>Interactive</small>Class Session Page</a>
+      <a class="nav-card" href="index.html"><small>← Back to</small>Course Spine</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+  const TAB_ORDER = [
+    { id: 'overview',  label: 'Overview' },
+    { id: 'interface', label: 'Interface Tour' },
+    { id: 'warmup',    label: 'Warm-Up' },
+    { id: 'labtasks',  label: 'Lab Tasks' },
+    { id: 'ex1',       label: 'Exercise 1' },
+    { id: 'ex2',       label: 'Exercise 2' },
+    { id: 'ex3',       label: 'Exercise 3' },
+    { id: 'ex4',       label: 'Exercise 4' },
+    { id: 'viva',      label: 'Recap & Viva' },
+    { id: 'eval',      label: 'Evaluation' }
+  ];
+
+  function showTab(id){
+    document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tabpanel').forEach(p=>p.classList.remove('active'));
+    document.querySelector('.tabbtn[data-tab="'+id+'"]').classList.add('active');
+    document.getElementById('tab-'+id).classList.add('active');
+    document.getElementById('tabbar').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  document.querySelectorAll('.tabbtn').forEach(btn=>{
+    btn.addEventListener('click', ()=> showTab(btn.dataset.tab));
+  });
+
+  function buildPanelNav(){
+    TAB_ORDER.forEach((t, i)=>{
+      const panel = document.getElementById('tab-'+t.id);
+      if(!panel) return;
+      const prev = TAB_ORDER[i-1];
+      const next = TAB_ORDER[i+1];
+      const nav = document.createElement('div');
+      nav.className = 'panel-nav';
+      nav.innerHTML =
+        (prev ? '<button class="pnav-btn prevb" onclick="showTab(\''+prev.id+'\')">&larr; '+prev.label+'</button>' : '<span></span>') +
+        (next ? '<button class="pnav-btn nextb" onclick="showTab(\''+next.id+'\')">'+next.label+' &rarr;</button>' : '<span></span>');
+      panel.appendChild(nav);
+    });
+  }
+
+  function toggleSolution(id){
+    const el = document.getElementById(id);
+    const open = el.classList.toggle('open');
+    const btn = el.previousElementSibling;
+    const label = btn.textContent.includes('happens') ? 'Show what happens'
+                 : btn.textContent.includes('actually') ? 'Show what actually happens'
+                 : 'Show solution';
+    btn.textContent = open ? label.replace('Show','Hide') : label;
+  }
+
+  function togglePane(id){
+    document.querySelectorAll('.pane-detail').forEach(p=>{ if(p.id!==id) p.classList.remove('open'); });
+    document.getElementById(id).classList.toggle('open');
+  }
+
+  document.addEventListener('DOMContentLoaded', buildPanelNav);
+
+  (function(){
+    const qa = [
+      ['Which panel actually remembers your work between MATLAB sessions?', 'None of them automatically — a script (.m) file saved to disk is what persists. The Workspace and Command History reset unless you explicitly save.'],
+      ['What is the difference between \u2018text\u2019 and "text" in MATLAB?', 'Single quotes create a char array; double quotes create a string object. Both hold text, but they behave slightly differently in comparisons and functions.'],
+      ['What does class(x) tell you?', 'The data type MATLAB has assigned to x \u2014 double, char, string, logical, cell, and so on.'],
+      ['Why would 2 + 3 * 4 not equal 20?', 'Multiplication is evaluated before addition \u2014 standard operator precedence, same as arithmetic on paper. Use parentheses to force a different order.'],
+      ['What does format long change?', 'Only how numbers are displayed \u2014 the underlying stored value never changes.'],
+      ['What is input() for?', 'It pauses a script and lets the person running it type in a value, which becomes the result of the input() call.'],
+      ['Difference between any() and all() on a logical vector?', 'any() is true if at least one element is true; all() is true only if every element is true.'],
+      ['Why use a cell array instead of a normal vector for item names?', 'A normal array needs every element to be the same type and size; a cell array {} can hold text of different lengths side by side.']
+    ];
+    const wrap = document.getElementById('vivalist');
+    qa.forEach(([q,a])=>{
+      const item = document.createElement('div');
+      item.className = 'viva-item';
+      const qDiv = document.createElement('div');
+      qDiv.className = 'viva-q';
+      qDiv.innerHTML = '<span>'+q+'</span><span class="plus">+</span>';
+      const aDiv = document.createElement('div');
+      aDiv.className = 'viva-a';
+      aDiv.innerHTML = '<p>'+a+'</p>';
+      qDiv.addEventListener('click', ()=>{
+        const open = aDiv.classList.toggle('open');
+        qDiv.querySelector('.plus').textContent = open ? '-' : '+';
+      });
+      item.appendChild(qDiv); item.appendChild(aDiv);
+      wrap.appendChild(item);
+    });
+  })();
+</script>
+</body>
+</html>
