@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATLAB Lab Quiz · Practicals 1 & 2 | KP Singh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700&family=Inconsolata:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root {
+  --paper: #FAF6EC;
+  --card: #FFFDF7;
+  --ink: #1E1C19;
+  --ink-soft: #5B5650;
+  --rule: #E4DCC8;
+  --accent: #0C6B77;
+  --accent-deep: #08414A;
+  --accent-pale: #E4F1F3;
+  --accent-mid: #C2DFE3;
+  --orange: #E2662B;
+  --orange-pale: #FBE3D2;
+  --green: #3F7D58;
+  --green-pale: #E3EFE4;
+  --red: #B4432E;
+  --red-pale: #F6E2DC;
+  --gold: #C89A2A;
+  --gold-pale: #FBF3DC;
+  --mono-bg: #1A1F26;
+  --mono-ink: #EDEAE0;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 8px rgba(0,0,0,.08);
+  --shadow-lg: 0 6px 24px rgba(0,0,0,.12);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'DM Sans', Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── NAV ── */
+.nav {
+  position: sticky; top: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(250,246,236,.96); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule); padding: 10px 22px;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-logo { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 1px solid var(--rule); background: #fff; }
+.nav-name { font-weight: 700; font-size: 14.5px; color: var(--ink); }
+.nav-sub { font-family: 'Inconsolata', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); }
+.nav-right { display: flex; align-items: center; gap: 12px; }
+.nav-cta { font-family: 'Inconsolata', monospace; font-size: 11.5px; font-weight: 600; color: var(--accent); text-decoration: none; border: 1px solid var(--accent); padding: 5px 11px; border-radius: 20px; white-space: nowrap; }
+.nav-cta:hover { background: var(--accent); color: #fff; }
+.nav-lb-btn { font-family: 'Inconsolata', monospace; font-size: 11.5px; font-weight: 700; color: var(--gold); border: 1px solid var(--gold); background: var(--gold-pale); padding: 5px 11px; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+.nav-lb-btn:hover { background: var(--gold); color: #fff; }
+
+/* ── SCREENS ── */
+.screen { display: none; position: relative; z-index: 1; }
+.screen.active { display: block; }
+
+/* ── REGISTRATION ── */
+#reg-screen { max-width: 900px; margin: 32px auto; padding: 0 20px 80px; }
+.reg-grid { display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start; }
+.reg-card {
+  background: var(--card); border: 1px solid var(--rule);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.reg-card-inner { padding: 32px; }
+.reg-accent-bar { height: 5px; background: linear-gradient(90deg, var(--accent), var(--orange)); }
+.reg-eyebrow { font-family: 'Inconsolata', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin-bottom: 10px; }
+.reg-title { font-family: 'DM Serif Display', Georgia, serif; font-size: 30px; line-height: 1.1; color: var(--accent-deep); margin-bottom: 6px; }
+.reg-title em { font-style: italic; color: var(--orange); }
+.reg-subtitle { font-size: 14px; color: var(--ink-soft); margin-bottom: 20px; }
+.topics-box { background: var(--accent-pale); border: 1px solid var(--accent-mid); border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 22px; }
+.topics-box h4 { font-family: 'Inconsolata', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); margin-bottom: 8px; }
+.topics-box ul { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; }
+.topics-box ul li { font-size: 12px; background: var(--card); border: 1px solid var(--accent-mid); border-radius: 6px; padding: 3px 8px; color: var(--accent-deep); font-family: 'Inconsolata', monospace; }
+.form-field { margin-bottom: 16px; }
+.form-field label { display: block; font-family: 'Inconsolata', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); margin-bottom: 6px; }
+.form-field input, .form-field select {
+  width: 100%; padding: 10px 13px;
+  border: 1.5px solid var(--rule); border-radius: var(--radius-sm);
+  background: var(--paper); color: var(--ink);
+  font-family: 'DM Sans', sans-serif; font-size: 15px;
+  transition: border-color .2s;
+}
+.form-field input:focus, .form-field select:focus { outline: none; border-color: var(--accent); }
+.form-field input[readonly] { background: #f0ebe0; color: var(--ink-soft); cursor: default; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.err-msg { background: var(--red-pale); border: 1px solid var(--red); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13.5px; color: var(--red); margin-bottom: 14px; display: none; }
+.btn-primary {
+  width: 100%; padding: 13px; border: none;
+  background: linear-gradient(135deg, var(--accent-deep), var(--accent));
+  color: #fff; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700;
+  border-radius: var(--radius-sm); cursor: pointer; letter-spacing: .01em;
+  transition: opacity .2s, transform .1s;
+}
+.btn-primary:hover { opacity: .92; transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+
+/* Leaderboard widget */
+.lb-widget { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.lb-widget-head { background: linear-gradient(135deg, var(--accent-deep) 0%, #0e8a9a 100%); padding: 18px 20px; }
+.lb-widget-head h3 { font-family: 'DM Serif Display', serif; color: #fff; font-size: 18px; margin-bottom: 2px; }
+.lb-live { display: inline-flex; align-items: center; gap: 6px; font-family: 'Inconsolata', monospace; font-size: 10px; color: rgba(255,255,255,.75); text-transform: uppercase; letter-spacing: .08em; margin-top: 4px; }
+.lb-dot { width: 7px; height: 7px; border-radius: 50%; background: #6FE0B0; animation: blink 1.4s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.lb-widget-body { padding: 14px 16px; }
+.lb-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--rule); }
+.lb-row:last-child { border-bottom: none; }
+.lb-medal { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.lb-medal.m1 { background: #FFF3CC; }
+.lb-medal.m2 { background: #F0F0F0; }
+.lb-medal.m3 { background: #FFE8D8; }
+.lb-medal.mn { background: var(--paper); font-family: 'Inconsolata', monospace; font-size: 12px; font-weight: 700; color: var(--ink-soft); }
+.lb-info { flex: 1; min-width: 0; }
+.lb-name { font-weight: 600; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-meta { font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--ink-soft); }
+.lb-pct { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--accent-deep); }
+.lb-empty { text-align: center; padding: 28px; color: var(--ink-soft); font-size: 14px; }
+.lb-spinner { text-align: center; padding: 20px; color: var(--ink-soft); font-size: 13px; }
+
+/* ── QUIZ SCREEN ── */
+#quiz-screen { max-width: 820px; margin: 0 auto; padding: 0 20px 80px; }
+.quiz-subbar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+  background: var(--card); border: 1px solid var(--rule);
+  border-radius: var(--radius); padding: 12px 18px; margin: 18px 0 16px;
+  box-shadow: var(--shadow);
+}
+.quiz-student-info { font-family: 'Inconsolata', monospace; font-size: 12px; color: var(--ink-soft); }
+.quiz-student-info b { color: var(--ink); }
+.progress-wrap { flex: 1; min-width: 160px; }
+.progress-label { font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--ink-soft); margin-bottom: 4px; display: flex; justify-content: space-between; }
+.progress-bar { height: 5px; background: var(--rule); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--orange)); border-radius: 3px; transition: width .3s; }
+.countdown {
+  font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--accent-deep);
+  background: var(--accent-pale); border: 1px solid var(--accent-mid);
+  border-radius: var(--radius-sm); padding: 4px 14px;
+  min-width: 90px; text-align: center;
+}
+.countdown.warn { color: var(--red); background: var(--red-pale); border-color: var(--red); animation: pulse .8s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+.question-wrap { animation: slideIn .22s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+.q-section-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Inconsolata', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .08em;
+  padding: 4px 12px; border-radius: 100px; margin-bottom: 14px;
+}
+.q-card {
+  background: var(--card); border: 1px solid var(--rule);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  overflow: hidden; margin-bottom: 16px;
+}
+.q-card-top { height: 4px; }
+.q-card-body { padding: 24px 26px 22px; }
+.q-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+.q-num { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--accent-mid); flex-shrink: 0; line-height: 1; margin-top: 2px; }
+.q-stem { font-size: 16px; line-height: 1.6; color: var(--ink); font-weight: 500; }
+.q-tags { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 16px; }
+.q-tag { font-family: 'Inconsolata', monospace; font-size: 10.5px; background: var(--accent-pale); color: var(--accent-deep); border: 1px solid var(--accent-mid); border-radius: 5px; padding: 2px 7px; }
+.options { display: flex; flex-direction: column; gap: 9px; }
+.opt-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; border: 1.5px solid var(--rule);
+  background: var(--paper); border-radius: var(--radius-sm);
+  cursor: pointer; text-align: left; font-size: 14.5px; font-family: 'DM Sans', sans-serif;
+  color: var(--ink); transition: all .15s; position: relative; overflow: hidden;
+}
+.opt-btn::before { content: ''; position: absolute; inset: 0; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform .15s; z-index: 0; opacity: .06; }
+.opt-btn:hover::before { transform: scaleX(1); }
+.opt-btn:hover { border-color: var(--accent); transform: translateX(3px); }
+.opt-btn.selected { border-color: var(--accent); background: var(--accent-pale); }
+.opt-btn.selected .opt-letter { background: var(--accent); color: #fff; }
+.opt-letter {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Inconsolata', monospace; font-weight: 700; font-size: 13px;
+  background: var(--rule); color: var(--ink-soft); z-index: 1; transition: all .15s;
+}
+.opt-text { z-index: 1; line-height: 1.45; }
+
+/* Navigator */
+.nav-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+.nav-chip {
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Inconsolata', monospace; font-size: 12.5px; font-weight: 700;
+  border: 1.5px solid var(--rule); background: var(--paper); color: var(--ink-soft);
+  cursor: pointer; transition: all .15s;
+}
+.nav-chip:hover { border-color: var(--accent); color: var(--accent); }
+.nav-chip.answered { background: var(--accent); border-color: var(--accent); color: #fff; }
+.nav-chip.current { box-shadow: 0 0 0 2.5px var(--orange); }
+
+/* Nav row */
+.quiz-nav-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.btn-nav {
+  padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; border: 1.5px solid var(--rule);
+  background: var(--card); color: var(--ink); transition: all .15s;
+}
+.btn-nav:hover { border-color: var(--accent); color: var(--accent); }
+.btn-nav.btn-next { background: var(--accent-deep); border-color: var(--accent-deep); color: #fff; }
+.btn-nav.btn-next:hover { background: var(--accent); border-color: var(--accent); }
+.btn-submit { background: linear-gradient(135deg, var(--green), #4EA96C); border: none; color: #fff; padding: 12px 28px; border-radius: var(--radius-sm); font-weight: 700; font-size: 15px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity .2s, transform .1s; }
+.btn-submit:hover { opacity: .9; transform: translateY(-1px); }
+
+.skip-warning { background: var(--orange-pale); border: 1px solid var(--orange); border-radius: var(--radius-sm); padding: 11px 14px; font-size: 13.5px; color: #8A3B12; margin-top: 12px; display: none; }
+.skip-warning.show { display: block; }
+
+/* Tab-switch overlay */
+.tab-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 999;
+  display: flex; align-items: center; justify-content: center;
+  display: none;
+}
+.tab-overlay.show { display: flex; }
+.tab-overlay-card { background: var(--card); border-radius: var(--radius); padding: 36px 40px; max-width: 480px; text-align: center; box-shadow: var(--shadow-lg); }
+.tab-overlay-card h3 { font-family: 'DM Serif Display', serif; color: var(--red); font-size: 26px; margin-bottom: 10px; }
+.tab-overlay-card p { color: var(--ink-soft); margin-bottom: 20px; }
+.btn-resume { background: var(--accent-deep); color: #fff; border: none; border-radius: var(--radius-sm); padding: 11px 28px; font-weight: 700; font-size: 15px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+/* ── RESULT SCREEN ── */
+#result-screen { max-width: 760px; margin: 0 auto; padding: 28px 20px 80px; }
+.result-card { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); box-shadow: var(--shadow-lg); overflow: hidden; }
+.result-accent-bar { height: 6px; }
+.result-inner { padding: 36px 36px 28px; text-align: center; }
+.grade-emoji { font-size: 64px; line-height: 1; margin-bottom: 10px; }
+.result-score { font-family: 'DM Serif Display', serif; font-size: 80px; line-height: 1; color: var(--accent-deep); margin-bottom: 4px; }
+.result-score span { font-size: 36px; color: var(--ink-soft); }
+.result-pct { font-family: 'Inconsolata', monospace; font-size: 18px; color: var(--ink-soft); margin-bottom: 14px; }
+.result-verdict { display: inline-block; font-family: 'Inconsolata', monospace; font-size: 13px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 5px 16px; border-radius: 100px; margin-bottom: 24px; }
+.verdict-pass { background: var(--green-pale); color: var(--green); border: 1px solid var(--green); }
+.verdict-fail { background: var(--red-pale); color: var(--red); border: 1px solid var(--red); }
+.result-status { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+.status-badge { font-family: 'Inconsolata', monospace; font-size: 12px; padding: 5px 12px; border-radius: 100px; background: var(--paper); border: 1px solid var(--rule); color: var(--ink-soft); }
+.status-badge.ok { background: var(--green-pale); color: var(--green); border-color: var(--green); }
+.result-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 24px; }
+.result-info-cell { background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius-sm); padding: 12px 10px; text-align: center; }
+.result-info-cell .n { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--accent-deep); }
+.result-info-cell .l { font-family: 'Inconsolata', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); margin-top: 2px; }
+.section-breakdown { margin: 0 0 24px; text-align: left; }
+.section-breakdown h4 { font-family: 'Inconsolata', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); margin-bottom: 10px; }
+.sec-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+.sec-name { font-size: 13px; color: var(--ink); min-width: 180px; flex: 1; }
+.sec-bar-wrap { flex: 2; height: 7px; background: var(--rule); border-radius: 4px; overflow: hidden; }
+.sec-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--orange)); border-radius: 4px; }
+.sec-frac { font-family: 'Inconsolata', monospace; font-size: 12px; color: var(--ink-soft); min-width: 40px; text-align: right; }
+.result-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+.btn-action { padding: 11px 22px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; border: 1.5px solid var(--rule); background: var(--paper); color: var(--ink); transition: all .15s; }
+.btn-action:hover { border-color: var(--accent); color: var(--accent); }
+.btn-action.primary { background: var(--accent-deep); border-color: var(--accent-deep); color: #fff; }
+.btn-action.primary:hover { background: var(--accent); }
+.submission-box { background: var(--accent-pale); border: 1.5px dashed var(--accent-mid); border-radius: var(--radius-sm); padding: 14px 18px; }
+.submission-box .l { font-family: 'Inconsolata', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin-bottom: 5px; }
+.submission-box .id { font-family: 'Inconsolata', monospace; font-size: 14px; font-weight: 700; color: var(--accent-deep); word-break: break-all; }
+
+/* ── REVIEW ── */
+#review-screen { max-width: 820px; margin: 0 auto; padding: 28px 20px 80px; }
+.review-back { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; }
+.btn-back { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius-sm); padding: 8px 16px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; color: var(--ink); }
+.review-q { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 14px; box-shadow: var(--shadow); }
+.review-q .r-num { font-family: 'DM Serif Display', serif; font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; }
+.review-q .r-stem { font-size: 15px; font-weight: 500; margin-bottom: 12px; }
+.review-opt { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 6px; font-size: 14px; border: 1px solid transparent; }
+.review-opt.correct { background: var(--green-pale); border-color: var(--green); color: #1a3d29; }
+.review-opt.wrong { background: var(--red-pale); border-color: var(--red); color: #5a1a10; }
+.review-opt.neutral { background: var(--paper); border-color: var(--rule); color: var(--ink-soft); }
+.r-letter { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Inconsolata', monospace; font-weight: 700; font-size: 12px; flex-shrink: 0; }
+.correct .r-letter { background: var(--green); color: #fff; }
+.wrong .r-letter { background: var(--red); color: #fff; }
+.neutral .r-letter { background: var(--rule); color: var(--ink-soft); }
+
+/* ── LEADERBOARD SCREEN ── */
+#lb-screen { max-width: 680px; margin: 0 auto; padding: 28px 20px 80px; }
+.lb-full-head { margin-bottom: 22px; }
+.lb-full-head h2 { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--accent-deep); margin-bottom: 4px; }
+.lb-meta-tag { font-family: 'Inconsolata', monospace; font-size: 12px; color: var(--ink-soft); }
+.lb-full-table { background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.lb-full-row { display: grid; grid-template-columns: 50px 1fr auto; align-items: center; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--rule); }
+.lb-full-row:last-child { border-bottom: none; }
+.lb-full-row.header { background: var(--accent-deep); color: rgba(255,255,255,.7); font-family: 'Inconsolata', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; padding: 10px 20px; }
+.lb-rank { font-family: 'DM Serif Display', serif; font-size: 20px; text-align: center; }
+.lb-rank.gold { color: #C89A2A; }
+.lb-rank.silver { color: #8A8A8A; }
+.lb-rank.bronze { color: #B05A2E; }
+.lb-details .n { font-weight: 600; font-size: 15px; }
+.lb-details .m { font-family: 'Inconsolata', monospace; font-size: 11.5px; color: var(--ink-soft); }
+.lb-score-cell { text-align: right; }
+.lb-score-big { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--accent-deep); }
+.lb-score-sub { font-family: 'Inconsolata', monospace; font-size: 11px; color: var(--ink-soft); }
+
+/* Section colours */
+.pill-1 { background: #E4F1F3; color: #0C6B77; border: 1px solid #C2DFE3; }
+.pill-2 { background: #F0E9FF; color: #5A2DA0; border: 1px solid #D4BDF7; }
+.pill-3 { background: #FBE3D2; color: #8A3B12; border: 1px solid #EFC6A2; }
+.pill-4 { background: #E3EFE4; color: #2D5E3A; border: 1px solid #B5D9BC; }
+.bar-1 { background: linear-gradient(90deg,#0C6B77,#0e9aac); }
+.bar-2 { background: linear-gradient(90deg,#5A2DA0,#7B44CC); }
+.bar-3 { background: linear-gradient(90deg,#E2662B,#EF8B50); }
+.bar-4 { background: linear-gradient(90deg,#3F7D58,#58AE7A); }
+.top-bar-1 { background: linear-gradient(90deg,#0C6B77,#0e9aac); }
+.top-bar-2 { background: linear-gradient(90deg,#5A2DA0,#7B44CC); }
+.top-bar-3 { background: linear-gradient(90deg,#E2662B,#EF8B50); }
+.top-bar-4 { background: linear-gradient(90deg,#3F7D58,#58AE7A); }
+
+/* pdf-only */
+#pdf-result { display: none; }
+
+@media(max-width: 740px) {
+  .reg-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+  .lb-widget { display: none; }
+  .result-score { font-size: 60px; }
+}
+@media(max-width: 520px) {
+  .quiz-subbar { flex-direction: column; align-items: flex-start; }
+  .countdown { align-self: flex-end; }
+  .nav-chips { gap: 4px; }
+  .nav-chip { width: 30px; height: 30px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <img class="nav-logo" src="KP_Singh.png" alt="K.P. Singh"/>
+    <div>
+      <div class="nav-name">K.P. Singh</div>
+      <div class="nav-sub">SGT University · BTech 5th Sem · MATLAB Lab</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-lb-btn" onclick="showLB()">🏆 Leaderboard</button>
+    <a class="nav-cta" href="https://kpsingh.in" target="_blank">kpsingh.in ↗</a>
+  </div>
+</nav>
+
+<!-- ════════════════ REGISTRATION SCREEN ════════════════ -->
+<div class="screen active" id="reg-screen">
+  <div class="reg-grid">
+    <div class="reg-card">
+      <div class="reg-accent-bar"></div>
+      <div class="reg-card-inner">
+        <p class="reg-eyebrow">MATLAB Lab · Practicals 1 &amp; 2</p>
+        <h1 class="reg-title">Quiz — <em>Variables, Vectors</em> &amp; Matrices</h1>
+        <p class="reg-subtitle">20 MCQ · 4 Sections · 20 min </p>
+        <div class="topics-box">
+          <h4>Topics Covered</h4>
+          <ul>
+            <li>Variables &amp; Vectors</li>
+            <li>Display Commands</li>
+            <li>Stats Functions</li>
+            <li>Logical Counting</li>
+            <li>MATLAB Interface</li>
+            <li>Data Types</li>
+            <li>Script Files</li>
+            <li>Matrices</li>
+            <li>Indexing &amp; Slicing</li>
+            <li>Matrix Operations</li>
+          </ul>
+        </div>
+
+        <div class="err-msg" id="reg-err"></div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Full Name *</label>
+            <input type="text" id="inp-name" placeholder="e.g. Priya Sharma" autocomplete="name">
+          </div>
+          <div class="form-field">
+            <label>Roll Number *</label>
+            <input type="text" id="inp-roll" placeholder="e.g. 22CS501" style="text-transform:uppercase">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Section *</label>
+            <select id="inp-section">
+              <option value="">— Select Section —</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Branch</label>
+            <input type="text" value="BTech CSE (AI/ML)" readonly>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Semester</label>
+          <input type="text" value="5th Semester" readonly>
+        </div>
+
+        <button class="btn-primary" onclick="startQuiz()">Begin Quiz →</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="lb-widget">
+        <div class="lb-widget-head">
+          <h3>🏆 Live Leaderboard</h3>
+          <div class="lb-live"><span class="lb-dot"></span> LIVE · TOP 5</div>
+        </div>
+        <div class="lb-widget-body" id="widget-lb-body">
+          <div class="lb-spinner">Loading scores…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ QUIZ SCREEN ════════════════ -->
+<div class="screen" id="quiz-screen">
+  <div style="max-width:820px;margin:0 auto;padding:0 20px;">
+    <div class="quiz-subbar">
+      <div class="quiz-student-info" id="quiz-student-label">—</div>
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span id="prog-answered">0 answered</span>
+          <span id="prog-total">of 20</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="prog-bar" style="width:0%"></div></div>
+      </div>
+      <div class="countdown" id="countdown">20:00</div>
+    </div>
+
+    <div class="nav-chips" id="nav-chips"></div>
+
+    <div id="question-area"></div>
+
+    <div class="skip-warning" id="skip-warning">
+      ⚠️ You have <span id="unanswered-count">0</span> unanswered question(s). Are you sure you want to submit? Click Submit again to confirm.
+    </div>
+    <div class="quiz-nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)">← Previous</button>
+      <button class="btn-nav btn-next" id="btn-next" onclick="navigate(1)">Next →</button>
+      <button class="btn-submit" id="btn-submit" onclick="handleSubmit()" style="display:none">Submit Quiz ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tab-switch overlay -->
+<div class="tab-overlay" id="tab-overlay">
+  <div class="tab-overlay-card">
+    <h3>⚠️ Tab Switch Detected</h3>
+    <p id="tab-overlay-msg">Please stay on this tab. Switching away again will auto-submit your quiz.</p>
+    <button class="btn-resume" onclick="resumeFromTab()">Resume Quiz</button>
+  </div>
+</div>
+
+<!-- ════════════════ RESULT SCREEN ════════════════ -->
+<div class="screen" id="result-screen">
+  <div class="result-card">
+    <div class="result-accent-bar" id="result-bar"></div>
+    <div class="result-inner">
+      <div class="grade-emoji" id="result-emoji"></div>
+      <div class="result-score" id="result-score-big"></div>
+      <div class="result-pct" id="result-pct"></div>
+      <div class="result-verdict" id="result-verdict"></div>
+      <div class="result-status" id="result-status"></div>
+      <div class="result-info-grid" id="result-info-grid"></div>
+      <div class="section-breakdown" id="section-breakdown"></div>
+      <div class="result-actions">
+        <button class="btn-action primary" onclick="savePDF()">⬇ Save PDF</button>
+        <button class="btn-action" onclick="showReview()">Review Answers</button>
+        <button class="btn-action" onclick="showLB()">🏆 Leaderboard</button>
+      </div>
+      <div class="submission-box">
+        <div class="l">Submission ID</div>
+        <div class="id" id="sub-id-display">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ REVIEW SCREEN ════════════════ -->
+<div class="screen" id="review-screen">
+  <div class="review-back">
+    <button class="btn-back" onclick="showResult()">← Back to Score</button>
+  </div>
+  <div id="review-body"></div>
+</div>
+
+<!-- ════════════════ LEADERBOARD SCREEN ════════════════ -->
+<div class="screen" id="lb-screen">
+  <div class="review-back">
+    <button class="btn-back" onclick="showResult()">← Back</button>
+    <button class="btn-back" onclick="showScreen('reg-screen')" style="margin-left:8px">↩ Home</button>
+  </div>
+  <div class="lb-full-head">
+    <h2>🏆 Leaderboard</h2>
+    <div class="lb-meta-tag">MATLAB Lab · Practicals 1 &amp; 2 · BTech 5th Sem · TOP 5 · BEST ATTEMPT PER STUDENT</div>
+  </div>
+  <div class="lb-full-table" id="lb-full-body">
+    <div class="lb-spinner">Loading…</div>
+  </div>
+</div>
+
+<!-- PDF template (hidden) -->
+<div id="pdf-result"></div>
+
+<script>
+/* ===== MODULE: CONFIG ===== */
+const QUIZ_ID   = 'MATLAB-L1_2';
+const COHORT_ID = 'SGT_BTECH_SEM5';
+const API_URL   = 'https://script.google.com/macros/s/AKfycbx8RW1befzlJ-rrYsUGfeRe4xj8oW0B2pL_Sh2t8tFXHzxro2x_tRNy0h-Yn9pJOTpAtQ/exec'; // replace with your GAS /exec URL
+const LB_SIZE   = 5;
+const TOTAL_TIME_SEC = 20 * 60;
+const TAB_SWITCH_LIMIT = 2;
+const INACTIVITY_MS = 30000;
+const FLUSH_INTERVAL_MS = 8000;
+
+/* ===== MODULE: QUESTIONS ===== */
+const RAW_QUESTIONS = [
+  // ── SECTION 1: Variables, Vectors & Workspace (5 Qs)
+  {
+    id:'Q01', section:'Variables, Vectors & Workspace', secIdx:0,
+    q:"You type\u00a0\u00a0\u00a0hr = [72 75 88 102 110];\u00a0\u00a0\u00a0in the Command Window (note the semicolon). What appears on screen?",
+    opts:["The vector hr with all five values printed out","Nothing — the semicolon suppresses output","An error because hr is not defined before use","The message 'hr saved to workspace'"],
+    a:1, tag:"Variables"
+  },
+  {
+    id:'Q02', section:'Variables, Vectors & Workspace', secIdx:0,
+    q:"What is the difference between clc and clear in MATLAB?",
+    opts:["clc deletes variables; clear only clears the screen","Both do exactly the same thing","clc clears the screen only; clear deletes variables from the workspace","clear only works on matrices, not vectors"],
+    a:2, tag:"Workspace"
+  },
+  {
+    id:'Q03', section:'Variables, Vectors & Workspace', secIdx:0,
+    q:"Which of the following correctly creates a vector of odd numbers from 1 to 9 in MATLAB?",
+    opts:["1:9","1:2:9","1,3,5,7,9","odd(1:9)"],
+    a:1, tag:"Variables"
+  },
+  {
+    id:'Q04', section:'Variables, Vectors & Workspace', secIdx:0,
+    q:"You run\u00a0\u00a0\u00a0whos\u00a0\u00a0\u00a0after assigning three variables. What does whos display?",
+    opts:["Only the variable names, not their sizes","A list of all current variables with their sizes and data types","The contents of each variable in full","The last five commands you typed"],
+    a:1, tag:"Workspace"
+  },
+  {
+    id:'Q05', section:'Variables, Vectors & Workspace', secIdx:0,
+    q:"A coach gives you 15 heart-rate readings and you store them as\u00a0\u00a0\u00a0hr = [72 75 88 ... 84];\u00a0\u00a0\u00a0How many elements does MATLAB count with\u00a0\u00a0\u00a0length(hr)\u00a0?",
+    opts:["14","15","1","It depends on how many values exceed 100"],
+    a:1, tag:"Variables"
+  },
+
+  // ── SECTION 2: Stats & Logical Counting (5 Qs)
+  {
+    id:'Q06', section:'Stats & Logical Counting', secIdx:1,
+    q:"What is the only difference between\u00a0\u00a0\u00a0sum(v)\u00a0\u00a0\u00a0and\u00a0\u00a0\u00a0mean(v)\u00a0\u00a0\u00a0in MATLAB?",
+    opts:["sum works on matrices; mean works only on vectors","mean adds all elements; sum additionally divides by the count","sum adds all elements; mean adds them and then divides by the count","They produce identical results — mean is just an alias for sum"],
+    a:2, tag:"Stats"
+  },
+  {
+    id:'Q07', section:'Stats & Logical Counting', secIdx:1,
+    q:"You run\u00a0\u00a0\u00a0sum(aarav > 120)\u00a0\u00a0\u00a0where aarav is a 15-element heart-rate vector. What does this expression actually count?",
+    opts:["The sum of all readings above 120","The number of minutes the heart rate exceeded 120 bpm","The position of the first reading above 120","The average of readings that exceed 120"],
+    a:1, tag:"Logical Counting"
+  },
+  {
+    id:'Q08', section:'Stats & Logical Counting', secIdx:1,
+    q:"MATLAB evaluates\u00a0\u00a0\u00a0aarav > 120\u00a0\u00a0\u00a0and produces a logical array. What numeric values appear in that array?",
+    opts:["The actual heart-rate values that exceed 120","1 where the condition is true, 0 where it is false","120 where true, 0 where false","True or False as text strings"],
+    a:1, tag:"Logical Counting"
+  },
+  {
+    id:'Q09', section:'Stats & Logical Counting', secIdx:1,
+    q:"Which single MATLAB expression gives Aarav\u2019s heart-rate range (highest minus lowest) from the vector aarav?",
+    opts:["range(aarav)","max(aarav) - min(aarav)","std(aarav)","sum(aarav) / length(aarav)"],
+    a:1, tag:"Stats"
+  },
+  {
+    id:'Q10', section:'Stats & Logical Counting', secIdx:1,
+    q:"Aarav\u2019s wearable logs data for 7 runners as seven separately named vectors. What is the first thing that becomes impossible (not just inconvenient) with this approach?",
+    opts:["Computing an average for any one runner","Plotting a single runner\u2019s data","Writing a loop that processes all seven runners automatically","Finding the peak reading for one runner"],
+    a:2, tag:"Workspace"
+  },
+
+  // ── SECTION 3: MATLAB Interface & Data Types (5 Qs)
+  {
+    id:'Q11', section:'MATLAB Interface & Data Types', secIdx:2,
+    q:"You type\u00a0\u00a0\u00a0class('hello')\u00a0\u00a0\u00a0in the Command Window. What does MATLAB return?",
+    opts:["string","char","double","text"],
+    a:1, tag:"Data Types"
+  },
+  {
+    id:'Q12', section:'MATLAB Interface & Data Types', secIdx:2,
+    q:"You run\u00a0\u00a0\u00a0format long\u00a0\u00a0\u00a0and then display pi. What actually changes?",
+    opts:["The internal precision with which pi is stored","Only the number of decimal places displayed — the stored value is unchanged","pi is rounded to 15 decimal places permanently","The display switches to scientific notation only"],
+    a:1, tag:"Data Types"
+  },
+  {
+    id:'Q13', section:'MATLAB Interface & Data Types', secIdx:2,
+    q:"Which MATLAB panel shows a live list of all currently defined variables along with their sizes and data types?",
+    opts:["Command History","Editor","Workspace","Current Folder"],
+    a:2, tag:"Interface"
+  },
+  {
+    id:'Q14', section:'MATLAB Interface & Data Types', secIdx:2,
+    q:"A script file (.m) is superior to typing commands one at a time in the Command Window mainly because:",
+    opts:["Scripts run faster than commands typed in the Command Window","Scripts are saved to disk and can be re-run, edited, and shared without retyping","The Command Window cannot handle vectors — only scalars","Scripts automatically clear the workspace before running"],
+    a:1, tag:"Interface"
+  },
+  {
+    id:'Q15', section:'MATLAB Interface & Data Types', secIdx:2,
+    q:"You write\u00a0\u00a0\u00a0n = input(\u2018How many samosas? \u2019);\u00a0\u00a0\u00a0in a script. What happens when the script reaches that line?",
+    opts:["n is set to 0 by default","MATLAB skips the line because input() is not a valid function","The script pauses and waits for the user to type a number, which becomes the value of n","An error is thrown because input() requires two arguments"],
+    a:2, tag:"Interface"
+  },
+
+  // ── SECTION 4: Matrices (5 Qs)
+  {
+    id:'Q16', section:'Matrices', secIdx:3,
+    q:"You define\u00a0\u00a0\u00a0sales = [22 40 15; 28 35 20; 19 38 18];\u00a0\u00a0\u00a0What does\u00a0\u00a0\u00a0sales(2,3)\u00a0\u00a0\u00a0return?",
+    opts:["35","28","20","38"],
+    a:2, tag:"Indexing"
+  },
+  {
+    id:'Q17', section:'Matrices', secIdx:3,
+    q:"Which expression extracts the entire second column of a matrix A?",
+    opts:["A(2)","A(:,2)","A(2,:)","A[2]"],
+    a:1, tag:"Indexing"
+  },
+  {
+    id:'Q18', section:'Matrices', secIdx:3,
+    q:"aarav is a 3\u00d73 matrix (3 days \u00d7 3 metrics: HR, steps, calories). What does\u00a0\u00a0\u00a0sum(aarav, 2)\u00a0\u00a0\u00a0compute — and why is the result physically meaningless?",
+    opts:["It sums each column — physically meaningful because each column is one metric","It sums across each row, adding HR + steps + calories — these have different units so the total has no physical meaning","It finds the row with the maximum sum — useful for identifying the busiest day","It computes the mean across rows — a standard normalisation step"],
+    a:1, tag:"Matrix Operations"
+  },
+  {
+    id:'Q19', section:'Matrices', secIdx:3,
+    q:"You have a 3\u00d73 matrix A and a 3\u00d71 column vector b. Which expression solves the system Ax\u00a0=\u00a0b in MATLAB, and is generally preferred over using inv()?",
+    opts:["x = inv(A) + b","x = A \\ b","x = A * b","x = b / A"],
+    a:1, tag:"Matrix Operations"
+  },
+  {
+    id:'Q20', section:'Matrices', secIdx:3,
+    q:"P = [1 2; 3 4]. What is the key difference between\u00a0\u00a0\u00a0P.^2\u00a0\u00a0\u00a0and\u00a0\u00a0\u00a0P^2\u00a0?",
+    opts:["P.^2 raises the whole matrix to the power 2; P^2 squares each element individually","P.^2 squares each element individually; P^2 is equivalent to P*P (matrix multiplication repeated)","They give identical results — the dot only affects division and multiplication","P^2 requires P to be a row vector; P.^2 works on any shape"],
+    a:1, tag:"Matrix Operations"
+  }
+];
+
+const SECTIONS = [
+  { name:'Variables, Vectors & Workspace', color:'pill-1', bar:'bar-1', topBar:'top-bar-1' },
+  { name:'Stats & Logical Counting',       color:'pill-2', bar:'bar-2', topBar:'top-bar-2' },
+  { name:'MATLAB Interface & Data Types',  color:'pill-3', bar:'bar-3', topBar:'top-bar-3' },
+  { name:'Matrices',                       color:'pill-4', bar:'bar-4', topBar:'top-bar-4' }
+];
+
+/* ===== MODULE: STATE ===== */
+let SESSION_ID = '', questions = [], answers = {}, studentInfo = {};
+let currentIdx = 0, timerHandle = null, timeLeft = TOTAL_TIME_SEC;
+let eventBuffer = [], eventId = 0, quizStartMs = 0, flushHandle = null;
+let tabSwitchCount = 0, inactivityHandle = null, submitWarned = false;
+let finalSubmitted = false, sessionResultData = null;
+
+/* ===== MODULE: UTILS ===== */
+function uuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function pad(n) { return String(n).padStart(2, '0'); }
+
+/* ===== MODULE: ANALYTICS ===== */
+function logEvent(type, questionId, value) {
+  eventBuffer.push({
+    sessionId: SESSION_ID, eventId: ++eventId, quizId: QUIZ_ID,
+    studentId: studentInfo.roll || '', questionId: questionId || '',
+    eventType: type, eventValue: String(value || ''),
+    clientTs: new Date().toISOString(), elapsedMs: Date.now() - quizStartMs
+  });
+}
+function flushEvents() {
+  if (!eventBuffer.length) return;
+  const batch = [...eventBuffer]; eventBuffer = [];
+  try {
+    fetch(API_URL, { method:'POST', mode:'no-cors', body: JSON.stringify({ action:'events', events: batch }) }).catch(()=>{});
+  } catch(e) {}
+}
+function setupFlush() {
+  flushHandle = setInterval(flushEvents, FLUSH_INTERVAL_MS);
+}
+function beaconFlush() {
+  if (!eventBuffer.length) return;
+  try { navigator.sendBeacon(API_URL, JSON.stringify({ action:'events', events: eventBuffer })); } catch(e) {}
+}
+
+/* ===== MODULE: QUIZ LOGIC ===== */
+function startQuiz() {
+  const name = document.getElementById('inp-name').value.trim();
+  const roll = document.getElementById('inp-roll').value.trim().toUpperCase();
+  const section = document.getElementById('inp-section').value;
+  const errEl = document.getElementById('reg-err');
+
+  if (!name) { errEl.textContent = 'Please enter your full name.'; errEl.style.display = 'block'; return; }
+  if (!roll) { errEl.textContent = 'Please enter your roll number.'; errEl.style.display = 'block'; return; }
+  if (!section) { errEl.textContent = 'Please select your section.'; errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+
+  studentInfo = { name, roll, section, branch: 'BTech CSE (AI/ML)', semester: '5th' };
+  SESSION_ID = uuid();
+  quizStartMs = Date.now();
+
+  // Shuffle questions and options
+  questions = shuffle(RAW_QUESTIONS).map(q => {
+    const shuffled = shuffle(q.opts.map((o, i) => ({ text: o, origIdx: i })));
+    const newA = shuffled.findIndex(o => o.origIdx === q.a);
+    return { ...q, shuffledOpts: shuffled, shuffledA: newA };
+  });
+
+  logEvent('QUIZ_START', '', '');
+  logEvent('DEVICE_INFO', '', JSON.stringify({
+    ua: navigator.userAgent, screen: screen.width+'x'+screen.height,
+    viewport: innerWidth+'x'+innerHeight, touch: ('ontouchstart' in window)
+  }));
+  setupFlush();
+
+  // Tab switch
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  window.addEventListener('beforeunload', beaconFlush);
+
+  // Inactivity
+  resetInactivity();
+  document.addEventListener('mousemove', resetInactivity);
+  document.addEventListener('keydown', resetInactivity);
+
+  buildNavChips();
+  document.getElementById('quiz-student-label').innerHTML =
+    `<b>${name}</b> · ${roll} · Sec ${section}`;
+  document.getElementById('prog-total').textContent = `of ${questions.length}`;
+
+  showScreen('quiz-screen');
+  renderQuestion(0);
+  startTimer();
+  logEvent('QUESTION_DISPLAYED', questions[0].id, '0');
+}
+
+function buildNavChips() {
+  const wrap = document.getElementById('nav-chips');
+  wrap.innerHTML = '';
+  questions.forEach((q, i) => {
+    const chip = document.createElement('button');
+    chip.className = 'nav-chip' + (i === 0 ? ' current' : '');
+    chip.id = `chip-${i}`;
+    chip.textContent = i + 1;
+    chip.onclick = () => jumpTo(i);
+    wrap.appendChild(chip);
+  });
+}
+
+function updateChips() {
+  questions.forEach((q, i) => {
+    const chip = document.getElementById(`chip-${i}`);
+    if (!chip) return;
+    chip.className = 'nav-chip' +
+      (answers[q.id] !== undefined ? ' answered' : '') +
+      (i === currentIdx ? ' current' : '');
+  });
+  const answered = Object.keys(answers).length;
+  document.getElementById('prog-answered').textContent = `${answered} answered`;
+  document.getElementById('prog-bar').style.width = `${(answered / questions.length) * 100}%`;
+}
+
+function renderQuestion(idx) {
+  currentIdx = idx;
+  const q = questions[idx];
+  const sec = SECTIONS[q.secIdx];
+  const isLast = idx === questions.length - 1;
+
+  document.getElementById('btn-prev').style.display = idx === 0 ? 'none' : '';
+  document.getElementById('btn-next').style.display = isLast ? 'none' : '';
+  document.getElementById('btn-submit').style.display = isLast ? 'inline-block' : 'none';
+  document.getElementById('skip-warning').classList.remove('show');
+  submitWarned = false;
+
+  const area = document.getElementById('question-area');
+  area.innerHTML = `
+    <span class="q-section-pill ${sec.color}">${sec.name}</span>
+    <div class="q-card">
+      <div class="q-card-top ${sec.bar}"></div>
+      <div class="q-card-body">
+        <div class="q-header">
+          <span class="q-num">${idx + 1}</span>
+          <span class="q-stem">${q.q}</span>
+        </div>
+        <div class="q-tags">
+          <span class="q-tag">${q.tag}</span>
+        </div>
+        <div class="options" id="opts"></div>
+      </div>
+    </div>`;
+
+  const letters = ['A','B','C','D'];
+  const optWrap = document.getElementById('opts');
+  q.shuffledOpts.forEach((opt, oi) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn' + (answers[q.id] === oi ? ' selected' : '');
+    btn.innerHTML = `<span class="opt-letter">${letters[oi]}</span><span class="opt-text">${opt.text}</span>`;
+    btn.onclick = () => selectOption(q.id, oi, btn);
+    optWrap.appendChild(btn);
+  });
+
+  updateChips();
+}
+
+function selectOption(qId, optIdx, btn) {
+  const prev = answers[qId];
+  if (prev !== undefined && prev !== optIdx) logEvent('OPTION_CHANGED', qId, `${prev}->${optIdx}`);
+  else if (prev === undefined) logEvent('OPTION_SELECTED', qId, String(optIdx));
+  answers[qId] = optIdx;
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  logEvent('ANSWER_SUBMITTED', qId, String(optIdx));
+  updateChips();
+}
+
+function navigate(dir) {
+  const newIdx = currentIdx + dir;
+  if (newIdx < 0 || newIdx >= questions.length) return;
+  if (answers[questions[currentIdx].id] === undefined) logEvent('QUESTION_SKIPPED', questions[currentIdx].id, '');
+  logEvent(dir > 0 ? 'NAV_NEXT' : 'NAV_PREVIOUS', questions[currentIdx].id, String(currentIdx));
+  renderQuestion(newIdx);
+  logEvent('QUESTION_DISPLAYED', questions[newIdx].id, String(newIdx));
+}
+
+function jumpTo(idx) {
+  logEvent('NAV_JUMP', questions[currentIdx].id, String(idx));
+  renderQuestion(idx);
+  logEvent('QUESTION_DISPLAYED', questions[idx].id, String(idx));
+}
+
+function handleSubmit() {
+  const unanswered = questions.filter(q => answers[q.id] === undefined).length;
+  if (unanswered > 0 && !submitWarned) {
+    const warn = document.getElementById('skip-warning');
+    document.getElementById('unanswered-count').textContent = unanswered;
+    warn.classList.add('show');
+    submitWarned = true;
+    return;
+  }
+  finalize('voluntary');
+}
+
+function finalize(reason) {
+  if (finalSubmitted) return;
+  finalSubmitted = true;
+  clearInterval(timerHandle);
+  clearInterval(flushHandle);
+  document.removeEventListener('visibilitychange', onVisibilityChange);
+  clearTimeout(inactivityHandle);
+
+  const timeTaken = TOTAL_TIME_SEC - timeLeft;
+  logEvent('FINAL_SUBMISSION', '', reason);
+  flushEvents();
+
+  // Score
+  let score = 0;
+  const sectionScores = SECTIONS.map(() => ({ c: 0, t: 0 }));
+  questions.forEach(q => {
+    sectionScores[q.secIdx].t++;
+    if (answers[q.id] === q.shuffledA) { score++; sectionScores[q.secIdx].c++; }
+  });
+
+  const total = questions.length;
+  const pct = Math.round(score / total * 100);
+  const grades = [['A+',90],['A',80],['B',70],['C',60],['D',50],['E',40]];
+  let grade = 'F';
+  for (const [g, th] of grades) { if (pct >= th) { grade = g; break; } }
+  const passed = pct >= 40;
+  const emojis = {'A+':'🏆','A':'🌟','B':'🎯','C':'📚','D':'💪','E':'🤞','F':'📖'};
+  const sid = `${studentInfo.roll}-${QUIZ_ID}-${grade}-${Date.now().toString(36).toUpperCase()}`;
+
+  sessionResultData = { score, total, pct, grade, passed, sid, timeTaken, sectionScores, reason };
+
+  // POST to Foundation
+  const payload = {
+    action: 'quiz_response', submissionId: sid, sessionId: SESSION_ID,
+    quizId: QUIZ_ID, quizType: QUIZ_ID, cohortId: COHORT_ID,
+    name: studentInfo.name, roll: studentInfo.roll, section: studentInfo.section,
+    branch: studentInfo.branch, semester: studentInfo.semester,
+    mode: 'LECTURE', score, scoreWeighted: score, total, scoreMax: total,
+    percentage: pct, grade, passed,
+    timeTaken, submittedAt: new Date().toISOString(),
+    sectionScores: sectionScores.map((s, i) => `${SECTIONS[i].name}:${s.c}/${s.t}`),
+    difficultyScores: {}
+  };
+  // per-question fields
+  RAW_QUESTIONS.forEach((rq, i) => {
+    const qi = i + 1;
+    const shuffQ = questions.find(q => q.id === rq.id);
+    const ans = answers[rq.id];
+    payload[`tag_${qi}`] = rq.tag;
+    payload[`conf_${qi}`] = 0;
+    payload[`correct_${qi}`] = (shuffQ && ans !== undefined && ans === shuffQ.shuffledA) ? 1 : 0;
+  });
+  try { fetch(API_URL, { method:'POST', mode:'no-cors', body: JSON.stringify(payload) }).catch(()=>{}); } catch(e) {}
+
+  // Render result
+  document.getElementById('result-emoji').textContent = emojis[grade] || '📖';
+  document.getElementById('result-score-big').innerHTML = `${score}<span>/${total}</span>`;
+  document.getElementById('result-pct').textContent = `${pct}% · Grade ${grade}`;
+  const verd = document.getElementById('result-verdict');
+  verd.textContent = passed ? 'PASSED' : 'NEEDS IMPROVEMENT';
+  verd.className = 'result-verdict ' + (passed ? 'verdict-pass' : 'verdict-fail');
+  const bar = document.getElementById('result-bar');
+  bar.className = `result-accent-bar ${SECTIONS[score > 14 ? 3 : score > 9 ? 2 : score > 4 ? 1 : 0].topBar}`;
+
+  const status = document.getElementById('result-status');
+  status.innerHTML = '<span class="status-badge">Saving to records…</span><span class="status-badge">Downloading PDF…</span>';
+  setTimeout(() => {
+    status.innerHTML = '<span class="status-badge ok">✓ Saved to records</span><span class="status-badge ok">✓ PDF ready</span>';
+  }, 2200);
+
+  const mm = Math.floor(timeTaken / 60), ss = timeTaken % 60;
+  document.getElementById('result-info-grid').innerHTML = `
+    <div class="result-info-cell"><div class="n">${score}</div><div class="l">Correct</div></div>
+    <div class="result-info-cell"><div class="n">${total - score}</div><div class="l">Incorrect</div></div>
+    <div class="result-info-cell"><div class="n">${pct}%</div><div class="l">Score</div></div>
+    <div class="result-info-cell"><div class="n">${mm}:${pad(ss)}</div><div class="l">Time Taken</div></div>`;
+
+  let secHtml = '<div class="section-breakdown"><h4>Section Breakdown</h4>';
+  sectionScores.forEach((s, i) => {
+    const frac = s.t > 0 ? Math.round(s.c / s.t * 100) : 0;
+    secHtml += `<div class="sec-row">
+      <span class="sec-name">${SECTIONS[i].name}</span>
+      <div class="sec-bar-wrap"><div class="sec-bar-fill ${SECTIONS[i].bar}" style="width:${frac}%"></div></div>
+      <span class="sec-frac">${s.c}/${s.t}</span></div>`;
+  });
+  secHtml += '</div>';
+  document.getElementById('section-breakdown').innerHTML = secHtml;
+  document.getElementById('sub-id-display').textContent = sid;
+
+  showScreen('result-screen');
+  setTimeout(() => savePDF(), 1400);
+
+  // refresh leaderboard widget
+  loadLBWidget();
+}
+
+function showResult() { showScreen('result-screen'); }
+
+/* ===== MODULE: TIMER ===== */
+function startTimer() {
+  timeLeft = TOTAL_TIME_SEC;
+  timerHandle = setInterval(() => {
+    timeLeft--;
+    const m = Math.floor(timeLeft / 60), s = timeLeft % 60;
+    const el = document.getElementById('countdown');
+    el.textContent = `${pad(m)}:${pad(s)}`;
+    if (timeLeft <= 300 && !el.classList.contains('warn')) {
+      el.classList.add('warn');
+      logEvent('TIME_WARNING', '', '300s');
+    }
+    if (timeLeft <= 0) finalize('timeout');
+  }, 1000);
+}
+
+/* ===== MODULE: TAB SWITCH ===== */
+function onVisibilityChange() {
+  if (document.hidden) {
+    logEvent('TAB_HIDDEN', questions[currentIdx]?.id || '', '');
+    tabSwitchCount++;
+    if (tabSwitchCount >= TAB_SWITCH_LIMIT) {
+      finalize('tab_switch');
+    } else {
+      const ov = document.getElementById('tab-overlay');
+      document.getElementById('tab-overlay-msg').textContent =
+        `Warning: tab switch ${tabSwitchCount} of ${TAB_SWITCH_LIMIT}. Switching away again will auto-submit your quiz.`;
+      ov.classList.add('show');
+    }
+  } else {
+    logEvent('TAB_VISIBLE', questions[currentIdx]?.id || '', '');
+  }
+}
+function resumeFromTab() { document.getElementById('tab-overlay').classList.remove('show'); }
+
+/* ===== MODULE: INACTIVITY ===== */
+function resetInactivity() {
+  clearTimeout(inactivityHandle);
+  inactivityHandle = setTimeout(() => {
+    logEvent('INACTIVITY_START', questions[currentIdx]?.id || '', '');
+  }, INACTIVITY_MS);
+}
+
+/* ===== MODULE: PDF ===== */
+function savePDF() {
+  if (!sessionResultData) return;
+  const { score, total, pct, grade, passed, sid, timeTaken, sectionScores } = sessionResultData;
+  const mm = Math.floor(timeTaken / 60), ss = timeTaken % 60;
+  const pdfEl = document.getElementById('pdf-result');
+  pdfEl.style.display = 'block';
+  pdfEl.innerHTML = `
+    <div style="font-family:Arial,sans-serif;max-width:700px;margin:auto;padding:32px;background:#FFFDF7;border:1px solid #E4DCC8;border-radius:12px;">
+      <div style="height:5px;background:linear-gradient(90deg,#08414A,#E2662B);border-radius:3px;margin-bottom:24px;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;">
+        <div>
+          <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#0C6B77;margin-bottom:6px;font-family:monospace;">SGT University · MATLAB Lab</div>
+          <div style="font-size:22px;font-weight:700;color:#08414A;">Practicals 1 &amp; 2 — Quiz Result</div>
+        </div>
+        <div style="text-align:right;font-size:12px;color:#5B5650;font-family:monospace;">${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>
+      </div>
+      <div style="background:#E4F1F3;border-radius:10px;padding:18px 22px;margin-bottom:22px;display:flex;gap:32px;flex-wrap:wrap;">
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#0C6B77;font-family:monospace;">Name</div><div style="font-weight:700;font-size:16px;">${studentInfo.name}</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#0C6B77;font-family:monospace;">Roll No.</div><div style="font-weight:700;font-size:16px;">${studentInfo.roll}</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#0C6B77;font-family:monospace;">Section</div><div style="font-weight:700;font-size:16px;">${studentInfo.section}</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#0C6B77;font-family:monospace;">Time Taken</div><div style="font-weight:700;font-size:16px;">${mm}m ${pad(ss)}s</div></div>
+      </div>
+      <div style="text-align:center;margin-bottom:24px;padding:24px;background:#fff;border-radius:10px;border:1px solid #E4DCC8;">
+        <div style="font-size:56px;font-weight:700;color:#08414A;">${score}/${total}</div>
+        <div style="font-size:20px;color:#5B5650;">${pct}% · Grade ${grade}</div>
+        <div style="margin-top:8px;display:inline-block;padding:5px 16px;border-radius:20px;font-size:13px;font-weight:700;font-family:monospace;letter-spacing:.08em;text-transform:uppercase;background:${passed?'#E3EFE4':'#F6E2DC'};color:${passed?'#3F7D58':'#B4432E'};border:1px solid ${passed?'#3F7D58':'#B4432E'};">${passed?'PASSED':'NEEDS IMPROVEMENT'}</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:22px;">
+        <tr style="background:#F0EBE0;"><th style="padding:9px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-family:monospace;color:#08414A;">Section</th><th style="padding:9px 12px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-family:monospace;color:#08414A;">Score</th><th style="padding:9px 12px;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-family:monospace;color:#08414A;">%</th></tr>
+        ${sectionScores.map((s,i)=>`<tr style="border-top:1px solid #E4DCC8;"><td style="padding:9px 12px;font-size:14px;">${SECTIONS[i].name}</td><td style="padding:9px 12px;text-align:center;font-family:monospace;font-weight:700;">${s.c}/${s.t}</td><td style="padding:9px 12px;text-align:center;font-family:monospace;">${s.t>0?Math.round(s.c/s.t*100):0}%</td></tr>`).join('')}
+      </table>
+      <div style="border-top:2px dashed #E4DCC8;padding-top:16px;font-family:monospace;font-size:11px;color:#5B5650;">
+        <div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#0C6B77;margin-bottom:5px;">Submission ID</div>
+        <div style="font-weight:700;font-size:13px;color:#08414A;">${sid}</div>
+        <div style="margin-top:10px;font-size:10px;color:#9B9590;">K.P. Singh · SGT University · kpsingh.in</div>
+      </div>
+    </div>`;
+  const opt = { margin:[8,8,8,8], filename:`${studentInfo.roll}-MATLAB-P1P2.pdf`, image:{type:'jpeg',quality:.97}, html2canvas:{scale:2}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'} };
+  html2pdf().set(opt).from(pdfEl).save().then(() => { pdfEl.style.display = 'none'; });
+}
+
+/* ===== MODULE: REVIEW ===== */
+function showReview() {
+  const body = document.getElementById('review-body');
+  const letters = ['A','B','C','D'];
+  body.innerHTML = questions.map((q, qi) => {
+    const answered = answers[q.id] !== undefined;
+    const correct = answered && answers[q.id] === q.shuffledA;
+    const optsHtml = q.shuffledOpts.map((opt, oi) => {
+      let cls = 'neutral';
+      if (oi === q.shuffledA) cls = 'correct';
+      else if (answered && oi === answers[q.id]) cls = 'wrong';
+      return `<div class="review-opt ${cls}"><span class="r-letter">${letters[oi]}</span><span>${opt.text}</span></div>`;
+    }).join('');
+    return `<div class="review-q">
+      <div class="r-num">Q${qi+1} · ${q.tag} ${correct?'✓':answered?'✗':'(skipped)'}</div>
+      <div class="r-stem">${q.q}</div>
+      ${optsHtml}
+    </div>`;
+  }).join('');
+  showScreen('review-screen');
+}
+
+/* ===== MODULE: LEADERBOARD ===== */
+async function loadLBWidget() {
+  const body = document.getElementById('widget-lb-body');
+  try {
+    const r = await fetch(`${API_URL}?action=leaderboard&quiz=${encodeURIComponent(QUIZ_ID)}&top=${LB_SIZE}`);
+    const j = await r.json();
+    if (j.success && j.data && j.data.length) {
+      const medals = ['🥇','🥈','🥉','4','5'];
+      body.innerHTML = j.data.map((row,i) => `
+        <div class="lb-row">
+          <div class="lb-medal ${i<3?'m'+(i+1):'mn'}">${medals[i]||i+1}</div>
+          <div class="lb-info">
+            <div class="lb-name">${row.name}</div>
+            <div class="lb-meta">${row.roll} · Sec ${row.section}</div>
+          </div>
+          <div class="lb-pct">${row.pct}%</div>
+        </div>`).join('');
+    } else {
+      body.innerHTML = '<div class="lb-empty">No scores yet — be the first!</div>';
+    }
+  } catch(e) {
+    body.innerHTML = '<div class="lb-empty">Leaderboard unavailable offline.</div>';
+  }
+}
+
+async function loadLBFull() {
+  const body = document.getElementById('lb-full-body');
+  body.innerHTML = '<div class="lb-spinner">Loading…</div>';
+  try {
+    const r = await fetch(`${API_URL}?action=leaderboard&quiz=${encodeURIComponent(QUIZ_ID)}&top=${LB_SIZE}`);
+    const j = await r.json();
+    if (j.success && j.data && j.data.length) {
+      const rankClasses = ['gold','silver','bronze','',''];
+      const medals = ['🥇','🥈','🥉','4','5'];
+      body.innerHTML = `
+        <div class="lb-full-row header"><div>Rank</div><div>Student</div><div>Score</div></div>
+        ${j.data.map((row,i) => `
+          <div class="lb-full-row">
+            <div class="lb-rank ${rankClasses[i]||''}">${medals[i]||i+1}</div>
+            <div class="lb-details"><div class="n">${row.name}</div><div class="m">${row.roll} · Section ${row.section}</div></div>
+            <div class="lb-score-cell"><div class="lb-score-big">${row.pct}%</div><div class="lb-score-sub">${row.score}/${row.total} · ${row.grade}</div></div>
+          </div>`).join('')}`;
+    } else {
+      body.innerHTML = '<div class="lb-empty" style="padding:40px;text-align:center;color:#5B5650;">No scores submitted yet.</div>';
+    }
+  } catch(e) {
+    body.innerHTML = '<div class="lb-empty" style="padding:40px;text-align:center;color:#5B5650;">Leaderboard unavailable. Check your connection.</div>';
+  }
+}
+
+function showLB() {
+  showScreen('lb-screen');
+  loadLBFull();
+}
+
+// Auto-load LB widget on page load
+window.addEventListener('DOMContentLoaded', () => {
+  loadLBWidget();
+  setInterval(loadLBWidget, 90000);
+});
+</script>
+</body>
+</html>
