@@ -514,12 +514,7 @@ const LB_SIZE   = 5;
 const QUESTIONS_MASTER = [
   // MATLAB-Matrices (5 questions) — building, indexing, size
   {id:'Q01',tag:'MATLAB-Matrices',difficulty:'easy',
-   q:"Aarav's 3-day fitness log is stored as:
-  aarav = [106 8200 310
-            98 6400 245
-           112 9750 388];
-
-What does size(aarav) return?",
+   q:"Aarav's 3-day fitness log is stored as:\n  aarav = [106 8200 310\n            98 6400 245\n           112 9750 388];\n\nWhat does size(aarav) return?",
    opts:['3 3','1 9','9 1','3 1'],
    a:0},
   {id:'Q02',tag:'MATLAB-Matrices',difficulty:'easy',
@@ -535,74 +530,39 @@ What does size(aarav) return?",
    opts:['[1 2 3]','[1, 2, 3]','[1; 2; 3]','[1 : 3]'],
    a:2},
   {id:'Q05',tag:'MATLAB-Matrices',difficulty:'hard',
-   q:"A student types:
-  aarav = [106 8200 310; 98 6400 245; 112 9750 388];
-  result = sum(aarav, 2);
-
-What does result represent, and is it meaningful?",
+   q:"A student types:\n  aarav = [106 8200 310; 98 6400 245; 112 9750 388];\n  result = sum(aarav, 2);\n\nWhat does result represent, and is it meaningful?",
    opts:['Sum of each column — meaningful (total per metric)','Sum of each row — meaningless (adds heart rate to steps to calories)','Sum of each row — meaningful (total activity per day)','Sum of each column — meaningless'],
    a:1},
 
   // MATLAB-Functions (4 questions) — mean, sum, dot-rule, inv
   {id:'Q06',tag:'MATLAB-Functions',difficulty:'easy',
-   q:"Using the canteen matrix:
-  sales = [22 40 15 18 25 10;  % Mon
-            28 35 20 16 30 12;  % Tue
-            19 38 18 22 27  8]; % Wed
-
-What does sum(sales(:,2)) compute?",
+   q:"Using the canteen matrix:\n  sales = [22 40 15 18 25 10;  % Mon\n            28 35 20 16 30 12;  % Tue\n            19 38 18 22 27  8]; % Wed\n\nWhat does sum(sales(:,2)) compute?",
    opts:['Total samosas sold','Total tea sold across all three days','Monday tea sales only','Number of days tea was sold'],
    a:1},
   {id:'Q07',tag:'MATLAB-Functions',difficulty:'medium',
-   q:"The Fit Points rulebook is:
-  rates = [0; 0.001; 0.02];
-
-What is the shape required for aarav * rates to work, and what shape does the result have?",
+   q:"The Fit Points rulebook is:\n  rates = [0; 0.001; 0.02];\n\nWhat is the shape required for aarav * rates to work, and what shape does the result have?",
    opts:['aarav must be 3×3; result is 3×3','aarav must be 3×3; result is 3×1','aarav must be 1×3; result is 1×1','aarav must be 3×1; result is 3×1'],
    a:1},
   {id:'Q08',tag:'MATLAB-Functions',difficulty:'medium',
-   q:"A student computes:
-  A = [3 2; 2 4];
-  b = [65; 80];
-  prices = inv(A) * b;
-
-What does prices represent?",
+   q:"A student computes:\n  A = [3 2; 2 4];\n  b = [65; 80];\n  prices = inv(A) * b;\n\nWhat does prices represent?",
    opts:['The total revenue','The unknown prices of samosa and tea solved from two memory equations','The transpose of A multiplied by b','The eigenvalues of A'],
    a:1},
   {id:'Q09',tag:'MATLAB-Functions',difficulty:'hard',
-   q:"Before solving a system with inv(), you run:
-  det(Q)  % returns 0
-  rank(Q) % returns 2 (Q is 3×3)
-
-What does this mean?",
+   q:"Before solving a system with inv(), you run:\n  det(Q)  % returns 0\n  rank(Q) % returns 2 (Q is 3×3)\n\nWhat does this mean?",
    opts:['The system has exactly one solution','The system has no solution — the matrix is singular and no unique inverse exists','inv() will still give a correct answer, just slower','The matrix must be transposed before solving'],
    a:1},
 
   // MATLAB-Debugging (3 questions)
   {id:'Q10',tag:'MATLAB-Debugging',difficulty:'easy',
-   q:"A student tries:
-  P = [1 2; 3 4];
-  P + [1 2 3]
-
-What happens?",
+   q:"A student tries:\n  P = [1 2; 3 4];\n  P + [1 2 3]\n\nWhat happens?",
    opts:['P becomes [2 4 3; 4 6 4]','An error — shapes must match for addition','MATLAB pads P with zeros','The row [1 2 3] is added to each row of P'],
    a:1},
   {id:'Q11',tag:'MATLAB-Debugging',difficulty:'medium',
-   q:"A student writes:
-  P = [1 2; 3 4];
-  Q = [10 20; 30 40];
-
-They expect element-by-element multiplication but type P * Q instead of P .* Q.
-
-What is P * Q(1,1)?",
+   q:"A student writes:\n  P = [1 2; 3 4];\n  Q = [10 20; 30 40];\n\nThey expect element-by-element multiplication but type P * Q instead of P .* Q.\n\nWhat is P * Q(1,1)?",
    opts:['10','40','70','100'],
    a:2},
   {id:'Q12',tag:'MATLAB-Debugging',difficulty:'hard',
-   q:"A student types:
-  Q = [4 2 6; 8 4 12; 6 1 4];
-  det(Q)
-
-Result is 0. Then they run inv(Q). What does MATLAB return?",
+   q:"A student types:\n  Q = [4 2 6; 8 4 12; 6 1 4];\n  det(Q)\n\nResult is 0. Then they run inv(Q). What does MATLAB return?",
    opts:['The correct inverse matrix','A matrix of zeros','A matrix containing Inf values with a singularity warning','An error that stops the program'],
    a:2},
 
@@ -612,8 +572,7 @@ Result is 0. Then they run inv(Q). What does MATLAB return?",
    opts:['.* does row sums; * does column sums','.* multiplies element-by-element; * performs matrix multiplication','They are the same when matrices are square','* is faster; .* is slower'],
    a:1},
   {id:'Q14',tag:'MATLAB-Basics',difficulty:'medium',
-   q:"You have a 5×6 sales matrix. You want to add Saturday as a new row with 6 values.
-Which syntax is correct?",
+   q:"You have a 5×6 sales matrix. You want to add Saturday as a new row with 6 values.\nWhich syntax is correct?",
    opts:['[sales saturday]','[sales; saturday]','append(sales, saturday)','[sales + saturday]'],
    a:1},
   {id:'Q15',tag:'MATLAB-Basics',difficulty:'hard',
