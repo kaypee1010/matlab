@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATLAB Lab 1 Quiz · K.P. Singh · SGT University</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital,wght@0,400;1,400&family=DM+Sans:wght@400;500;600;700&family=Inconsolata:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root{
+  --acc:#16a34a;--acc-pale:#f0fdf4;--acc-deep:#15803d;--acc-mid:#22c55e;
+  --ink:#1e293b;--ink-soft:#64748b;--slate:#475569;
+  --paper:#f8fafc;--cream:#f0fdf4;--border:#e2e8f0;
+  --rose:#e11d48;--rose-pale:#ffe4e6;
+  --amber:#b45309;--amber-pale:#fef3c7;
+  --mono:'Inconsolata',monospace;
+  --r:10px;--rlg:14px;
+  --sh:0 2px 8px rgba(22,163,74,.08);
+  --shm:0 6px 20px rgba(22,163,74,.11);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;font-size:15.5px;line-height:1.65;color:var(--ink);
+  background:linear-gradient(150deg,var(--paper) 0%,#ecfdf5 100%);min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.018'/%3E%3C/svg%3E");opacity:.4;}
+.screen{display:none;position:relative;z-index:1;}
+.screen.active{display:block;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(248,250,252,.96);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);padding:10px 22px;
+  display:flex;align-items:center;justify-content:space-between;}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-logo{width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--acc),var(--acc-deep));color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DM Serif Display',serif;font-size:16px;flex-shrink:0;}
+.nav-title{font-family:'DM Serif Display',serif;font-size:15px;line-height:1.2;}
+.nav-sub{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+.nav-links{display:flex;gap:8px;align-items:center;}
+.nav-link{font-family:var(--mono);font-size:11px;font-weight:600;padding:6px 12px;
+  border-radius:20px;text-decoration:none;border:1px solid var(--border);color:var(--ink-soft);transition:all .15s;}
+.nav-link:hover{border-color:var(--acc);color:var(--acc);}
+
+/* SCREEN 1 - START */
+#start-screen{padding:88px 22px 60px;}
+.start-wrap{max-width:860px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:680px){.start-wrap{grid-template-columns:1fr;}}
+.start-card{background:#fff;border:1px solid var(--border);border-radius:var(--rlg);
+  overflow:hidden;box-shadow:var(--shm);}
+.start-card-bar{height:5px;background:linear-gradient(90deg,var(--acc),var(--acc-mid),var(--acc-deep));}
+.start-card-body{padding:26px 28px 30px;}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:6px;}
+.start-title{font-family:'DM Serif Display',serif;font-size:28px;line-height:1.2;margin-bottom:4px;}
+.start-title em{font-style:italic;color:var(--acc);}
+.start-sub{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);margin-bottom:22px;}
+.step{display:none;} .step.active{display:block;}
+.form-row{margin-bottom:13px;}
+.form-row label{display:block;font-family:var(--mono);font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:5px;}
+.form-row input,.form-row select{width:100%;padding:11px 13px;border:1.5px solid var(--border);
+  border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14.5px;color:var(--ink);
+  background:#fff;transition:border-color .15s,box-shadow .15s;appearance:none;-webkit-appearance:none;}
+.form-row input:focus,.form-row select:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-pale);}
+.form-locked{background:var(--cream)!important;color:var(--ink-soft)!important;cursor:default;}
+.banner{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:13px;border-left:3px solid;display:none;}
+.banner.show{display:block;}
+.banner.ok{background:var(--acc-pale);color:var(--acc-deep);border-color:var(--acc);}
+.banner.info{background:var(--amber-pale);color:var(--amber);border-color:var(--amber);}
+.conf-info{background:var(--amber-pale);border-left:3px solid var(--amber);border-radius:8px;
+  padding:10px 13px;font-size:13px;color:var(--amber);margin-bottom:14px;line-height:1.6;}
+.tag-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.tag-pill{font-family:var(--mono);font-size:10px;font-weight:600;padding:3px 10px;
+  border-radius:10px;background:var(--acc-pale);color:var(--acc-deep);border:1px solid #bbf7d0;}
+.begin-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--acc),var(--acc-deep));
+  color:#fff;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;
+  font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.02em;
+  box-shadow:0 4px 14px rgba(22,163,74,.35);transition:opacity .15s,transform .1s;}
+.begin-btn:hover{opacity:.92;}
+.begin-btn:active{transform:scale(.99);}
+.begin-btn:disabled{opacity:.5;cursor:not-allowed;}
+.back-link{display:block;text-align:center;margin-top:10px;font-size:13px;
+  color:var(--ink-soft);cursor:pointer;text-decoration:underline;}
+.back-link:hover{color:var(--acc);}
+.err-msg{color:var(--rose);font-size:13px;margin-bottom:10px;display:none;}
+.err-msg.show{display:block;}
+/* info card */
+.info-card{background:#fff;border:1px solid #bbf7d0;border-radius:var(--rlg);
+  padding:22px 24px;box-shadow:var(--sh);}
+.info-card h3{font-family:'DM Serif Display',serif;font-size:19px;color:var(--acc-deep);margin-bottom:12px;}
+.info-card p{font-size:14px;color:var(--slate);line-height:1.7;margin-bottom:10px;}
+.info-card p:last-child{margin-bottom:0;}
+.timer-box{background:var(--acc-pale);border-radius:8px;padding:12px 14px;
+  margin-top:14px;display:flex;align-items:center;gap:12px;}
+.timer-num{font-family:'DM Serif Display',serif;font-size:38px;color:var(--acc);line-height:1;}
+.timer-lbl{font-size:13px;color:var(--acc-deep);}
+
+/* SCREEN 2 - QUIZ */
+#quiz-screen{padding-top:60px;}
+.subbar{position:fixed;top:57px;left:0;right:0;z-index:200;
+  background:rgba(248,250,252,.97);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);padding:8px 20px;
+  display:flex;align-items:center;gap:14px;}
+.sb-name{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;}
+.prog-wrap{flex:1;min-width:100px;}
+.prog-txt{font-family:var(--mono);font-size:10px;color:var(--ink-soft);margin-bottom:3px;}
+.prog-bar{height:4px;background:var(--border);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--acc);border-radius:3px;transition:width .3s;}
+.countdown{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink);
+  white-space:nowrap;min-width:50px;text-align:right;}
+.countdown.warn{color:var(--amber);animation:blink 1s infinite;}
+.countdown.danger{color:var(--rose);animation:blink .6s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+
+.quiz-body{max-width:700px;margin:0 auto;padding:110px 20px 80px;}
+.sec-pill{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.07em;padding:4px 12px;border-radius:20px;
+  background:var(--acc-pale);color:var(--acc-deep);border:1px solid #bbf7d0;margin-bottom:18px;}
+
+.qcard{background:#fff;border:1px solid var(--border);border-radius:var(--rlg);
+  overflow:hidden;box-shadow:var(--shm);}
+.qcard-bar{height:4px;background:linear-gradient(90deg,var(--acc),var(--acc-mid));}
+.qcard-body{padding:24px 26px 20px;}
+.q-meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);margin-bottom:10px;}
+.q-stem{font-family:'DM Serif Display',serif;font-size:19px;line-height:1.6;
+  color:var(--ink);margin-bottom:20px;white-space:pre-wrap;}
+.q-stem code{font-family:var(--mono);font-size:15px;background:#f1f5f9;
+  padding:2px 6px;border-radius:4px;color:var(--ink);}
+
+.opts{display:flex;flex-direction:column;gap:10px;margin-bottom:0;}
+.opt{display:flex;align-items:flex-start;gap:12px;width:100%;padding:12px 15px;
+  background:#fff;border:1.5px solid var(--border);border-radius:10px;
+  cursor:pointer;text-align:left;font-size:14.5px;color:var(--ink);
+  font-family:'DM Sans',sans-serif;line-height:1.5;transition:all .15s;}
+.opt:hover{border-color:var(--acc);background:var(--acc-pale);}
+.opt.selected{border-color:var(--acc);background:var(--acc-pale);
+  box-shadow:0 0 0 2px var(--acc);}
+.opt-letter{width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  background:var(--cream);border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink-soft);
+  transition:all .15s;margin-top:1px;}
+.opt.selected .opt-letter{background:var(--acc);border-color:var(--acc);color:#fff;}
+.opt.correct-ans{border-color:var(--acc)!important;background:#dcfce7!important;}
+.opt.wrong-ans{border-color:var(--rose)!important;background:var(--rose-pale)!important;}
+.opt.correct-ans .opt-letter{background:var(--acc)!important;border-color:var(--acc)!important;color:#fff!important;}
+.opt.wrong-ans .opt-letter{background:var(--rose)!important;border-color:var(--rose)!important;color:#fff!important;}
+
+/* CONFIDENCE ROW */
+.conf-divider{border:none;border-top:1px dashed var(--border);margin:16px 0 14px;}
+.conf-row{padding:0 0 4px;}
+.conf-label{font-family:var(--mono);font-size:10.5px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;color:var(--acc-deep);margin-bottom:10px;}
+.conf-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.conf-btn{padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff;font-family:var(--mono);font-size:12px;font-weight:600;
+  color:var(--ink-soft);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;}
+.conf-btn:hover{border-color:var(--acc);}
+.conf-btn.c1.sel{background:#22c55e;border-color:#22c55e;color:#fff;}
+.conf-btn.c2.sel{background:#f59e0b;border-color:#f59e0b;color:#fff;}
+.conf-btn.c3.sel{background:#ef4444;border-color:#ef4444;color:#fff;}
+
+/* NAV BUTTONS */
+.nav-row{display:flex;align-items:center;gap:12px;margin-top:14px;}
+.nav-btn{padding:10px 20px;border-radius:8px;border:1.5px solid var(--border);
+  background:#fff;color:var(--ink);font-size:14px;font-weight:600;
+  cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.nav-btn:hover{border-color:var(--acc);color:var(--acc);}
+.nav-btn.primary{background:var(--acc);border-color:var(--acc);color:#fff;}
+.nav-btn.primary:hover{background:var(--acc-deep);}
+.nav-btn:disabled{opacity:.4;cursor:not-allowed;}
+.spacer{flex:1;}
+
+/* NAVIGATOR CHIPS */
+.chips-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.chip{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;
+  cursor:pointer;border:2px solid var(--border);background:#fff;color:var(--ink-soft);transition:all .15s;}
+.chip.current{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc-pale);}
+.chip.done{background:var(--acc);border-color:var(--acc);color:#fff;}
+.chip:hover{border-color:var(--acc);}
+
+/* SCREEN 3 - RESULT */
+#result-screen{padding:88px 20px 60px;}
+.result-wrap{max-width:700px;margin:0 auto;}
+.result-card{background:#fff;border:1px solid var(--border);border-radius:var(--rlg);
+  overflow:hidden;box-shadow:var(--shm);margin-bottom:16px;}
+.result-card-bar{height:5px;background:linear-gradient(90deg,var(--acc),var(--acc-mid),var(--acc-deep));}
+.result-card-body{padding:28px 30px;}
+.result-emoji{font-size:52px;margin-bottom:10px;}
+.result-name{font-family:'DM Serif Display',serif;font-size:22px;color:var(--acc);}
+.result-meta{font-family:var(--mono);font-size:11px;color:var(--ink-soft);margin-bottom:18px;}
+.score-panel{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.score-cell{text-align:center;background:var(--acc-pale);border-radius:var(--r);padding:12px 8px;}
+.score-val{font-family:'DM Serif Display',serif;font-size:24px;color:var(--ink);line-height:1.1;}
+.score-lbl{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-top:3px;}
+.section-title{font-family:'DM Serif Display',serif;font-size:17px;margin-bottom:12px;}
+/* topic bars */
+.topic-row{margin-bottom:10px;}
+.topic-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.topic-name{font-family:var(--mono);font-size:12px;font-weight:600;}
+.topic-pct{font-family:var(--mono);font-size:12px;font-weight:700;}
+.topic-bar-bg{height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+.topic-bar-fill{height:100%;border-radius:4px;transition:width .5s;}
+/* calibration */
+.calib-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;}
+.calib-cell{text-align:center;border-radius:var(--r);padding:12px 8px;}
+.calib-val{font-family:'DM Serif Display',serif;font-size:26px;line-height:1.1;}
+.calib-lbl{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;margin-top:3px;line-height:1.4;}
+.calib-verdict{background:var(--amber-pale);border-left:3px solid var(--amber);border-radius:8px;
+  padding:11px 14px;font-size:13.5px;color:var(--amber);line-height:1.6;}
+.cri-note{background:var(--accent-pale);border-left:3px solid var(--acc);border-radius:8px;
+  padding:10px 14px;font-size:13px;color:var(--acc-deep);line-height:1.6;margin-top:10px;}
+/* submission box */
+.sub-box{border:1.5px dashed var(--border);border-radius:var(--r);padding:13px 16px;}
+.sub-lbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-soft);margin-bottom:4px;}
+.sub-id{font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--ink);word-break:break-all;}
+.sub-note{font-size:11.5px;color:var(--ink-soft);margin-top:3px;}
+/* actions */
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+.act-btn{padding:10px 18px;border-radius:8px;font-family:'DM Sans',sans-serif;
+  font-size:13.5px;font-weight:600;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+.act-btn.primary{background:var(--acc);color:#fff;border:none;}
+.act-btn.primary:hover{background:var(--acc-deep);}
+.act-btn.ghost{background:#fff;color:var(--acc);border:1.5px solid var(--acc);}
+.act-btn.ghost:hover{background:var(--acc-pale);}
+.act-btn.slate{background:#fff;color:var(--ink-soft);border:1px solid var(--border);}
+.act-btn.slate:hover{border-color:var(--acc);color:var(--acc);}
+
+/* SCREEN 4 - LEADERBOARD */
+#lb-screen{padding:88px 20px 60px;}
+.lb-wrap{max-width:600px;margin:0 auto;}
+.lb-card{background:#fff;border:1px solid var(--border);border-radius:var(--rlg);overflow:hidden;box-shadow:var(--shm);}
+.lb-head{background:linear-gradient(135deg,#14532d,var(--acc-deep));padding:18px 24px;display:flex;align-items:center;justify-content:space-between;}
+.lb-head h3{font-family:'DM Serif Display',serif;font-size:19px;color:#fff;}
+.lb-head p{font-family:var(--mono);font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.06em;}
+.lb-row{display:flex;align-items:center;gap:12px;padding:12px 22px;border-bottom:1px solid var(--border);transition:background .12s;}
+.lb-row:last-child{border-bottom:none;}
+.lb-row:hover{background:var(--cream);}
+.lb-row.me{background:#dcfce7;}
+.lb-rank{font-family:var(--mono);font-size:13px;font-weight:700;width:30px;text-align:center;flex-shrink:0;color:var(--ink-soft);}
+.lb-info{flex:1;}
+.lb-name{font-weight:700;font-size:15px;}
+.lb-meta{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);}
+.lb-score{font-family:'DM Serif Display',serif;font-size:22px;color:var(--acc);}
+.lb-pct{font-family:var(--mono);font-size:11px;color:var(--ink-soft);}
+.lb-empty{padding:32px;text-align:center;color:var(--ink-soft);font-size:14px;}
+.spinner{width:26px;height:26px;border:3px solid var(--border);border-top-color:var(--acc);
+  border-radius:50%;animation:spin .8s linear infinite;margin:32px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* REVIEW MODE overlay */
+#review-overlay{display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(30,41,59,.7);backdrop-filter:blur(4px);overflow-y:auto;}
+#review-overlay.open{display:block;}
+.review-inner{max-width:700px;margin:80px auto 60px;padding:0 20px;}
+.review-card{background:#fff;border-radius:var(--rlg);overflow:hidden;box-shadow:var(--shm);margin-bottom:14px;}
+.review-card-bar.correct{height:4px;background:var(--acc);}
+.review-card-bar.wrong{height:4px;background:var(--rose);}
+.review-card-body{padding:20px 24px;}
+.review-qnum{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);margin-bottom:8px;}
+.review-stem{font-family:'DM Serif Display',serif;font-size:17px;line-height:1.6;margin-bottom:14px;white-space:pre-wrap;}
+.review-stem code{font-family:var(--mono);font-size:14px;background:#f1f5f9;padding:2px 6px;border-radius:4px;}
+.review-close-btn{position:fixed;top:20px;right:20px;z-index:600;background:var(--acc);
+  color:#fff;border:none;border-radius:30px;padding:10px 20px;font-family:'DM Sans',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;}
+
+@media(max-width:520px){
+  nav{padding:10px 14px;}
+  .quiz-body{padding:108px 14px 70px;}
+  .start-card-body{padding:18px 16px 22px;}
+  .q-stem{font-size:17px;}
+  .score-panel{grid-template-columns:1fr 1fr;}
+  .calib-grid{grid-template-columns:1fr 1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">KP</div>
+    <div>
+      <div class="nav-title">K.P. Singh</div>
+      <div class="nav-sub">SGT University · BTech · MATLAB Lab 1</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="student.html" target="_blank">📋 My Record</a>
+    <a class="nav-link" href="https://kpsingh.in" target="_blank">kpsingh.in ↗</a>
+  </div>
+</nav>
+
+<!-- ══ SCREEN 1: START ══ -->
+<div id="start-screen" class="screen active">
+  <div class="start-wrap">
+    <div class="start-card">
+      <div class="start-card-bar"></div>
+      <div class="start-card-body">
+        <div class="eyebrow">MATLAB Lab 1 · Evaluation · 2026</div>
+        <h1 class="start-title">Meet Your <em>Workspace</em></h1>
+        <p class="start-sub">MATLAB-LAB1 · 15 questions · 20 minutes · BTech Sem 5</p>
+
+        <!-- Step 1 -->
+        <div id="step1" class="step active">
+          <div class="form-row">
+            <label>Roll Number *</label>
+            <input id="inp-roll" placeholder="e.g. 241302241" style="text-transform:uppercase"
+              autocomplete="off" onkeydown="if(event.key==='Enter')lookupRoll()">
+          </div>
+          <div class="err-msg" id="s1-err"></div>
+          <button class="begin-btn" id="lookup-btn" onclick="lookupRoll()">Look up my details →</button>
+        </div>
+
+        <!-- Step 2 -->
+        <div id="step2" class="step">
+          <div class="banner" id="banner"></div>
+          <div class="form-row">
+            <label>Full Name *</label>
+            <input id="inp-name" placeholder="e.g. Pulkit Kumar" autocomplete="name">
+          </div>
+          <div class="form-row">
+            <label>Section *</label>
+            <select id="inp-sec">
+              <option value="">Select your section</option>
+              <option value="5B">5B</option>
+              <option value="5E">5E</option>
+            </select>
+          </div>
+          <div class="form-row" style="display:flex;gap:10px;">
+            <div style="flex:1">
+              <label>Branch 🔒</label>
+              <input class="form-locked" value="BTech CSE" readonly>
+            </div>
+            <div style="flex:1">
+              <label>Semester 🔒</label>
+              <input class="form-locked" value="5th" readonly>
+            </div>
+          </div>
+          <div class="conf-info">
+            💡 After each answer, tap how confident you feel.<br>
+            This does not affect your score — it helps personalise your learning support.
+          </div>
+          <div class="tag-pills">
+            <span class="tag-pill">MATLAB-Basics</span>
+            <span class="tag-pill">MATLAB-Matrices</span>
+            <span class="tag-pill">MATLAB-Functions</span>
+            <span class="tag-pill">MATLAB-Strings</span>
+            <span class="tag-pill">MATLAB-Debugging</span>
+          </div>
+          <div class="err-msg" id="s2-err"></div>
+          <button class="begin-btn" onclick="beginQuiz()">Begin Quiz →</button>
+          <span class="back-link" onclick="resetStep1()">← Change roll number</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>📋 Lab 1 Evaluation</h3>
+      <p>Covers both Lab 1 sessions — variables, vectors, basic statistics, logical counting, data types, script files, and operators.</p>
+      <p>Based on the <strong>Aarav & Meera heart-rate dataset</strong> and the <strong>Campus Canteen</strong> billing exercises from your lab manual.</p>
+      <p>There are <strong>no right or wrong answers</strong> on confidence — rate honestly. Your calibration profile builds over the semester.</p>
+      <div class="tag-pills" style="margin-top:10px">
+        <span class="tag-pill" style="background:#f0fdf4;color:#166534">15 questions</span>
+        <span class="tag-pill" style="background:#f0fdf4;color:#166534">20 minutes</span>
+        <span class="tag-pill" style="background:#f0fdf4;color:#166534">Sections 5B & 5E</span>
+      </div>
+      <div class="timer-box">
+        <div class="timer-num">20</div>
+        <div class="timer-lbl"><strong>minutes</strong><br>Auto-submits when time is up.<br>Most students finish in 12–15 min.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 2: QUIZ ══ -->
+<div id="quiz-screen" class="screen">
+  <div class="subbar">
+    <div class="sb-name" id="sb-name">—</div>
+    <div class="prog-wrap">
+      <div class="prog-txt" id="prog-txt">0 of 15 answered</div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div class="countdown" id="countdown">20:00</div>
+  </div>
+  <div class="quiz-body">
+    <div class="sec-pill" id="sec-pill">Section</div>
+    <div class="qcard">
+      <div class="qcard-bar"></div>
+      <div class="qcard-body">
+        <div class="q-meta" id="q-meta">Question 1 of 15</div>
+        <div class="q-stem" id="q-stem"></div>
+        <div class="opts" id="opts"></div>
+        <hr class="conf-divider">
+        <div class="conf-row">
+          <div class="conf-label">How confident? *</div>
+          <div class="conf-btns">
+            <button class="conf-btn c1" onclick="setConf(1,this)">🟢 Low</button>
+            <button class="conf-btn c2" onclick="setConf(2,this)">🟡 Medium</button>
+            <button class="conf-btn c3" onclick="setConf(3,this)">🔴 High</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="nav-btn" id="prev-btn" onclick="navPrev()">← Prev</button>
+      <div class="spacer"></div>
+      <button class="nav-btn primary" id="next-btn" onclick="navNext()" disabled>Next →</button>
+    </div>
+    <div class="chips-wrap" id="chips-wrap"></div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 3: RESULT ══ -->
+<div id="result-screen" class="screen">
+  <div class="result-wrap" id="result-content">
+    <div class="result-card">
+      <div class="result-card-bar"></div>
+      <div class="result-card-body">
+        <div class="result-emoji" id="res-emoji">⭐</div>
+        <div class="result-name" id="res-name"></div>
+        <div class="result-meta" id="res-meta"></div>
+        <div class="score-panel">
+          <div class="score-cell"><div class="score-val" id="res-score">—</div><div class="score-lbl">Score</div></div>
+          <div class="score-cell"><div class="score-val" id="res-pct">—</div><div class="score-lbl">Percentage</div></div>
+          <div class="score-cell"><div class="score-val" id="res-grade">—</div><div class="score-lbl">Grade</div></div>
+          <div class="score-cell"><div class="score-val" id="res-time">—</div><div class="score-lbl">Time</div></div>
+        </div>
+        <div class="section-title">📊 Topic Mastery</div>
+        <div id="topic-bars"></div>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-bar"></div>
+      <div class="result-card-body">
+        <div class="section-title">🔬 Confidence Calibration</div>
+        <div class="calib-grid">
+          <div class="calib-cell" style="background:#dcfce7">
+            <div class="calib-val" id="c-ws" style="color:#166534">0</div>
+            <div class="calib-lbl" style="color:#166534">Very Sure<br>+ Correct</div>
+          </div>
+          <div class="calib-cell" style="background:var(--rose-pale)">
+            <div class="calib-val" id="c-ww" style="color:var(--rose)">0</div>
+            <div class="calib-lbl" style="color:var(--rose)">Very Sure<br>+ Wrong</div>
+          </div>
+          <div class="calib-cell" style="background:var(--amber-pale)">
+            <div class="calib-val" id="c-nc" style="color:var(--amber)">0</div>
+            <div class="calib-lbl" style="color:var(--amber)">Not Sure<br>+ Correct</div>
+          </div>
+        </div>
+        <div class="calib-verdict" id="calib-verdict"></div>
+        <div class="cri-note" id="cri-note" style="display:none"></div>
+      </div>
+    </div>
+    <div class="result-card">
+      <div class="result-card-bar"></div>
+      <div class="result-card-body">
+        <div class="section-title">🗒 Submission Record</div>
+        <div class="sub-box">
+          <div class="sub-lbl">Submission ID</div>
+          <div class="sub-id" id="sub-id-val">—</div>
+          <div class="sub-note">Saved to SGIF · <span id="sub-ts"></span></div>
+        </div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="act-btn primary" onclick="downloadPDF()">📄 Download PDF</button>
+      <button class="act-btn ghost" onclick="openReview()">🔍 Review answers</button>
+      <button class="act-btn ghost" id="lb-btn" onclick="showLB()">🏆 Leaderboard</button>
+      <a class="act-btn slate" href="student.html" target="_blank">📋 My Record</a>
+      <button class="act-btn slate" onclick="location.reload()">← Start over</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 4: LEADERBOARD ══ -->
+<div id="lb-screen" class="screen">
+  <div class="lb-wrap">
+    <div style="margin-bottom:14px">
+      <button class="act-btn slate" onclick="showResult()">← Back to result</button>
+    </div>
+    <div class="lb-card">
+      <div class="lb-head">
+        <div>
+          <h3>🏆 Top Students</h3>
+          <p id="lb-subtitle">MATLAB-LAB1 · Your section</p>
+        </div>
+      </div>
+      <div id="lb-body"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- REVIEW OVERLAY -->
+<div id="review-overlay">
+  <button class="review-close-btn" onclick="closeReview()">✕ Close Review</button>
+  <div class="review-inner" id="review-inner"></div>
+</div>
+
+<script>
+/* ===== MODULE: CONFIG ===== */
+const API_URL   = 'script.google.com/macros/s/AKfycbwt6Ns52cxvtSvguPioFno8qprEXRZStpN71Y22_xwCftg3IS-u-GRphIjQMkuc7AFHng/exec';
+const QUIZ_ID   = 'MATLAB-LAB1';
+const COHORT_ID = 'BTECH_SEM5_2026';
+const QUIZ_MODE = 'LAB';
+const TIME_MINS = 20;
+const LB_SIZE   = 5;
+
+/* ===== MODULE: QUESTIONS ===== */
+// Lab 1 = Meet Your Workspace + Inside the Toolbox
+// Tags: MATLAB-Basics, MATLAB-Matrices, MATLAB-Functions, MATLAB-Strings, MATLAB-Debugging
+const QUESTIONS_MASTER = [
+  // MATLAB-Basics (4 questions)
+  {id:'Q01',tag:'MATLAB-Basics',difficulty:'easy',
+   q:'What does the semicolon (;) do when placed at the end of a MATLAB statement?',
+   opts:['Ends the program','Suppresses output in the Command Window','Starts a new line in the code','Adds a comment'],
+   a:1},
+  {id:'Q02',tag:'MATLAB-Basics',difficulty:'easy',
+   q:'What is the difference between clc and clear in MATLAB?',
+   opts:['They do the same thing','clc clears the screen; clear deletes workspace variables','clear clears the screen; clc deletes variables','Both delete variables and clear the screen'],
+   a:1},
+  {id:'Q03',tag:'MATLAB-Basics',difficulty:'medium',
+   q:'In MATLAB, which of these variable names will cause an error?\n\nA) hr_aarav\nB) 2ndRun\nC) heartRate\nD) data1',
+   opts:['hr_aarav','2ndRun','heartRate','data1'],
+   a:1},
+  {id:'Q04',tag:'MATLAB-Basics',difficulty:'medium',
+   q:"MATLAB is case-sensitive. If you type:\n  hr = [72 75 88];\n  HR = hr * 2;\n\nWhat is the value of HR(2)?",
+   opts:['75','144','150','Error — HR is not defined'],
+   a:2},
+
+  // MATLAB-Matrices (3 questions) — vectors are 1×n matrices
+  {id:'Q05',tag:'MATLAB-Matrices',difficulty:'easy',
+   q:"Aarav's heart rate is stored as:\n  aarav = [72 75 88 102 110 118 124 129 131 128 122 115 104 95 84];\n\nWhat does length(aarav) return?",
+   opts:['1','14','15','16'],
+   a:2},
+  {id:'Q06',tag:'MATLAB-Matrices',difficulty:'medium',
+   q:"Given aarav = [72 75 88 102 110 118 124 129 131 128 122 115 104 95 84];\n\nWhat does sum(aarav > 120) return?",
+   opts:['3','4','5','6'],
+   a:2},
+  {id:'Q07',tag:'MATLAB-Matrices',difficulty:'hard',
+   q:"Consider:\n  meera = [68 70 79 88 95 104 111 116 119 117 112 105 96 87 78];\n\nWhich line correctly finds the number of minutes where Meera's HR was between 100 and 120 bpm (inclusive)?",
+   opts:['sum(meera >= 100 & meera <= 120)','sum(meera > 100 && meera < 120)','sum(100 <= meera <= 120)','sum(meera == 100:120)'],
+   a:0},
+
+  // MATLAB-Functions (3 questions)
+  {id:'Q08',tag:'MATLAB-Functions',difficulty:'easy',
+   q:"Which MATLAB function returns BOTH the maximum value AND its position (index) in a vector?",
+   opts:['max()','find(max())','[val, idx] = max()','maxpos()'],
+   a:2},
+  {id:'Q09',tag:'MATLAB-Functions',difficulty:'medium',
+   q:"Given:\n  prices = [15 10 40 35 45 60];\n  qty    = [22 40 15 18 25 10];\n\nWhat does sum(prices .* qty) compute?",
+   opts:["Total number of items sold","Today's total revenue","Average price per item","Number of items costing more than ₹30"],
+   a:1},
+  {id:'Q10',tag:'MATLAB-Functions',difficulty:'medium',
+   q:"What is the difference between any() and all() in MATLAB?\n\nGiven: x = [1 0 1 1]",
+   opts:['any(x) = 1, all(x) = 1','any(x) = 1, all(x) = 0','any(x) = 0, all(x) = 0','any(x) = 0, all(x) = 1'],
+   a:1},
+
+  // MATLAB-Strings (2 questions)
+  {id:'Q11',tag:'MATLAB-Strings',difficulty:'easy',
+   q:"In MATLAB, what is the difference between:\n  x = 'hello'    (single quotes)\n  y = \"hello\"   (double quotes)\n",
+   opts:["They are identical — no difference",'Single quotes create a char array; double quotes create a string object','Single quotes create a string; double quotes create a char array','Only double quotes work in MATLAB'],
+   a:1},
+  {id:'Q12',tag:'MATLAB-Strings',difficulty:'medium',
+   q:"Which fprintf format specifier should you use to print a whole number (integer)?",
+   opts:['%s','%f','%d','%c'],
+   a:2},
+
+  // MATLAB-Debugging (3 questions)
+  {id:'Q13',tag:'MATLAB-Debugging',difficulty:'easy',
+   q:"A student types:\n  aarav = [72 75 88 102 110]\n  meera = [68 70 79]\n  team  = aarav + meera\n\nWhat happens?",
+   opts:['MATLAB adds the vectors element-by-element and returns a 1×5 result','MATLAB returns an error because the sizes do not match','MATLAB pads meera with zeros and adds','MATLAB ignores the shorter vector'],
+   a:1},
+  {id:'Q14',tag:'MATLAB-Debugging',difficulty:'medium',
+   q:"A student runs this code expecting to see all variables in the workspace:\n  x = 10;\n  y = 20;\n  clc\n  whos\n\nWhat actually happens?",
+   opts:['clc deletes x and y, so whos shows nothing','clc only clears the screen; whos still lists x and y','whos runs before clc so it lists x and y, then clc clears them','An error occurs because clc and whos cannot be on consecutive lines'],
+   a:1},
+  {id:'Q15',tag:'MATLAB-Debugging',difficulty:'hard',
+   q:"A student writes:\n  n = input('How many samosas? ');\n  cost = n * 15;\n  fprintf('Cost is Rs. %d', cost)\n\nWhen they run it and type 4, they expect:\n  Cost is Rs. 60\n\nBut nothing prints at all. What is the most likely reason?",
+   opts:['input() does not work in MATLAB','The semicolon after fprintf() suppresses the output','There is no semicolon after fprintf but %d requires an integer and cost is double','The script was not saved before running — MATLAB ran the last saved version which had no fprintf'],
+   a:3},
+];
+
+/* ===== MODULE: STATE ===== */
+let STATE = {
+  name:'', roll:'', section:'',
+  sessionId: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2),
+  questions:[],   // shuffled
+  answers:[],     // index of selected option per question (-1 = unanswered)
+  confidence:[],  // 0=unrated, 1/2/3
+  correct:[],     // 0/1 after submission
+  tags:[],
+  idx:0,
+  startMs:0,
+  timerInterval:null,
+  submitted:false,
+  secsLeft: TIME_MINS * 60,
+};
+
+/* Fisher-Yates shuffle */
+function shuffle(arr) {
+  for (let i=arr.length-1;i>0;i--) {
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function shuffleQuestions() {
+  const qs = QUESTIONS_MASTER.map(q => {
+    const opts = [...q.opts];
+    const correct = opts[q.a];
+    shuffle(opts);
+    const newA = opts.indexOf(correct);
+    return {...q, opts, a: newA};
+  });
+  shuffle(qs);
+  return qs;
+}
+
+/* ===== MODULE: API ===== */
+async function lookupRoll() {
+  const roll = document.getElementById('inp-roll').value.trim().toUpperCase();
+  const err  = document.getElementById('s1-err');
+  const btn  = document.getElementById('lookup-btn');
+  err.classList.remove('show');
+  if (!roll) { err.textContent='Please enter your roll number.'; err.classList.add('show'); return; }
+  btn.disabled=true; btn.textContent='Looking up…';
+  STATE.roll = roll;
+  try {
+    const r = await fetch(`${API_URL}?action=student_lookup&roll=${encodeURIComponent(roll)}`);
+    const j = await r.json();
+    if (j.success && j.data) {
+      document.getElementById('inp-name').value = j.data.name || '';
+      document.getElementById('inp-sec').value  = j.data.section || '';
+      showBanner('✅ Welcome back, ' + j.data.name + '! Please confirm your details.', 'ok');
+    } else {
+      showBanner('ℹ️ Roll number not found — please enter your details below.', 'info');
+    }
+  } catch(e) {
+    showBanner('ℹ️ Could not connect to roster — please enter your details below.', 'info');
+  }
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step2').classList.add('active');
+  btn.disabled=false; btn.textContent='Look up my details →';
+  document.getElementById('inp-name').focus();
+}
+
+function showBanner(msg, type) {
+  const b = document.getElementById('banner');
+  b.textContent = msg; b.className = 'banner show ' + type;
+}
+
+function resetStep1() {
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('inp-roll').value='';
+  document.getElementById('banner').classList.remove('show');
+  document.getElementById('inp-roll').focus();
+}
+
+function beginQuiz() {
+  const name = document.getElementById('inp-name').value.trim();
+  const sec  = document.getElementById('inp-sec').value;
+  const err  = document.getElementById('s2-err');
+  err.classList.remove('show');
+  if (!name) { err.textContent='Please enter your full name.'; err.classList.add('show'); return; }
+  if (!sec)  { err.textContent='Please select your section.'; err.classList.add('show'); return; }
+  STATE.name    = name;
+  STATE.section = sec;
+  STATE.questions   = shuffleQuestions();
+  STATE.answers     = new Array(STATE.questions.length).fill(-1);
+  STATE.confidence  = new Array(STATE.questions.length).fill(0);
+  STATE.correct     = new Array(STATE.questions.length).fill(0);
+  STATE.tags        = STATE.questions.map(q=>q.tag);
+  STATE.startMs     = Date.now();
+  showScreen('quiz-screen');
+  document.getElementById('sb-name').textContent = name + ' · ' + sec;
+  buildChips();
+  renderQ(0);
+  startTimer();
+}
+
+/* ===== MODULE: UI ===== */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function startTimer() {
+  STATE.timerInterval = setInterval(() => {
+    STATE.secsLeft--;
+    const m=Math.floor(STATE.secsLeft/60).toString().padStart(2,'0');
+    const s=(STATE.secsLeft%60).toString().padStart(2,'0');
+    const el=document.getElementById('countdown');
+    el.textContent=m+':'+s;
+    el.className='countdown';
+    if (STATE.secsLeft<=120) el.classList.add('danger');
+    else if (STATE.secsLeft<=300) el.classList.add('warn');
+    if (STATE.secsLeft<=0) { clearInterval(STATE.timerInterval); finalise('timeout'); }
+  },1000);
+}
+
+function renderQ(idx) {
+  STATE.idx = idx;
+  const q = STATE.questions[idx];
+  const total = STATE.questions.length;
+
+  document.getElementById('sec-pill').textContent = q.tag + ' · ' + q.difficulty;
+  document.getElementById('q-meta').textContent = `Question ${idx+1} of ${total}`;
+  document.getElementById('q-stem').textContent = q.q;
+
+  // Options
+  const optsEl = document.getElementById('opts');
+  optsEl.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((opt,oi) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt' + (STATE.answers[idx]===oi?' selected':'');
+    btn.innerHTML = `<span class="opt-letter">${letters[oi]}</span><span>${esc(opt)}</span>`;
+    btn.onclick = () => selectOpt(idx,oi);
+    optsEl.appendChild(btn);
+  });
+
+  // Confidence
+  document.querySelectorAll('.conf-btn').forEach(b=>b.classList.remove('sel'));
+  const cv = STATE.confidence[idx];
+  if (cv>0) document.querySelector(`.conf-btn.c${cv}`).classList.add('sel');
+
+  // Nav
+  document.getElementById('prev-btn').disabled = idx===0;
+  const isLast = idx===total-1;
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.textContent = isLast ? 'Review & Submit →' : 'Next →';
+  nextBtn.onclick = isLast ? () => finalise('manual') : navNext;
+  updateNext();
+
+  updateProgress();
+  updateChips();
+}
+
+function selectOpt(idx,oi) {
+  STATE.answers[idx]=oi;
+  document.querySelectorAll('.opt').forEach((b,i)=>b.classList.toggle('selected',i===oi));
+  updateNext();
+  updateProgress();
+  updateChips();
+}
+
+function setConf(val,btn) {
+  STATE.confidence[STATE.idx]=val;
+  document.querySelectorAll('.conf-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  updateNext();
+}
+
+function updateNext() {
+  const idx=STATE.idx;
+  const ok = STATE.answers[idx]!==-1 && STATE.confidence[idx]!==0;
+  const btn=document.getElementById('next-btn');
+  btn.disabled=!ok; btn.style.opacity=ok?'1':'0.4';
+}
+
+function navPrev() {
+  if (STATE.idx>0) renderQ(STATE.idx-1);
+}
+function navNext() {
+  if (STATE.idx<STATE.questions.length-1) renderQ(STATE.idx+1);
+}
+
+function updateProgress() {
+  const done = STATE.answers.filter(a=>a!==-1).length;
+  const total = STATE.questions.length;
+  document.getElementById('prog-txt').textContent = `${done} of ${total} answered`;
+  document.getElementById('prog-fill').style.width = (done/total*100)+'%';
+}
+
+function buildChips() {
+  const wrap = document.getElementById('chips-wrap');
+  wrap.innerHTML='';
+  STATE.questions.forEach((_,i) => {
+    const c=document.createElement('div');
+    c.className='chip'; c.textContent=i+1;
+    c.onclick=()=>renderQ(i);
+    wrap.appendChild(c);
+  });
+}
+
+function updateChips() {
+  const chips=document.querySelectorAll('.chip');
+  chips.forEach((c,i)=>{
+    c.className='chip';
+    if (i===STATE.idx) c.classList.add('current');
+    else if (STATE.answers[i]!==-1 && STATE.confidence[i]!==0) c.classList.add('done');
+  });
+}
+
+/* ===== FINALISE & RESULT ===== */
+function finalise(reason) {
+  if (STATE.submitted) return;
+  STATE.submitted=true;
+  clearInterval(STATE.timerInterval);
+
+  const qs=STATE.questions;
+  let correct=0;
+  qs.forEach((q,i)=>{
+    const isCorrect = STATE.answers[i]===q.a ? 1 : 0;
+    STATE.correct[i]=isCorrect;
+    if (isCorrect) correct++;
+  });
+  const total=qs.length;
+  const pct=Math.round(correct/total*100);
+  const grade=computeGrade(pct);
+  const passed=pct>=40;
+  const elapsed=Math.round((Date.now()-STATE.startMs)/1000);
+  const sid=STATE.roll+'-'+QUIZ_ID+'-'+Date.now().toString(36).toUpperCase();
+
+  const cri=computeCRI(STATE.confidence);
+  submitToSheet(correct,pct,grade,passed,elapsed,sid,cri);
+  renderResult(correct,total,pct,grade,passed,elapsed,sid,cri,reason);
+  showScreen('result-screen');
+}
+
+function computeGrade(p){
+  if(p>=90)return'A+';if(p>=80)return'A';if(p>=70)return'B';
+  if(p>=60)return'C';if(p>=50)return'D';if(p>=40)return'E';return'F';
+}
+
+function computeCRI(conf){
+  const rated=conf.filter(c=>c>0);
+  if(rated.length<3) return{flag:false,pattern:'insufficient',unique:0};
+  const unique=new Set(rated).size;
+  const same=unique===1;
+  const val=rated[0];
+  const pattern=same?(val===3?'always_high':val===1?'always_low':'always_medium'):'variable';
+  return{flag:same,pattern,unique};
+}
+
+function submitToSheet(score,pct,grade,passed,elapsed,sid,cri){
+  const payload={
+    action:'lab_response',
+    submissionId:sid,
+    sessionId:STATE.sessionId,
+    quizId:QUIZ_ID,
+    cohortId:COHORT_ID,
+    name:STATE.name,roll:STATE.roll,section:STATE.section,
+    branch:'BTech CSE',semester:'5th',spec:'',
+    mode:QUIZ_MODE,
+    score,scoreWeighted:score,
+    total:STATE.questions.length,
+    scoreMax:STATE.questions.length,
+    percentage:pct,grade,
+    passed:passed?'TRUE':'FALSE',
+    timeTaken:formatTime(elapsed),
+    submittedAt:new Date().toISOString(),
+    sectionScores:[],
+    tags:STATE.tags,
+    confidence:STATE.confidence,
+    correct:STATE.correct,
+    cri_flag:cri.flag,
+    cri_pattern:cri.pattern,
+    cri_unique:cri.unique,
+  };
+  fetch(API_URL,{method:'POST',mode:'no-cors',body:JSON.stringify(payload)}).catch(()=>{});
+}
+
+function renderResult(correct,total,pct,grade,passed,elapsed,sid,cri,reason){
+  const gradeEmoji={'A+':'🏆','A':'⭐','B':'📘','C':'✅','D':'⚠️','E':'🔄','F':'❌'};
+  document.getElementById('res-emoji').textContent=gradeEmoji[grade]||'📋';
+  document.getElementById('res-name').textContent='Well done, '+STATE.name+'!';
+  document.getElementById('res-meta').textContent=
+    QUIZ_ID+' · Section '+STATE.section+' · '+new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('res-score').textContent=correct+' / '+total;
+  document.getElementById('res-pct').textContent=pct+'%';
+  document.getElementById('res-grade').textContent=grade;
+  document.getElementById('res-time').textContent=formatTime(elapsed);
+  document.getElementById('sub-id-val').textContent=sid;
+  document.getElementById('sub-ts').textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+  if(reason==='timeout'){
+    // add a note
+    const n=document.createElement('div');
+    n.style.cssText='background:var(--amber-pale);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--amber);margin-bottom:12px;';
+    n.textContent='⏱ Time ran out — your responses up to that point were saved.';
+    document.querySelector('.result-wrap').prepend(n);
+  }
+
+  // Topic bars
+  const tagMap={};
+  STATE.questions.forEach((q,i)=>{
+    if(!tagMap[q.tag]) tagMap[q.tag]={c:0,t:0};
+    tagMap[q.tag].t++;
+    if(STATE.correct[i]) tagMap[q.tag].c++;
+  });
+  const sorted=Object.entries(tagMap).sort((a,b)=>a[1].c/a[1].t - b[1].c/b[1].t);
+  const topicEl=document.getElementById('topic-bars');
+  topicEl.innerHTML='';
+  sorted.forEach(([tag,{c,t}])=>{
+    const p=Math.round(c/t*100);
+    const color=p>=75?'var(--acc)':p>=50?'#f59e0b':p>=30?var_('--amber'):'var(--rose)';
+    const label=p>=75?'Strong':p>=50?'Developing':p>=30?'Needs work':'Weak spot';
+    topicEl.innerHTML+=`
+      <div class="topic-row">
+        <div class="topic-head">
+          <span class="topic-name">${esc(tag)}</span>
+          <span class="topic-pct" style="color:${color}">${p}% (${c}/${t}) — ${label}</span>
+        </div>
+        <div class="topic-bar-bg"><div class="topic-bar-fill" style="width:${p}%;background:${color}"></div></div>
+      </div>`;
+  });
+
+  // Calibration
+  const vs_c=STATE.questions.filter((_,i)=>STATE.confidence[i]===3&&STATE.correct[i]===1).length;
+  const vs_w=STATE.questions.filter((_,i)=>STATE.confidence[i]===3&&STATE.correct[i]===0).length;
+  const ns_c=STATE.questions.filter((_,i)=>STATE.confidence[i]===1&&STATE.correct[i]===1).length;
+  document.getElementById('c-ws').textContent=vs_c;
+  document.getElementById('c-ww').textContent=vs_w;
+  document.getElementById('c-nc').textContent=ns_c;
+  let verdict='';
+  if(vs_w>0&&ns_c===0) verdict=`You marked yourself Very Sure but got ${vs_w} question${vs_w>1?'s':''} wrong. Focus revision on these — they are your most valuable study targets.`;
+  else if(ns_c>0&&vs_w===0) verdict=`You got ${ns_c} right despite feeling unsure. Trust your instincts more on familiar topics.`;
+  else if(vs_w>0&&ns_c>0) verdict=`${vs_w} overconfident mistake${vs_w>1?'s':''} and ${ns_c} hidden strength${ns_c>1?'s':''}. Prioritise the topics where you felt sure but weren't.`;
+  else verdict='Well calibrated overall. Your confidence matched your performance closely.';
+  document.getElementById('calib-verdict').textContent=verdict;
+
+  if(cri.flag){
+    const criEl=document.getElementById('cri-note');
+    criEl.style.display='';
+    criEl.textContent='We noticed you selected the same confidence level on every question. Try varying it next time — honest ratings help us personalise your support.';
+  }
+}
+
+function var_(v){return v;}
+
+/* REVIEW MODE */
+function openReview(){
+  const overlay=document.getElementById('review-overlay');
+  const inner=document.getElementById('review-inner');
+  inner.innerHTML='<h2 style="font-family:DM Serif Display,serif;font-size:22px;color:#fff;margin-bottom:18px">Review Your Answers</h2>';
+  STATE.questions.forEach((q,i)=>{
+    const wasCorrect=STATE.correct[i]===1;
+    const letters=['A','B','C','D'];
+    let optsHtml='';
+    q.opts.forEach((opt,oi)=>{
+      let cls='opt';
+      if(oi===q.a) cls+=' correct-ans';
+      else if(oi===STATE.answers[i]&&!wasCorrect) cls+=' wrong-ans';
+      optsHtml+=`<div class="${cls}" style="cursor:default;margin-bottom:8px">
+        <span class="opt-letter">${letters[oi]}</span><span>${esc(opt)}</span></div>`;
+    });
+    inner.innerHTML+=`
+      <div class="review-card">
+        <div class="review-card-bar ${wasCorrect?'correct':'wrong'}"></div>
+        <div class="review-card-body">
+          <div class="review-qnum">Q${i+1} · ${esc(q.tag)} · ${q.difficulty} · ${wasCorrect?'✓ Correct':'✗ Wrong'}</div>
+          <div class="review-stem">${esc(q.q)}</div>
+          ${optsHtml}
+        </div>
+      </div>`;
+  });
+  overlay.classList.add('open');
+}
+function closeReview(){ document.getElementById('review-overlay').classList.remove('open'); }
+
+/* LEADERBOARD */
+function showResult(){ showScreen('result-screen'); }
+async function showLB(){
+  showScreen('lb-screen');
+  document.getElementById('lb-subtitle').textContent=QUIZ_ID+' · Section '+STATE.section;
+  const body=document.getElementById('lb-body');
+  body.innerHTML='<div class="spinner"></div>';
+  try{
+    const r=await fetch(`${API_URL}?action=lab_leaderboard&quiz=${QUIZ_ID}&section=${STATE.section}&top=${LB_SIZE}`);
+    const j=await r.json();
+    if(!j.success||!j.data.length){body.innerHTML='<div class="lb-empty">No scores yet for this section.</div>';return;}
+    const medals=['🥇','🥈','🥉'];
+    body.innerHTML=j.data.map((s,i)=>`
+      <div class="lb-row ${s.roll===STATE.roll?'me':''}">
+        <div class="lb-rank">${medals[i]||'#'+(i+1)}</div>
+        <div class="lb-info">
+          <div class="lb-name">${esc(s.name)}</div>
+          <div class="lb-meta">${esc(s.roll)} · Section ${esc(s.section)}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="lb-score">${s.score}/${s.total}</div>
+          <div class="lb-pct">${s.pct}% · ${esc(s.grade)}</div>
+        </div>
+      </div>`).join('');
+  }catch(e){body.innerHTML='<div class="lb-empty">Could not load leaderboard. Please try again.</div>';}
+}
+
+/* PDF */
+function downloadPDF(){
+  const el=document.getElementById('result-content');
+  html2pdf().set({
+    margin:10,filename:STATE.roll+'-'+QUIZ_ID+'.pdf',
+    html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+  }).from(el).save();
+}
+
+function formatTime(s){return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+</script>
+</body>
+</html>
