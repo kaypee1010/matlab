@@ -359,8 +359,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;
 
     <div class="info-card">
       <h3>📋 Lab 2 Evaluation</h3>
-      <p>Covers both Lab 1 sessions — matrix construction, indexing, addition, matrix multiplication, element-wise operations, and inversion.</p>
-      <p>Based on the <strong>Aarav & Meera three-day fitness matrix and the Campus Canteen weekly sales matrix from your lab manual.</strong> billing exercises from your lab manual.</p>
+      <p>Covers both Lab 2 sessions — matrices, indexing, addition & subtraction, matrix multiplication, element-wise operations, and inversion.</p>
+      <p>Based on the <strong>Aarav & Meera heart-rate dataset</strong> and the <strong>Campus Canteen</strong> billing exercises from your lab manual.</p>
       <p>There are <strong>no right or wrong answers</strong> on confidence — rate honestly. Your calibration profile builds over the semester.</p>
       <div class="tag-pills" style="margin-top:10px">
         <span class="tag-pill" style="background:#f0fdf4;color:#166534">15 questions</span>
@@ -485,7 +485,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;
       <div class="lb-head">
         <div>
           <h3>🏆 Top Students</h3>
-          <p id="lb-subtitle">MATLAB-LAB2 · Your section</p>
+          <p id="lb-subtitle">MATLAB-LAB1 · Your section</p>
         </div>
       </div>
       <div id="lb-body"><div class="spinner"></div></div>
@@ -512,128 +512,51 @@ const LB_SIZE   = 5;
 // Lab 1 = Meet Your Workspace + Inside the Toolbox
 // Tags: MATLAB-Basics, MATLAB-Matrices, MATLAB-Functions, MATLAB-Strings, MATLAB-Debugging
 const QUESTIONS_MASTER = [
-  // MATLAB-Matrices (5 questions) — building, indexing, size
   {id:'Q01',tag:'MATLAB-Matrices',difficulty:'easy',
-   q:"Aarav's 3-day fitness log is stored as:\n  aarav = [106 8200 310\n            98 6400 245\n           112 9750 388];\n\nWhat does size(aarav) return?",
-   opts:['3 3','1 9','9 1','3 1'],
-   a:0},
+   q:'After typing: aarav = [106 8200 310; 98 6400 245; 112 9750 388];  what does size(aarav) return?',
+   opts:['3  3','1  9','9  1','3  1'],a:0},
   {id:'Q02',tag:'MATLAB-Matrices',difficulty:'easy',
-   q:"Given the same matrix aarav (3 rows × 3 columns), what does aarav(2,3) return?",
-   opts:['98','6400','245','388'],
-   a:2},
+   q:'In the aarav matrix (row=day, col=HR/Steps/Calories), what does aarav(2,3) return?',
+   opts:['98','6400','245','388'],a:2},
   {id:'Q03',tag:'MATLAB-Matrices',difficulty:'medium',
-   q:"Which command extracts the entire Steps column (column 2) from aarav for all three days?",
-   opts:['aarav(2)','aarav(:,2)','aarav(2,:)','aarav(2,all)'],
-   a:1},
+   q:'Which command extracts the Steps column (column 2) from aarav for all three days?',
+   opts:['aarav(2)','aarav(:,2)','aarav(2,:)','aarav(2,all)'],a:1},
   {id:'Q04',tag:'MATLAB-Matrices',difficulty:'medium',
-   q:"In MATLAB, which of the following creates a column vector?",
-   opts:['[1 2 3]','[1, 2, 3]','[1; 2; 3]','[1 : 3]'],
-   a:2},
+   q:'Which of the following creates a COLUMN vector in MATLAB?',
+   opts:['[1 2 3]','[1, 2, 3]','[1; 2; 3]','[1 : 3]'],a:2},
   {id:'Q05',tag:'MATLAB-Matrices',difficulty:'hard',
-   q:"A student types:\n  aarav = [106 8200 310; 98 6400 245; 112 9750 388];\n  result = sum(aarav, 2);\n\nWhat does result represent, and is it meaningful?",
-   opts:['Sum of each column — meaningful (total per metric)','Sum of each row — meaningless (adds heart rate to steps to calories)','Sum of each row — meaningful (total activity per day)','Sum of each column — meaningless'],
-   a:1},
-
-  // MATLAB-Functions (4 questions) — mean, sum, dot-rule, inv
+   q:'result = sum(aarav, 2) adds across each ROW: HR + Steps + Calories. Is this meaningful?',
+   opts:['Yes — total activity score per day','No — adds incompatible units (HR + Steps + Calories)','Yes — gives column totals','No — sum() only works on columns'],a:1},
   {id:'Q06',tag:'MATLAB-Functions',difficulty:'easy',
-   q:"Using the canteen matrix:\n  sales = [22 40 15 18 25 10;  % Mon\n            28 35 20 16 30 12;  % Tue\n            19 38 18 22 27  8]; % Wed\n\nWhat does sum(sales(:,2)) compute?",
-   opts:['Total samosas sold','Total tea sold across all three days','Monday tea sales only','Number of days tea was sold'],
-   a:1},
+   q:'Using the canteen sales matrix (rows=days, cols=items), what does sum(sales(:,2)) compute?',
+   opts:['Total samosas sold','Total tea sold across all days','Monday tea only','Average daily tea'],a:1},
   {id:'Q07',tag:'MATLAB-Functions',difficulty:'medium',
-   q:"The Fit Points rulebook is:\n  rates = [0; 0.001; 0.02];\n\nWhat is the shape required for aarav * rates to work, and what shape does the result have?",
-   opts:['aarav must be 3×3; result is 3×3','aarav must be 3×3; result is 3×1','aarav must be 1×3; result is 1×1','aarav must be 3×1; result is 3×1'],
-   a:1},
+   q:'rates = [0; 0.001; 0.02] is a 3x1 column. What shape does aarav * rates produce?',
+   opts:['3x3 — a full table','3x1 — one Fit Points score per day','1x3 — one score per metric','1x1 — a single total'],a:1},
   {id:'Q08',tag:'MATLAB-Functions',difficulty:'medium',
-   q:"A student computes:\n  A = [3 2; 2 4];\n  b = [65; 80];\n  prices = inv(A) * b;\n\nWhat does prices represent?",
-   opts:['The total revenue','The unknown prices of samosa and tea solved from two memory equations','The transpose of A multiplied by b','The eigenvalues of A'],
-   a:1},
+   q:'A = [3 2; 2 4]; b = [65; 80]; prices = inv(A)*b; What does prices represent?',
+   opts:['Total revenue','Unknown samosa and tea prices solved from two memory equations','Transpose of A times b','Eigenvalues of A'],a:1},
   {id:'Q09',tag:'MATLAB-Functions',difficulty:'hard',
-   q:"Before solving a system with inv(), you run:\n  det(Q)  % returns 0\n  rank(Q) % returns 2 (Q is 3×3)\n\nWhat does this mean?",
-   opts:['The system has exactly one solution','The system has no solution — the matrix is singular and no unique inverse exists','inv() will still give a correct answer, just slower','The matrix must be transposed before solving'],
-   a:1},
-
-  // MATLAB-Debugging (3 questions)
+   q:'det(Q) = 0 and rank(Q) = 2 for a 3x3 matrix Q. What does this mean for solving Q*r = t?',
+   opts:['Exactly one solution exists','No unique solution — Q is singular','inv() still works, just slower','Q must be transposed first'],a:1},
   {id:'Q10',tag:'MATLAB-Debugging',difficulty:'easy',
-   q:"A student tries:\n  P = [1 2; 3 4];\n  P + [1 2 3]\n\nWhat happens?",
-   opts:['P becomes [2 4 3; 4 6 4]','An error — shapes must match for addition','MATLAB pads P with zeros','The row [1 2 3] is added to each row of P'],
-   a:1},
+   q:'P = [1 2; 3 4]; then P + [1 2 3] is typed. What happens?',
+   opts:['P becomes [2 4 3; 4 6 4]','Error — matrix sizes must match for addition','MATLAB pads P with zeros','Row added to each row automatically'],a:1},
   {id:'Q11',tag:'MATLAB-Debugging',difficulty:'medium',
-   q:"A student writes:\n  P = [1 2; 3 4];\n  Q = [10 20; 30 40];\n\nThey expect element-by-element multiplication but type P * Q instead of P .* Q.\n\nWhat is P * Q(1,1)?",
-   opts:['10','40','70','100'],
-   a:2},
+   q:'P = [1 2; 3 4]; Q = [10 20; 30 40]; A student types P * Q expecting element-wise multiply. What is the top-left value of P * Q?',
+   opts:['10','40','70','100'],a:2},
   {id:'Q12',tag:'MATLAB-Debugging',difficulty:'hard',
-   q:"A student types:\n  Q = [4 2 6; 8 4 12; 6 1 4];\n  det(Q)\n\nResult is 0. Then they run inv(Q). What does MATLAB return?",
-   opts:['The correct inverse matrix','A matrix of zeros','A matrix containing Inf values with a singularity warning','An error that stops the program'],
-   a:2},
-
-  // MATLAB-Basics (3 questions) — dot rule, concatenation, power
+   q:'Q = [4 2 6; 8 4 12; 6 1 4]; det(Q) = 0. Student runs inv(Q). What does MATLAB return?',
+   opts:['Correct inverse','Matrix of zeros','Matrix of Inf values with a singularity warning','Error that stops execution'],a:2},
   {id:'Q13',tag:'MATLAB-Basics',difficulty:'easy',
-   q:"What is the difference between P .* Q and P * Q when P and Q are matrices?",
-   opts:['.* does row sums; * does column sums','.* multiplies element-by-element; * performs matrix multiplication','They are the same when matrices are square','* is faster; .* is slower'],
-   a:1},
+   q:'What is the difference between P .* Q and P * Q?',
+   opts:['.* sums rows; * sums columns','.* is element-wise; * is true matrix multiplication','Identical for square matrices','* is faster'],a:1},
   {id:'Q14',tag:'MATLAB-Basics',difficulty:'medium',
-   q:"You have a 5×6 sales matrix. You want to add Saturday as a new row with 6 values.\nWhich syntax is correct?",
-   opts:['[sales saturday]','[sales; saturday]','append(sales, saturday)','[sales + saturday]'],
-   a:1},
+   q:'You have a 5x6 sales matrix. To add Saturday as a new row, which is correct?',
+   opts:['[sales saturday]','[sales; saturday]','append(sales, saturday)','horzcat(sales, saturday)'],a:1},
   {id:'Q15',tag:'MATLAB-Basics',difficulty:'hard',
-   q:"Given M = [2 3; 1 4], what is M.^2?",
-   opts:['[7 18; 6 19] — matrix multiplication M*M','[4 9; 1 16] — each element squared','[2 3; 1 4] — no change','Error — .^ only works on vectors'],
-   a:1},
-];\n  HR = hr * 2;\n\nWhat is the value of HR(2)?",
-   opts:['75','144','150','Error — HR is not defined'],
-   a:2},
-
-  // MATLAB-Matrices (3 questions) — vectors are 1×n matrices
-  {id:'Q05',tag:'MATLAB-Matrices',difficulty:'easy',
-   q:"Aarav's heart rate is stored as:\n  aarav = [72 75 88 102 110 118 124 129 131 128 122 115 104 95 84];\n\nWhat does length(aarav) return?",
-   opts:['1','14','15','16'],
-   a:2},
-  {id:'Q06',tag:'MATLAB-Matrices',difficulty:'medium',
-   q:"Given aarav = [72 75 88 102 110 118 124 129 131 128 122 115 104 95 84];\n\nWhat does sum(aarav > 120) return?",
-   opts:['3','4','5','6'],
-   a:2},
-  {id:'Q07',tag:'MATLAB-Matrices',difficulty:'hard',
-   q:"Consider:\n  meera = [68 70 79 88 95 104 111 116 119 117 112 105 96 87 78];\n\nWhich line correctly finds the number of minutes where Meera's HR was between 100 and 120 bpm (inclusive)?",
-   opts:['sum(meera >= 100 & meera <= 120)','sum(meera > 100 && meera < 120)','sum(100 <= meera <= 120)','sum(meera == 100:120)'],
-   a:0},
-
-  // MATLAB-Functions (3 questions)
-  {id:'Q08',tag:'MATLAB-Functions',difficulty:'easy',
-   q:"Which MATLAB function returns BOTH the maximum value AND its position (index) in a vector?",
-   opts:['max()','find(max())','[val, idx] = max()','maxpos()'],
-   a:2},
-  {id:'Q09',tag:'MATLAB-Functions',difficulty:'medium',
-   q:"Given:\n  prices = [15 10 40 35 45 60];\n  qty    = [22 40 15 18 25 10];\n\nWhat does sum(prices .* qty) compute?",
-   opts:["Total number of items sold","Today's total revenue","Average price per item","Number of items costing more than ₹30"],
-   a:1},
-  {id:'Q10',tag:'MATLAB-Functions',difficulty:'medium',
-   q:"What is the difference between any() and all() in MATLAB?\n\nGiven: x = [1 0 1 1]",
-   opts:['any(x) = 1, all(x) = 1','any(x) = 1, all(x) = 0','any(x) = 0, all(x) = 0','any(x) = 0, all(x) = 1'],
-   a:1},
-
-  // MATLAB-Strings (2 questions)
-  {id:'Q11',tag:'MATLAB-Strings',difficulty:'easy',
-   q:"In MATLAB, what is the difference between:\n  x = 'hello'    (single quotes)\n  y = \"hello\"   (double quotes)\n",
-   opts:["They are identical — no difference",'Single quotes create a char array; double quotes create a string object','Single quotes create a string; double quotes create a char array','Only double quotes work in MATLAB'],
-   a:1},
-  {id:'Q12',tag:'MATLAB-Strings',difficulty:'medium',
-   q:"Which fprintf format specifier should you use to print a whole number (integer)?",
-   opts:['%s','%f','%d','%c'],
-   a:2},
-
-  // MATLAB-Debugging (3 questions)
-  {id:'Q13',tag:'MATLAB-Debugging',difficulty:'easy',
-   q:"A student types:\n  aarav = [72 75 88 102 110]\n  meera = [68 70 79]\n  team  = aarav + meera\n\nWhat happens?",
-   opts:['MATLAB adds the vectors element-by-element and returns a 1×5 result','MATLAB returns an error because the sizes do not match','MATLAB pads meera with zeros and adds','MATLAB ignores the shorter vector'],
-   a:1},
-  {id:'Q14',tag:'MATLAB-Debugging',difficulty:'medium',
-   q:"A student runs this code expecting to see all variables in the workspace:\n  x = 10;\n  y = 20;\n  clc\n  whos\n\nWhat actually happens?",
-   opts:['clc deletes x and y, so whos shows nothing','clc only clears the screen; whos still lists x and y','whos runs before clc so it lists x and y, then clc clears them','An error occurs because clc and whos cannot be on consecutive lines'],
-   a:1},
-  {id:'Q15',tag:'MATLAB-Debugging',difficulty:'hard',
-   q:"A student writes:\n  n = input('How many samosas? ');\n  cost = n * 15;\n  fprintf('Cost is Rs. %d', cost)\n\nWhen they run it and type 4, they expect:\n  Cost is Rs. 60\n\nBut nothing prints at all. What is the most likely reason?",
-   opts:['input() does not work in MATLAB','The semicolon after fprintf() suppresses the output','There is no semicolon after fprintf but %d requires an integer and cost is double','The script was not saved before running — MATLAB ran the last saved version which had no fprintf'],
-   a:3},
+   q:'M = [2 3; 1 4]; What does M.^2 return?',
+   opts:['[7 18; 6 19] — matrix power M*M','[4 9; 1 16] — each element squared','[2 3; 1 4] — no change','Error — .^ only works on vectors'],a:1}
 ];
 
 /* ===== MODULE: STATE ===== */
