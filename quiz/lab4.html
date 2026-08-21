@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATLAB Cumulative Quiz 4 — Labs 1-4 | SGT University</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&family=Inconsolata:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#16a34a; --accent-dark:#0f7a35; --accent-pale:#e8f7ee;
+    --amber:#d97706; --amber-pale:#fef3e0;
+    --red:#dc2626; --red-pale:#fde9e8;
+    --ink:#1a2420; --slate:#5b6b63; --slate-light:#8b978f;
+    --paper:#f8fafc; --card:#ffffff; --border:#e2e8e4; --border-strong:#c9d3cc;
+    --radius:12px; --shadow:0 1px 2px rgba(20,30,25,.06), 0 4px 14px rgba(20,30,25,.05);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'DM Sans',sans-serif; font-size:15px; line-height:1.55;
+    position:relative;
+  }
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.025;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  h1,h2,h3{font-family:'DM Serif Display',serif; font-weight:400; margin:0 0 .3em; color:var(--ink);}
+  code,.mono{font-family:'Inconsolata',monospace;}
+  .screen{display:none; position:relative; z-index:1; min-height:100vh;}
+  .screen.active{display:block;}
+
+  nav.topnav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 20px; background:var(--card); border-bottom:1px solid var(--border);
+    position:sticky; top:0; z-index:20;
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand .logo{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-family:'Inconsolata',monospace;font-weight:700;font-size:13px;}
+  .brand .name{font-weight:700; font-size:14px;}
+  .brand .sub{font-family:'Inconsolata',monospace; font-size:10.5px; color:var(--slate); text-transform:uppercase; letter-spacing:.04em;}
+  .nav-links{display:flex; align-items:center; gap:14px; font-family:'Inconsolata',monospace; font-size:12.5px;}
+  .nav-links a{color:var(--accent-dark); text-decoration:none; font-weight:600;}
+
+  .wrap{max-width:640px; margin:0 auto; padding:26px 18px 60px;}
+  .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:24px 22px;}
+  .card + .card{margin-top:16px;}
+  .eyebrow{font-family:'Inconsolata',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent-dark); margin-bottom:8px;}
+  .btn{
+    font-family:'DM Sans',sans-serif; font-weight:700; font-size:14.5px; border:none; border-radius:9px;
+    padding:13px 20px; cursor:pointer; min-height:48px;
+  }
+  .btn-primary{background:var(--accent); color:#fff; width:100%;}
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-primary:disabled{opacity:.4; cursor:default;}
+  .btn-secondary{background:var(--accent-pale); color:var(--accent-dark); width:100%;}
+  .btn-ghost{background:none; border:1px solid var(--border-strong); color:var(--ink); font-weight:600;}
+  .btn-link{background:none;border:none;color:var(--accent-dark);font-weight:600;cursor:pointer;padding:0;font-size:13px;text-decoration:underline;}
+  input[type=text]{
+    width:100%; padding:12px 14px; border:1.5px solid var(--border-strong); border-radius:9px;
+    font-family:'Inconsolata',monospace; font-size:15px; margin-bottom:10px;
+  }
+  select{
+    width:100%; padding:12px 14px; border:1.5px solid var(--border-strong); border-radius:9px;
+    font-family:'DM Sans',sans-serif; font-size:14.5px; margin-bottom:10px; background:#fff;
+  }
+  label.field-label{font-size:12px; font-weight:600; color:var(--slate); display:block; margin:12px 0 4px;}
+  .banner{border-radius:9px; padding:11px 14px; font-size:13.5px; margin-bottom:14px;}
+  .banner.green{background:var(--accent-pale); color:var(--accent-dark);}
+  .banner.amber{background:var(--amber-pale); color:#8a5a05;}
+  .banner.info{background:var(--accent-pale); color:var(--accent-dark); font-size:13px;}
+  .spinner{display:inline-block; width:14px;height:14px;border:2px solid var(--border-strong); border-top-color:var(--accent);
+    border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:6px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .pill{display:inline-block; font-family:'Inconsolata',monospace; font-size:11px; padding:3px 9px; border-radius:20px; border:1px solid var(--border-strong); color:var(--slate); margin:2px 4px 2px 0;}
+
+  /* ── QUIZ SUB-BAR ── */
+  .subbar{position:sticky; top:57px; z-index:15; background:var(--paper); padding:10px 18px 6px; border-bottom:1px solid var(--border);}
+  .subbar-row{display:flex; justify-content:space-between; align-items:center; max-width:640px; margin:0 auto; font-family:'Inconsolata',monospace; font-size:12.5px; color:var(--slate);}
+  .timer-badge{padding:4px 10px; border-radius:20px; background:var(--accent-pale); color:var(--accent-dark); font-weight:700;}
+  .timer-badge.amber{background:var(--amber-pale); color:#8a5a05;}
+  .timer-badge.red{background:var(--red-pale); color:var(--red); animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+  .progress-track{max-width:640px; margin:8px auto 0; height:5px; background:var(--border); border-radius:4px; overflow:hidden;}
+  .progress-fill{height:100%; background:var(--accent); transition:width .25s;}
+
+  /* ── QUESTION CARD ── */
+  .qmeta{display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:10px; font-family:'Inconsolata',monospace; font-size:11px;}
+  .qmeta .tag{background:var(--accent-pale); color:var(--accent-dark); padding:3px 8px; border-radius:20px;}
+  .qmeta .diff{padding:3px 8px; border-radius:20px; border:1px solid var(--border-strong); color:var(--slate);}
+  .qstem{font-family:'DM Serif Display',serif; font-size:19px; line-height:1.45; margin:8px 0 18px;}
+  .opt{
+    display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+    border:1.5px solid var(--border-strong); border-radius:10px; padding:13px 14px; margin-bottom:10px;
+    background:#fff; cursor:pointer; min-height:48px; font-family:'DM Sans',sans-serif; font-size:14.5px;
+  }
+  .opt:hover{border-color:var(--accent);}
+  .opt.selected{border-color:var(--accent); background:var(--accent-pale);}
+  .opt .letter{
+    width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border-strong);
+    display:flex;align-items:center;justify-content:center;font-family:'Inconsolata',monospace;font-weight:700;font-size:12px;
+    color:var(--slate); flex:0 0 auto;
+  }
+  .opt.selected .letter{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .opt.correct{border-color:var(--accent); background:var(--accent-pale);}
+  .opt.correct .letter{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .opt.wrong{border-color:var(--red); background:var(--red-pale);}
+  .opt.wrong .letter{background:var(--red); border-color:var(--red); color:#fff;}
+  .opt[disabled]{cursor:default;}
+
+  .conf-row{display:flex; gap:8px; margin-top:16px; padding-top:14px; border-top:1px dashed var(--border);}
+  .conf-label{font-size:12px; color:var(--slate); margin-bottom:8px; font-weight:600;}
+  .conf-pill{flex:1; border:1.5px solid var(--border-strong); border-radius:9px; padding:10px 6px; text-align:center;
+    font-size:12.5px; font-weight:700; cursor:pointer; background:#fff; color:var(--slate); min-height:44px;}
+  .conf-pill.low.sel{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .conf-pill.med.sel{background:var(--amber); border-color:var(--amber); color:#fff;}
+  .conf-pill.high.sel{background:var(--red); border-color:var(--red); color:#fff;}
+
+  .qnav-row{display:flex; justify-content:space-between; margin-top:18px; gap:10px;}
+  .qnav-row .btn{flex:1;}
+
+  .chiprow{display:flex; flex-wrap:wrap; gap:6px; margin-top:16px;}
+  .navchip{
+    width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border-strong);
+    display:flex;align-items:center;justify-content:center;font-family:'Inconsolata',monospace;font-size:11px;
+    color:var(--slate); background:#fff; cursor:pointer;
+  }
+  .navchip.current{box-shadow:0 0 0 2px var(--accent);}
+  .navchip.answered{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .navchip.partial{background:var(--amber); border-color:var(--amber); color:#fff;}
+
+  /* ── RESULT ── */
+  .result-header{text-align:center; padding:6px 0 4px;}
+  .grade-emoji{font-size:44px;}
+  .score-panel{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px;}
+  .stat-tile{background:var(--paper); border:1px solid var(--border); border-radius:9px; padding:12px; text-align:center;}
+  .stat-tile .n{font-family:'Inconsolata',monospace; font-weight:700; font-size:19px;}
+  .stat-tile .l{font-size:11px; color:var(--slate); text-transform:uppercase; letter-spacing:.04em; margin-top:2px;}
+  .topic-row{margin-bottom:12px;}
+  .topic-row .tt{display:flex; justify-content:space-between; font-size:13px; margin-bottom:4px;}
+  .topic-bar-track{height:9px; background:var(--border); border-radius:6px; overflow:hidden;}
+  .topic-bar-fill{height:100%; background:var(--accent); border-radius:6px;}
+  .topic-verdict{font-size:11px; font-weight:700; margin-top:3px;}
+  .topic-verdict.weak{color:var(--red);} .topic-verdict.mid{color:var(--amber);} .topic-verdict.strong{color:var(--accent-dark);}
+  .calib-row{display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px dashed var(--border); font-size:13.5px;}
+  .calib-row:last-of-type{border-bottom:none;}
+  .cri-note{background:var(--amber-pale); color:#8a5a05; border-radius:9px; padding:10px 12px; font-size:12.5px; margin-top:10px;}
+  .subid-box{border:1.5px dashed var(--border-strong); border-radius:9px; padding:12px 14px; margin-top:14px; text-align:center;}
+  .subid-box .lbl{font-size:11px; color:var(--slate); text-transform:uppercase; letter-spacing:.04em;}
+  .subid-box .val{font-family:'Inconsolata',monospace; font-weight:700; font-size:13px; margin-top:3px; word-break:break-all;}
+  .action-col{display:flex; flex-direction:column; gap:9px; margin-top:16px;}
+
+  .lb-table{width:100%; border-collapse:collapse; margin-top:10px;}
+  .lb-table th,.lb-table td{padding:8px 6px; text-align:left; font-size:13px; border-bottom:1px solid var(--border);}
+  .lb-table th{font-family:'Inconsolata',monospace; font-size:10.5px; text-transform:uppercase; color:var(--slate);}
+  .lb-table tr.me{background:var(--accent-pale);}
+
+  @media(max-width:480px){ .score-panel{grid-template-columns:1fr 1fr;} .qstem{font-size:17px;} }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">
+    <div class="logo">KP</div>
+    <div>
+      <div class="name">K.P. Singh</div>
+      <div class="sub">SGT University · BTech · MATLAB Lab — Cumulative Quiz 4</div>
+    </div>
+  </div>
+  <div class="nav-links">
+    <a href="student.html">📋 My Record</a>
+    <a href="https://kpsingh.in" target="_blank">kpsingh.in ↗</a>
+  </div>
+</nav>
+
+<!-- ══ SCREEN 0: CLOSED ══ -->
+<div id="closed-screen" class="screen active">
+  <div class="wrap" style="max-width:480px;">
+    <div class="card" style="text-align:center;">
+      <div class="eyebrow">MATLAB Cumulative Quiz 4 · Labs 1–4</div>
+      <h1 style="font-size:26px;">Quiz Not Open <em>Yet</em></h1>
+      <p style="margin:14px 0 20px;color:var(--slate);font-size:14.5px;line-height:1.6;">
+        Your instructor hasn't opened this quiz yet. Please wait for the go-ahead
+        in the lab, then refresh this page.
+      </p>
+      <button class="btn btn-primary" onclick="location.reload()">↻ Check again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 1: START ══ -->
+<div id="start-screen" class="screen">
+  <div class="wrap">
+    <div class="card">
+      <div class="eyebrow">MATLAB Cumulative Quiz 4</div>
+      <h1 style="font-size:25px;">Labs 1–4 <em style="font-style:italic;color:var(--accent-dark);">Checkpoint</em></h1>
+      <p style="color:var(--slate); font-size:13.5px; margin-top:6px;">30 MCQ · 25 minutes · covers Practicals 1–4</p>
+      <div class="pill-wrap" style="margin:12px 0 4px;">
+        <span class="pill">MATLAB-Basics</span><span class="pill">MATLAB-Matrices</span><span class="pill">MATLAB-Functions</span><span class="pill">MATLAB-Debugging</span>
+      </div>
+
+      <!-- STEP 1: roll entry -->
+      <div id="step1">
+        <label class="field-label">Roll Number</label>
+        <input type="text" id="rollInput" placeholder="e.g. 22CSE1042" autocomplete="off" style="text-transform:uppercase;">
+        <button class="btn btn-primary" onclick="lookupRoll()">Look up →</button>
+        <div id="lookupStatus" style="margin-top:10px;"></div>
+      </div>
+
+      <!-- STEP 2: confirm -->
+      <div id="step2" style="display:none;">
+        <div id="step2banner"></div>
+        <label class="field-label">Name</label>
+        <input type="text" id="nameInput" placeholder="Your full name">
+        <label class="field-label">Section</label>
+        <select id="sectionSelect">
+          <option value="">Select section</option>
+          <option value="5B">5B</option>
+          <option value="5E">5E</option>
+        </select>
+        <label class="field-label">Branch</label>
+        <input type="text" value="BTech CSE" disabled style="background:#f1f4f2;color:var(--slate);">
+        <label class="field-label">Semester</label>
+        <input type="text" value="5th" disabled style="background:#f1f4f2;color:var(--slate);">
+        <div class="banner info" style="margin-top:12px;">
+          After each answer, tap how confident you feel. This does not affect your score — it helps personalise your learning support.
+        </div>
+        <button class="btn-link" onclick="backToStep1()" style="margin:10px 0;">← Change roll number</button>
+        <button class="btn btn-primary" onclick="beginQuiz()" style="margin-top:6px;">Begin Quiz →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 2: QUIZ ══ -->
+<div id="quiz-screen" class="screen">
+  <div class="subbar">
+    <div class="subbar-row">
+      <span id="subbarName"></span>
+      <span id="subbarProgress"></span>
+      <span class="timer-badge" id="timerBadge">25:00</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+  <div class="wrap">
+    <div id="reviewBanner" style="display:none;" class="banner amber">
+      📋 Review Mode — correct answers shown in green, your wrong picks in red.
+      <button class="btn-link" style="margin-left:8px;" onclick="exitReview()">← Back to Score</button>
+    </div>
+    <div class="card">
+      <div class="qmeta">
+        <span class="pill" id="qSection"></span>
+        <span class="pill" id="qCounter"></span>
+        <span class="tag" id="qTag"></span>
+        <span class="diff" id="qDiff"></span>
+      </div>
+      <div class="qstem" id="qStem"></div>
+      <div id="qOpts"></div>
+
+      <div id="confBlock">
+        <div class="conf-row" style="flex-direction:column; border-top:1px dashed var(--border); padding-top:14px; margin-top:16px;">
+          <div class="conf-label">How confident?</div>
+          <div style="display:flex; gap:8px;">
+            <button class="conf-pill low" data-v="1" onclick="setConfidence(1)">🟢 Low</button>
+            <button class="conf-pill med" data-v="2" onclick="setConfidence(2)">🟡 Medium</button>
+            <button class="conf-pill high" data-v="3" onclick="setConfidence(3)">🔴 High</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="qnav-row">
+        <button class="btn btn-ghost" id="prevBtn" onclick="goPrev()">← Previous</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="goNext()">Next →</button>
+      </div>
+      <div class="chiprow" id="navchips"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 3: RESULT ══ -->
+<div id="result-screen" class="screen">
+  <div class="wrap">
+    <div class="card" id="result-card">
+      <div class="result-header">
+        <div class="grade-emoji" id="gradeEmoji">🏆</div>
+        <h2 id="resultName" style="font-size:21px;"></h2>
+        <div style="font-family:'Inconsolata',monospace; font-size:12px; color:var(--slate);" id="resultMeta"></div>
+      </div>
+      <div class="score-panel">
+        <div class="stat-tile"><div class="n" id="statScore"></div><div class="l">Score</div></div>
+        <div class="stat-tile"><div class="n" id="statPct"></div><div class="l">Percentage</div></div>
+        <div class="stat-tile"><div class="n" id="statGrade"></div><div class="l">Grade</div></div>
+        <div class="stat-tile"><div class="n" id="statTime"></div><div class="l">Time Taken</div></div>
+      </div>
+      <div id="passStatus" style="text-align:center; margin-top:12px; font-weight:700;"></div>
+
+      <h3 style="font-size:16px; margin-top:22px;">Topic Performance</h3>
+      <div id="topicBreakdown"></div>
+
+      <h3 style="font-size:16px; margin-top:20px;">Your Confidence Accuracy</h3>
+      <div id="calibSnapshot"></div>
+      <div id="criNote" style="display:none;" class="cri-note"></div>
+
+      <div class="subid-box">
+        <div class="lbl">Submission ID — Show to faculty</div>
+        <div class="val" id="subIdVal"></div>
+        <div style="font-size:11px;color:var(--slate);margin-top:4px;" id="savedAt"></div>
+      </div>
+
+      <div class="action-col">
+        <button class="btn btn-primary" onclick="downloadPDF()">📄 Download PDF</button>
+        <button class="btn btn-secondary" onclick="enterReview()">Show answers</button>
+        <button class="btn btn-secondary" id="lbBtn" onclick="showLeaderboard()">🏆 See leaderboard</button>
+        <button class="btn btn-ghost" onclick="location.reload()">← Start over</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN 4: LEADERBOARD ══ -->
+<div id="lb-screen" class="screen">
+  <div class="wrap">
+    <div class="card">
+      <button class="btn-link" onclick="showScreen('result-screen')">← Back</button>
+      <h2 style="margin-top:10px;">🏆 Leaderboard</h2>
+      <div style="font-family:'Inconsolata',monospace;font-size:11px;color:var(--slate);" id="lbSubtitle"></div>
+      <div id="lbBody" style="margin-top:10px;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+/* ===== MODULE: CONFIG ===== */
+const API_URL   = 'https://script.google.com/macros/s/AKfycbwt6Ns52cxvtSvguPioFno8qprEXRZStpN71Y22_xwCftg3IS-u-GRphIjQMkuc7AFHng/exec';
+const QUIZ_ID   = 'MATLAB-QUIZ4';
+const COHORT_ID = 'BTECH_SEM5_2026';
+const QUIZ_MODE = 'LAB';
+const TIME_MINS = 25;
+const LB_SIZE   = 5;
+const SESSION_ID = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
+
+/* ===== MODULE: GATE (open/close check) ===== */
+checkQuizOpen();
+
+async function checkQuizOpen() {
+  try {
+    const r = await fetch(`${API_URL}?action=quiz_status&quiz=${QUIZ_ID}`);
+    const j = await r.json();
+    if (j.success && j.data.status === 'OPEN') {
+      showScreen('start-screen');
+    }
+    // else: leave closed-screen showing (it's the default active screen)
+  } catch (e) {
+    // Network hiccup — fails CLOSED (safer for exam integrity than fail-open).
+  }
+}
+
+/* ===== MODULE: QUESTIONS ===== */
+const RAW_QUESTIONS = [
+{ id:'Q01', q:"Type x = 15 in MATLAB and press Enter, WITHOUT a semicolon at the end. What gets printed?", opts:["x = 15","15","nothing is printed","an error, because a semicolon is required"], a:0, tag:"MATLAB-Basics", difficulty:"easy" },
+{ id:'Q02', q:"A student types aarav = [72 75 88 102 110 118 124 129 131 128 122 115 104 95 84]; (15 one-minute heart-rate readings from a jog), then types length(aarav). What does MATLAB return?", opts:["14","15","16","1"], a:1, tag:"MATLAB-Basics", difficulty:"easy" },
+{ id:'Q03', q:"What does the MATLAB expression 1:2:10 evaluate to?", opts:["1 2 3 4 5 6 7 8 9 10","1 3 5 7 9","1 2 4 6 8 10","10 8 6 4 2"], a:1, tag:"MATLAB-Basics", difficulty:"medium" },
+{ id:'Q04', q:"A student has hr = [72 75 88 102 110 118 124 129 131 128 122 115 104 95 84] (15 one-minute heart-rate readings) and runs cardio_mins = sum(hr > 120);. What value does cardio_mins hold?", opts:["4","5","6","15"], a:1, tag:"MATLAB-Basics", difficulty:"medium" },
+{ id:'Q05', q:"What is the key difference between clc and clear in MATLAB?", opts:["clc clears the command window display only, while clear deletes variables from the workspace","clc deletes variables from the workspace, while clear only clears the display","They do exactly the same thing","clc closes MATLAB entirely, while clear restarts it"], a:0, tag:"MATLAB-Basics", difficulty:"easy" },
+{ id:'Q06', q:"A student defines HR = 100 in one line of a script, then later in the same script writes disp(hr) (lowercase). What happens when the script runs?", opts:["MATLAB prints 100, since variable names in MATLAB are not case-sensitive","MATLAB throws an \"undefined variable\" error, because HR and hr are treated as two different variables","MATLAB prints 0","MATLAB automatically renames hr to HR before running"], a:1, tag:"MATLAB-Debugging", difficulty:"hard" },
+{ id:'Q07', q:"For hr = [72 75 88 102 110 118 124 129 131 128 122 115 104 95 84] (15 heart-rate readings), a student runs avg = mean(hr); peak = max(hr); slowest = min(hr);. What is the value of peak?", opts:["129","131","124","84"], a:1, tag:"MATLAB-Basics", difficulty:"medium" },
+
+{ id:'Q08', q:"A = [106 8200 310; 98 6400 245; 112 9750 388] stores 3 days (rows) of a runner's heart rate, steps, and calories (columns). What does size(A) return?", opts:["[3 3]","[9 1]","[1 9]","[3 9]"], a:0, tag:"MATLAB-Matrices", difficulty:"easy" },
+{ id:'Q09', q:"For A = [106 8200 310; 98 6400 245; 112 9750 388] (rows = Mon, Tue, Wed; columns = heart rate, steps, calories), what does A(2,3) return?", opts:["6400","245","98","112"], a:1, tag:"MATLAB-Matrices", difficulty:"medium" },
+{ id:'Q10', q:"For A = [106 8200 310; 98 6400 245; 112 9750 388] (rows = Mon, Tue, Wed; columns = heart rate, steps, calories), what does A(:,2) return?", opts:["[8200; 6400; 9750]","[106; 98; 112]","[106 8200 310]","an error, because a colon cannot select a column"], a:0, tag:"MATLAB-Matrices", difficulty:"easy" },
+{ id:'Q11', q:"Let P = [1 2; 3 4] and Q = [10 20; 30 40]. What does P .* Q (with the dot) return?", opts:["[10 40; 90 160]","[70 100; 150 220]","[11 22; 33 44]","an error, because the shapes don't match"], a:0, tag:"MATLAB-Matrices", difficulty:"medium" },
+{ id:'Q12', q:"Let P = [1 2; 3 4] and Q = [10 20; 30 40]. What does P * Q (matrix multiplication, no dot) return?", opts:["[70 100; 150 220]","[10 40; 90 160]","[11 22; 33 44]","an error, because the shapes don't match"], a:0, tag:"MATLAB-Matrices", difficulty:"medium" },
+{ id:'Q13', q:"A runner's 3-day log is A = [106 8200 310; 98 6400 245; 112 9750 388] (rows = days; columns = heart rate in bpm, steps, and calories). A student runs sum(A,2). What does this compute, and why is the result not meaningful?", opts:["It sums across each row, adding heart rate + steps + calories together — a number with no real-world unit, since the three columns measure different things","It correctly computes each day's total activity score","It sums down each column, giving three day totals of the same metric","It returns an error, because the columns have different units"], a:0, tag:"MATLAB-Matrices", difficulty:"medium" },
+{ id:'Q14', q:"A rulebook column rates is unknown, but three students' quantities Q = [4 2 6; 3 5 2; 6 1 4] (rows = students; columns = steps in thousands, calories in hundreds, active 10-minute blocks) and their published scores t = [20; 23; 19] are related by Q*r = t. Which MATLAB command correctly solves for r?", opts:["r = Q \\ t","r = t \\ Q","r = Q * t","r = inv(t) * Q"], a:0, tag:"MATLAB-Matrices", difficulty:"medium" },
+{ id:'Q15', q:"A student wants to solve Q*r = t for Q = [4 2 6; 8 4 12; 6 1 4] and t = [20; 23; 19], where Q's second row happens to be exactly double its first row. Before running r = Q \\ t, what should the student check, and what will they find?", opts:["Check det(Q) and rank(Q) first — det(Q) will be 0 and rank(Q) will be less than 3, meaning no unique solution exists","Nothing needs to be checked; backslash always returns a correct, unique answer","Check that Q is a row vector, since only row vectors can be inverted","Check numel(Q); if it equals 9, the system always has a unique solution"], a:0, tag:"MATLAB-Debugging", difficulty:"hard" },
+
+{ id:'Q16', q:"A fitness band uses 3 sensors to estimate heart rate. Calibration data gives A = [72 68 75; 98 90 101; 142 130 148] and true readings b = [74; 96; 138], related by A*w = b, where w = [w1; w2; w3] are the sensor trust weights. Which MATLAB line solves for w?", opts:["w = A \\ b","w = b \\ A","w = A * b","w = inv(b) * A"], a:0, tag:"MATLAB-Matrices", difficulty:"easy" },
+{ id:'Q17', q:"For A = [72 68 75; 98 90 101; 142 130 148] and b = [74; 96; 138], a student computes w = A \\ b and gets w ≈ [-0.60; 1.93; -0.19] — two negative weights. Is this necessarily a bug in the code?", opts:["No — it's a valid exact solution; the negative weights happen because the three sensors are highly correlated (rcond(A) is small), which makes the system fragile even though it's solvable","Yes — sensor weights must always be positive, so the code must contain an error","No — MATLAB always returns positive weights for a valid system, so w must be wrong for some other reason","Yes — negative numbers can never be produced by the backslash operator"], a:0, tag:"MATLAB-Debugging", difficulty:"medium" },
+{ id:'Q18', q:"In MATLAB, what does rcond(A) tell you about a square matrix A?", opts:["A value near 1 means A is well-conditioned (safe to solve/invert); a value near 0 means A is close to singular and results may be unreliable","It returns the exact inverse of A","It counts how many rows of A are identical to each other","It rounds every element of A to the nearest integer"], a:0, tag:"MATLAB-Matrices", difficulty:"easy" },
+{ id:'Q19', q:"A calibration matrix A_B = [66 71 69; 95 97 93; 150 152 148] with targets b_B = [70; 95; 150] gives a clean solution w_B ≈ [0; 0.5; 0.5]. A second version, A_B_bad, is identical except Sensor 2 and Sensor 3 read nearly the same value in two of the three sessions (a 'stuck sensor'). What happens to rcond(A_B_bad) compared to rcond(A_B)?", opts:["It drops noticeably lower — near-duplicate sensor readings remove independent information from the system","It stays exactly the same, since rcond only depends on the matrix's size","It increases, since more similar numbers make a matrix easier to solve","rcond becomes undefined for any matrix that has repeated values"], a:0, tag:"MATLAB-Matrices", difficulty:"medium" },
+{ id:'Q20', q:"A student solves the same linear system two ways: w1 = inv(A)*b; and w2 = A\\b;. Both are mathematically valid, but which is generally the better MATLAB practice, and why?", opts:["A\\b, because it solves the system directly via factorization instead of computing a full matrix inverse first, making it faster and more numerically accurate","inv(A)*b, because it shows every step explicitly and is therefore more reliable","They are never different in any respect, so it doesn't matter which is used","A\\b is only valid when every entry of A is positive"], a:0, tag:"MATLAB-Debugging", difficulty:"hard" },
+{ id:'Q21', q:"A 3x3 calibration matrix A has det(A) = 0. What does this tell you about the system A*w = b?", opts:["A is singular — it has no inverse, and A\\w will not give a unique, reliable solution","The system always has infinitely many equally good solutions with no downside","det(A) = 0 has no effect on whether the system can be solved","A must contain only zero entries"], a:0, tag:"MATLAB-Matrices", difficulty:"easy" },
+{ id:'Q22', q:"A calibration table gives sensor readings A = [72 68 75; 98 90 101; 142 130 148] and true values b = [74; 96; 138], and a weight vector w has already been found by solving A*w = b. A new test session reads new_reading = [110 100 115]. Which line correctly predicts the BPM for this new reading?", opts:["predicted = new_reading * w","predicted = w * new_reading","predicted = new_reading \\ w","predicted = A * new_reading"], a:0, tag:"MATLAB-Matrices", difficulty:"easy" },
+
+{ id:'Q23', q:"A student has t = [0 20 40 60 80 100] (seconds) and bpm = [92 100 110 124 144 172] (fused heart-rate readings). Which command fits a degree-2 (quadratic) polynomial curve through this data?", opts:["p = polyfit(t, bpm, 2)","p = polyval(t, bpm, 2)","p = roots(t, bpm, 2)","p = polyfit(bpm, 2)"], a:0, tag:"MATLAB-Functions", difficulty:"easy" },
+{ id:'Q24', q:"A quadratic curve has already been fit with p = polyfit(t, bpm, 2), giving p = [0.00625 0.155 93]. Which command evaluates this fitted curve at t = 140?", opts:["polyval(p, 140)","polyfit(p, 140)","roots(p, 140)","p(140)"], a:0, tag:"MATLAB-Functions", difficulty:"easy" },
+{ id:'Q25', q:"A polynomial is stored as p = [1 -3 2], representing x^2 - 3x + 2. What does roots(p) return?", opts:["2 and 1","3 and -2","-1 and -2","1 and 3"], a:0, tag:"MATLAB-Functions", difficulty:"medium" },
+{ id:'Q26', q:"A student fits a curve with p = polyfit(t, bpm, 2) and wants to know exactly when the fitted curve crosses a safety limit of 178 — not just its value at some future time. Which is the correct approach?", opts:["Subtract 178 from the constant term of p, then call roots() on the adjusted polynomial","Call polyval(p, 178) directly","Call roots(178)","Divide every coefficient in p by 178"], a:0, tag:"MATLAB-Functions", difficulty:"medium" },
+{ id:'Q27', q:"Six (time, BPM) points are fit with a degree-5 polynomial, p5 = polyfit(t, bpm, 5), using exactly 6 data points. The fitted curve passes through all 6 points almost exactly. Why should a student still be cautious about trusting a prediction made far outside the original time range using this p5?", opts:["With 6 points and 6 coefficients, the curve has no averaging power left — it has fit the noise in the data exactly, so it can swing to extreme, unrealistic values just outside the original range","A degree-5 polynomial is always less accurate than a degree-2 polynomial, everywhere","polyfit cannot actually compute a degree-5 fit with only 6 points, so p5 will contain errors","Six data points can only ever produce a straight-line fit"], a:0, tag:"MATLAB-Debugging", difficulty:"hard" },
+{ id:'Q28', q:"A degree-1 (straight-line) fit through 6 (time, BPM) points predicts that a safety redline of 178 BPM will be crossed LATER than a degree-2 (quadratic) fit through the exact same data. What does this tell you about the straight-line fit?", opts:["It underestimates how quickly BPM is rising, because it cannot capture the upward curvature (acceleration) present in the real data","It is always more accurate than the quadratic fit for this kind of data","It means the underlying data itself must be wrong","A straight-line fit and a quadratic fit will always predict the exact same crossing time"], a:0, tag:"MATLAB-Functions", difficulty:"medium" },
+{ id:'Q29', q:"For a fitted polynomial p = polyfit(x, y, n), what is the minimum number of (x,y) data points generally needed so the fit is not simply forced through every single point with zero averaging?", opts:["n + 2 or more","exactly n + 1","n","n - 1"], a:0, tag:"MATLAB-Functions", difficulty:"easy" },
+{ id:'Q30', q:"A degree-2 fit p2 = polyfit(t, bpm, 2) predicts BPM = 237.2 at t = 140, but the redline-crossing time found via roots (t ≈ 104.9 s) is the more useful number for triggering a safety warning. Why is the roots-based crossing time preferred over the raw polyval prediction at a distant future time?", opts:["It answers the safety question using the smallest possible extrapolation beyond the measured data, rather than trusting a further, less reliable guess","polyval(p2, 140) is mathematically incorrect, while roots() is always exact","roots() does not use the fitted polynomial at all, so it is unaffected by noise","The two approaches always give exactly the same numeric answer, so there is no real difference"], a:0, tag:"MATLAB-Functions", difficulty:"hard" },
+];
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildShuffledQuestions(){
+  const qs = shuffle(RAW_QUESTIONS).map(orig => {
+    const optIdx = shuffle([0,1,2,3]);
+    const shuffledOpts = optIdx.map(i => orig.opts[i]);
+    const newCorrect = optIdx.indexOf(orig.a);
+    return {
+      id: orig.id, q: orig.q, tag: orig.tag, difficulty: orig.difficulty,
+      opts: shuffledOpts, correctIndex: newCorrect
+    };
+  });
+  return qs;
+}
+
+/* ===== MODULE: STATE ===== */
+const STATE = {
+  name:'', roll:'', section:'',
+  currentIndex:0,
+  shuffledQuestions:[],
+  answers:[], confidence:[], correct:[],
+  startTime:null, elapsedSecs:0, timerHandle:null, secsLeft: TIME_MINS*60,
+  submitted:false,
+  reviewMode:false, reviewIndex:0,
+  lookupRoster:null,
+};
+
+/* ===== MODULE: UI ===== */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function backToStep1(){
+  document.getElementById('step1').style.display = 'block';
+  document.getElementById('step2').style.display = 'none';
+}
+
+async function lookupRoll(){
+  const roll = document.getElementById('rollInput').value.trim().toUpperCase();
+  if (!roll) return;
+  const statusEl = document.getElementById('lookupStatus');
+  statusEl.innerHTML = '<span class="spinner"></span>Looking up roster…';
+  let data = null;
+  try {
+    const resp = await fetch(`${API_URL}?action=student_lookup&roll=${encodeURIComponent(roll)}`);
+    const j = await resp.json();
+    if (j.success) data = j.data;
+  } catch(e) { /* silently allow manual entry */ }
+
+  STATE.roll = roll;
+  const step2banner = document.getElementById('step2banner');
+  if (data && data.name){
+    step2banner.innerHTML = `<div class="banner green">Welcome back, ${data.name}!</div>`;
+    document.getElementById('nameInput').value = data.name;
+    if (data.section) document.getElementById('sectionSelect').value = data.section;
+  } else {
+    step2banner.innerHTML = `<div class="banner amber">Fill your details below</div>`;
+  }
+  statusEl.innerHTML = '';
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'block';
+}
+
+function beginQuiz(){
+  const name = document.getElementById('nameInput').value.trim();
+  const section = document.getElementById('sectionSelect').value;
+  if (!name || !section){ alert('Please enter your name and select a section.'); return; }
+  STATE.name = name;
+  STATE.section = section;
+  STATE.shuffledQuestions = buildShuffledQuestions();
+  STATE.answers = new Array(STATE.shuffledQuestions.length).fill(-1);
+  STATE.confidence = new Array(STATE.shuffledQuestions.length).fill(0);
+  STATE.startTime = Date.now();
+  showScreen('quiz-screen');
+  startTimer();
+  renderQuestion(0);
+}
+
+function startTimer(){
+  updateTimerDisplay();
+  STATE.timerHandle = setInterval(() => {
+    STATE.secsLeft--;
+    if (STATE.secsLeft <= 0){
+      clearInterval(STATE.timerHandle);
+      STATE.secsLeft = 0;
+      updateTimerDisplay();
+      finalizeQuiz(true);
+      return;
+    }
+    updateTimerDisplay();
+  }, 1000);
+}
+
+function updateTimerDisplay(){
+  const m = Math.floor(STATE.secsLeft/60), s = STATE.secsLeft%60;
+  const label = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  const badge = document.getElementById('timerBadge');
+  badge.textContent = label;
+  badge.classList.remove('amber','red');
+  if (STATE.secsLeft <= 120) badge.classList.add('red');
+  else if (STATE.secsLeft <= 300) badge.classList.add('amber');
+}
+
+const idx_ = () => STATE.currentIndex;
+
+function renderQuestion(i){
+  window.scrollTo(0, 0);
+  STATE.currentIndex = i;
+  const total = STATE.shuffledQuestions.length;
+  const q = STATE.shuffledQuestions[i];
+
+  document.getElementById('subbarName').textContent = `${STATE.name} · ${STATE.section}`;
+  document.getElementById('subbarProgress').textContent = `Q${i+1} of ${total}`;
+  const answeredCount = STATE.answers.filter(a => a !== -1).length;
+  document.getElementById('progressFill').style.width = (answeredCount/total*100) + '%';
+
+  document.getElementById('qSection').textContent = STATE.section;
+  document.getElementById('qCounter').textContent = `Q${i+1} of ${total}`;
+  document.getElementById('qTag').textContent = q.tag;
+  document.getElementById('qDiff').textContent = q.difficulty.charAt(0).toUpperCase()+q.difficulty.slice(1);
+  document.getElementById('qStem').textContent = q.q;
+
+  const optsWrap = document.getElementById('qOpts');
+  optsWrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((optText, oi) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt' + (STATE.answers[i]===oi ? ' selected' : '');
+    btn.innerHTML = `<span class="letter">${letters[oi]}</span><span>${optText}</span>`;
+    btn.onclick = () => { STATE.answers[i] = oi; renderQuestion(i); };
+    optsWrap.appendChild(btn);
+  });
+
+  document.querySelectorAll('.conf-pill').forEach(p => p.classList.remove('sel'));
+  const cv = STATE.confidence[i];
+  if (cv){
+    const map = {1:'.low',2:'.med',3:'.high'};
+    document.querySelector('.conf-pill'+map[cv]).classList.add('sel');
+  }
+
+  document.getElementById('prevBtn').disabled = false;
+  document.getElementById('nextBtn').textContent = (i === total-1) ? 'Review & Submit' : 'Next →';
+  updateNextState();
+  renderNavChips();
+}
+
+function setConfidence(v){
+  STATE.confidence[STATE.currentIndex] = v;
+  renderQuestion(STATE.currentIndex);
+}
+
+// Implement exactly this — no variation
+function updateNextState() {
+  const idx = STATE.currentIndex;
+  const nextBtn = document.getElementById('nextBtn');
+  const hasAnswer     = STATE.answers[idx] !== -1;
+  const hasConfidence = STATE.confidence[idx] !== 0;
+  const ok = hasAnswer && hasConfidence;
+  nextBtn.disabled = !ok;
+  nextBtn.style.opacity = ok ? '1' : '0.4';
+}
+
+function renderNavChips(){
+  const wrap = document.getElementById('navchips');
+  wrap.innerHTML = '';
+  STATE.shuffledQuestions.forEach((q,i) => {
+    const chip = document.createElement('div');
+    let cls = 'navchip';
+    if (i === STATE.currentIndex) cls += ' current';
+    const answered = STATE.answers[i] !== -1;
+    const confident = STATE.confidence[i] !== 0;
+    if (answered && confident) cls += ' answered';
+    else if (answered && !confident) cls += ' partial';
+    chip.className = cls;
+    chip.textContent = i+1;
+    chip.onclick = () => renderQuestion(i);
+    wrap.appendChild(chip);
+  });
+}
+
+function goPrev(){
+  if (STATE.currentIndex > 0) renderQuestion(STATE.currentIndex - 1);
+}
+function goNext(){
+  const total = STATE.shuffledQuestions.length;
+  if (STATE.currentIndex < total - 1) renderQuestion(STATE.currentIndex + 1);
+  else finalizeQuiz(false);
+}
+
+function computeGrade(pct) {
+  if (pct>=90) return 'A+'; if (pct>=80) return 'A';
+  if (pct>=70) return 'B';  if (pct>=60) return 'C';
+  if (pct>=50) return 'D';  if (pct>=40) return 'E';
+  return 'F';
+}
+
+function computeCRI(confArray) {
+  const rated  = confArray.filter(c => c > 0);
+  if (rated.length < 3)
+    return { flag: false, pattern: 'insufficient', unique: 0 };
+  const unique = new Set(rated).size;
+  const same   = unique === 1;
+  const val    = rated[0];
+  const pattern = same
+    ? (val===3 ? 'always_high' : val===1 ? 'always_low' : 'always_medium')
+    : 'variable';
+  return { flag: same, pattern, unique };
+}
+
+function finalizeQuiz(timedOut){
+  if (STATE.submitted) return;
+  STATE.submitted = true;
+  if (STATE.timerHandle) clearInterval(STATE.timerHandle);
+  STATE.elapsedSecs = Math.round((Date.now() - STATE.startTime)/1000);
+
+  STATE.correct = STATE.shuffledQuestions.map((q,i) => STATE.answers[i] === q.correctIndex ? 1 : 0);
+  const correctCount = STATE.correct.reduce((a,b)=>a+b,0);
+  const total = STATE.shuffledQuestions.length;
+  const pct = Math.round(correctCount/total*100);
+  const grade = computeGrade(pct);
+  const passed = pct >= 40;
+  const cri = computeCRI(STATE.confidence);
+
+  renderResult(correctCount, total, pct, grade, passed, cri, timedOut);
+  submitToBackend(correctCount, total, pct, grade, passed, cri);
+  showScreen('result-screen');
+}
+
+function formatTime(secs){
+  const m = Math.floor(secs/60), s = secs%60;
+  return `${m}m ${String(s).padStart(2,'0')}s`;
+}
+
+const GRADE_EMOJI = {'A+':'🏆','A':'⭐','B':'📘','C':'✅','D':'⚠️','E':'🔄','F':'❌'};
+
+function renderResult(correctCount, total, pct, grade, passed, cri, timedOut){
+  document.getElementById('gradeEmoji').textContent = GRADE_EMOJI[grade] || '📘';
+  document.getElementById('resultName').textContent = STATE.name;
+  document.getElementById('resultMeta').textContent = `MATLAB Cumulative Quiz 4 · ${STATE.section} · ${new Date().toLocaleDateString()}`;
+  document.getElementById('statScore').textContent = `${correctCount} / ${total}`;
+  document.getElementById('statPct').textContent = `${pct}%`;
+  document.getElementById('statGrade').textContent = grade;
+  document.getElementById('statTime').textContent = formatTime(STATE.elapsedSecs);
+  const statusEl = document.getElementById('passStatus');
+  statusEl.textContent = passed ? '✅ Passed' : '❌ Needs Improvement';
+  statusEl.style.color = passed ? 'var(--accent-dark)' : 'var(--red)';
+  if (timedOut){
+    const note = document.createElement('div');
+    note.className = 'banner amber';
+    note.textContent = "Time's up — your responses have been saved.";
+    statusEl.insertAdjacentElement('afterend', note);
+  }
+
+  // Topic breakdown
+  const byTag = {};
+  STATE.shuffledQuestions.forEach((q,i) => {
+    if (!byTag[q.tag]) byTag[q.tag] = {correct:0,total:0};
+    byTag[q.tag].total++;
+    byTag[q.tag].correct += STATE.correct[i];
+  });
+  const rows = Object.keys(byTag).map(tag => {
+    const {correct,total} = byTag[tag];
+    const p = Math.round(correct/total*100);
+    let verdict, vclass;
+    if (p < 40){ verdict = '⚠ Weak spot'; vclass='weak'; }
+    else if (p < 70){ verdict = 'Needs revision'; vclass='mid'; }
+    else { verdict = 'Strong'; vclass='strong'; }
+    return {tag, correct, total, p, verdict, vclass};
+  }).sort((a,b) => a.p - b.p);
+
+  const topicWrap = document.getElementById('topicBreakdown');
+  topicWrap.innerHTML = rows.map(r => `
+    <div class="topic-row">
+      <div class="tt"><span>${r.tag}</span><span>${r.correct}/${r.total} (${r.p}%)</span></div>
+      <div class="topic-bar-track"><div class="topic-bar-fill" style="width:${r.p}%"></div></div>
+      <div class="topic-verdict ${r.vclass}">${r.verdict}</div>
+    </div>
+  `).join('');
+
+  // Confidence calibration snapshot
+  let verySureCorrect=0, verySureWrong=0, notSureCorrect=0;
+  STATE.confidence.forEach((c,i) => {
+    const ok = STATE.correct[i]===1;
+    if (c===3 && ok) verySureCorrect++;
+    if (c===3 && !ok) verySureWrong++;
+    if (c===1 && ok) notSureCorrect++;
+  });
+  const calibWrap = document.getElementById('calibSnapshot');
+  calibWrap.innerHTML = `
+    <div class="calib-row"><span>🔴 Very Sure + Correct</span><b>${verySureCorrect}</b></div>
+    <div class="calib-row"><span>⚠️ Very Sure + Wrong</span><b>${verySureWrong}</b></div>
+    <div class="calib-row"><span>💡 Not Sure + Correct</span><b>${notSureCorrect}</b></div>
+  `;
+  let verdictSentence;
+  if (verySureWrong > verySureCorrect && verySureWrong > 0){
+    verdictSentence = "A few topics you felt certain about didn't go your way — those are exactly the ones worth a second look.";
+  } else if (notSureCorrect > 0 && verySureWrong === 0){
+    verdictSentence = "You knew more than you gave yourself credit for on a few of these — trust your instincts a bit more next time.";
+  } else if (verySureCorrect > 0){
+    verdictSentence = "Your confidence and your correctness are lining up well — nicely calibrated.";
+  } else {
+    verdictSentence = "Not enough confidence variation yet to draw a pattern — keep rating honestly and it'll get clearer.";
+  }
+  calibWrap.innerHTML += `<p style="font-size:12.5px;color:var(--slate);margin-top:8px;">${verdictSentence}</p>`;
+
+  const criNote = document.getElementById('criNote');
+  if (cri.flag){
+    criNote.style.display = 'block';
+    criNote.textContent = "We noticed you rated the same confidence on every question. Try varying it next time — honest ratings help us help you.";
+  } else {
+    criNote.style.display = 'none';
+  }
+
+  const sid = STATE.roll + '-' + QUIZ_ID + '-' + Date.now().toString(36).toUpperCase();
+  STATE.submissionId = sid;
+  document.getElementById('subIdVal').textContent = sid;
+  document.getElementById('savedAt').textContent = 'Saved to SGIF · ' + new Date().toLocaleString();
+
+  document.getElementById('lbBtn').style.display = LB_SIZE > 0 ? 'block' : 'none';
+}
+
+function enterReview(){
+  STATE.reviewMode = true;
+  STATE.reviewIndex = 0;
+  showScreen('quiz-screen');
+  document.getElementById('reviewBanner').style.display = 'block';
+  document.getElementById('confBlock').style.display = 'none';
+  renderReviewQuestion(0);
+}
+function exitReview(){
+  STATE.reviewMode = false;
+  document.getElementById('reviewBanner').style.display = 'none';
+  document.getElementById('confBlock').style.display = 'block';
+  showScreen('result-screen');
+}
+function renderReviewQuestion(i){
+  STATE.reviewIndex = i;
+  const total = STATE.shuffledQuestions.length;
+  const q = STATE.shuffledQuestions[i];
+  document.getElementById('subbarName').textContent = `${STATE.name} · ${STATE.section}`;
+  document.getElementById('subbarProgress').textContent = `Q${i+1} of ${total}`;
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('qSection').textContent = STATE.section;
+  document.getElementById('qCounter').textContent = `Q${i+1} of ${total}`;
+  document.getElementById('qTag').textContent = q.tag;
+  document.getElementById('qDiff').textContent = q.difficulty.charAt(0).toUpperCase()+q.difficulty.slice(1);
+  document.getElementById('qStem').textContent = q.q;
+
+  const optsWrap = document.getElementById('qOpts');
+  optsWrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  const studentPick = STATE.answers[i];
+  q.opts.forEach((optText, oi) => {
+    const btn = document.createElement('button');
+    let cls = 'opt';
+    if (oi === q.correctIndex) cls += ' correct';
+    else if (oi === studentPick) cls += ' wrong';
+    btn.className = cls;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="letter">${letters[oi]}</span><span>${optText}</span>`;
+    optsWrap.appendChild(btn);
+  });
+
+  document.getElementById('prevBtn').onclick = () => { if(i>0) renderReviewQuestion(i-1); };
+  document.getElementById('prevBtn').disabled = (i===0);
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = false;
+  nextBtn.style.opacity = '1';
+  nextBtn.textContent = (i === total-1) ? '← Back to Score' : 'Next →';
+  nextBtn.onclick = () => { if(i === total-1) exitReview(); else renderReviewQuestion(i+1); };
+
+  const wrap = document.getElementById('navchips');
+  wrap.innerHTML = '';
+  STATE.shuffledQuestions.forEach((qq,ii) => {
+    const chip = document.createElement('div');
+    let cls = 'navchip';
+    if (ii === i) cls += ' current';
+    if (STATE.correct[ii]) cls += ' answered'; else if(STATE.answers[ii]!==-1) cls += ' partial';
+    chip.className = cls;
+    chip.textContent = ii+1;
+    chip.onclick = () => renderReviewQuestion(ii);
+    wrap.appendChild(chip);
+  });
+}
+
+function downloadPDF(){
+  const el = document.getElementById('result-card');
+  const fname = `${STATE.roll}-${QUIZ_ID}-${STATE.submissionId}.pdf`;
+  html2pdf().set({
+    margin:[12,10,12,10], filename:fname,
+    image:{type:'jpeg', quality:0.97},
+    html2canvas:{scale:2, useCORS:true, backgroundColor:'#ffffff', logging:false},
+    jsPDF:{unit:'mm', format:'a4', orientation:'portrait'}
+  }).from(el).save();
+}
+
+async function showLeaderboard(){
+  showScreen('lb-screen');
+  document.getElementById('lbSubtitle').textContent = `${QUIZ_ID} · SECTION ${STATE.section} · TOP ${LB_SIZE}`;
+  const bodyEl = document.getElementById('lbBody');
+  bodyEl.innerHTML = '<span class="spinner"></span>Loading…';
+  try {
+    const r = await fetch(`${API_URL}?action=lab_leaderboard&quiz=${QUIZ_ID}&section=${STATE.section}&top=${LB_SIZE}`);
+    const j = await r.json();
+    if (j.success) renderLeaderboard(j.data);
+    else bodyEl.innerHTML = '<p style="color:var(--slate);font-size:13px;">No leaderboard data yet.</p>';
+  } catch(e){
+    bodyEl.innerHTML = '<p style="color:var(--slate);font-size:13px;">Could not load the leaderboard right now.</p>';
+  }
+}
+function renderLeaderboard(data){
+  const medals = ['🥇','🥈','🥉'];
+  const bodyEl = document.getElementById('lbBody');
+  if (!data || !data.length){
+    bodyEl.innerHTML = '<p style="color:var(--slate);font-size:13px;">No entries yet — be the first!</p>';
+    return;
+  }
+  let html = '<table class="lb-table"><tr><th>Rank</th><th>Name</th><th>Score</th><th>%</th><th>Grade</th></tr>';
+  data.forEach((row,i) => {
+    const isMe = row.roll && row.roll.toUpperCase() === STATE.roll.toUpperCase();
+    const rankLabel = i < 3 ? medals[i] : ('#' + (i+1));
+    html += `<tr class="${isMe?'me':''}"><td>${rankLabel}</td><td>${row.name}</td><td>${row.score}/${row.total}</td><td>${row.pct}%</td><td>${row.grade}</td></tr>`;
+  });
+  html += '</table>';
+  bodyEl.innerHTML = html;
+}
+
+/* ===== MODULE: API ===== */
+function submitToBackend(correctCount, total, pct, grade, passed, cri){
+  const payload = {
+    action:        'lab_response',
+    submissionId:  STATE.submissionId,
+    sessionId:     SESSION_ID,
+    quizId:        QUIZ_ID,
+    cohortId:      COHORT_ID,
+    name: STATE.name, roll: STATE.roll, section: STATE.section,
+    branch:        'BTech CSE',
+    semester:      '5th',
+    spec:          '',
+    mode:          QUIZ_MODE,
+    score:         correctCount,
+    scoreWeighted: correctCount,
+    total:         total,
+    scoreMax:      total,
+    percentage:    pct,
+    grade:         grade,
+    passed:        passed ? 'TRUE' : 'FALSE',
+    timeTaken:     formatTime(STATE.elapsedSecs),
+    submittedAt:   new Date().toISOString(),
+    sectionScores: [],
+    tags:          STATE.shuffledQuestions.map(q => q.tag),
+    confidence:    STATE.confidence,
+    correct:       STATE.correct,
+    cri_flag:      cri.flag,
+    cri_pattern:   cri.pattern,
+    cri_unique:    cri.unique,
+  };
+  fetch(API_URL, { method:'POST', mode:'no-cors', body: JSON.stringify(payload) })
+    .catch(() => {});
+}
+</script>
+</body>
+</html>
