@@ -294,8 +294,26 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;
   </div>
 </nav>
 
+<!-- ══ SCREEN 0: CLOSED ══ -->
+<div id="closed-screen" class="screen active">
+  <div class="start-wrap" style="grid-template-columns:1fr;max-width:480px;">
+    <div class="start-card">
+      <div class="start-card-bar"></div>
+      <div class="start-card-body" style="text-align:center;">
+        <div class="eyebrow">MATLAB Lab 3 · Evaluation</div>
+        <h1 class="start-title">Quiz Not Open <em>Yet</em></h1>
+        <p style="margin:14px 0 20px;color:var(--slate);font-size:14.5px;line-height:1.6;">
+          Your instructor hasn't opened this quiz yet. Please wait for the go-ahead
+          in the lab, then refresh this page.
+        </p>
+        <button class="begin-btn" onclick="location.reload()">↻ Check again</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ SCREEN 1: START ══ -->
-<div id="start-screen" class="screen active">
+<div id="start-screen" class="screen">
   <div class="start-wrap">
     <div class="start-card">
       <div class="start-card-bar"></div>
@@ -507,6 +525,22 @@ const COHORT_ID = 'BTECH_SEM5_2026';
 const QUIZ_MODE = 'LAB';
 const TIME_MINS = 15;
 const LB_SIZE   = 5;
+
+/* ===== MODULE: GATE (open/close check) ===== */
+checkQuizOpen();
+
+async function checkQuizOpen() {
+  try {
+    const r = await fetch(`${API_URL}?action=quiz_status&quiz=${QUIZ_ID}`);
+    const j = await r.json();
+    if (j.success && j.data.status === 'OPEN') {
+      showScreen('start-screen');
+    }
+    // else: leave closed-screen showing (it's the default active screen)
+  } catch (e) {
+    // Network hiccup — fails CLOSED (safer for exam integrity than fail-open).
+  }
+}
 
 /* ===== MODULE: QUESTIONS ===== */
 // Cumulative: Lab 1 (workspace/basics), Lab 2 (matrix ops), Lab 3 (linear equations)
