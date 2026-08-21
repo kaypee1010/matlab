@@ -6,7 +6,6 @@
 <title>Practical 3 — Solving Linear Equations | MATLAB Lab</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;600&family=Dancing+Script:wght@600&display=swap');
-
   :root{
     --cream:#FAF6EC;
     --teal:#08414A;
@@ -39,7 +38,6 @@
     margin:0;
   }
   header p{margin:2px 0 0; font-size:.85rem; opacity:.85;}
-
   nav{
     display:flex;
     flex-wrap:wrap;
@@ -64,15 +62,12 @@
     color:var(--cream);
     font-weight:600;
   }
-
   main{max-width:880px; margin:0 auto; padding:26px 20px 60px;}
   .panel{display:none; animation:fade .3s ease-in;}
   .panel.active{display:block;}
   @keyframes fade{from{opacity:0} to{opacity:1}}
-
   h2{font-family:'Fraunces', serif; color:var(--orange); font-size:1.5rem;}
   h3{font-family:'Fraunces', serif; color:var(--teal); font-size:1.15rem; margin-top:28px;}
-
   .note{
     font-family:'Dancing Script', cursive;
     font-size:1.3rem;
@@ -82,12 +77,10 @@
     padding:10px 16px;
     margin:16px 0;
   }
-
   table{border-collapse:collapse; width:100%; margin:14px 0; font-size:.92rem;}
   th, td{border:1px solid #ccc; padding:8px 10px; text-align:center;}
   th{background:var(--teal); color:var(--cream); font-family:'IBM Plex Mono', monospace;}
   tr:nth-child(even){background:#f2ede0;}
-
   .task{
     background:var(--red-bg);
     border-left:4px solid var(--red);
@@ -96,7 +89,6 @@
     border-radius:4px;
   }
   .task b{color:var(--red);}
-
   .solution{
     background:var(--green-bg);
     border-left:4px solid var(--green);
@@ -106,7 +98,6 @@
     display:none;
   }
   .solution.show{display:block;}
-
   pre{
     background:#fff;
     border:1px solid #ddd;
@@ -117,7 +108,6 @@
     overflow-x:auto;
   }
   code{font-family:'IBM Plex Mono', monospace; background:#f0ece0; padding:1px 5px; border-radius:3px;}
-
   .reveal-btn, .calc-btn{
     background:var(--orange);
     color:#fff;
@@ -130,7 +120,6 @@
     font-size:.85rem;
   }
   .reveal-btn:hover, .calc-btn:hover{background:#c9541c;}
-
   .calc-box{
     background:#fff;
     border:2px dashed var(--teal);
@@ -153,7 +142,6 @@
     margin-top:10px;
     font-size:1rem;
   }
-
   .navbtns{display:flex; justify-content:space-between; margin-top:32px;}
   .navbtns button{
     background:var(--teal);
@@ -166,7 +154,6 @@
     font-weight:600;
   }
   .navbtns button:disabled{opacity:.3; cursor:default;}
-
   .badge{
     display:inline-block;
     background:var(--teal);
@@ -180,7 +167,6 @@
 </style>
 </head>
 <body>
-
 <header>
   <img src="KP_Singh.png" alt="logo" onerror="this.style.display='none'">
   <div>
@@ -188,20 +174,15 @@
     <p>BTech Sem V &middot; MATLAB Lab (130205120) &middot; Section C &middot; Track: Smart Fitness Wearable</p>
   </div>
 </header>
-
 <nav id="tabnav"></nav>
-
 <main>
-
   <!-- WARMUP -->
   <section class="panel" id="tab-warmup">
     <span class="badge">START HERE</span>
     <h2>The Problem: Your Wearable is Lying to You (a little)</h2>
     <p>Your fitness band has <b>3 sensors</b> inside it trying to guess your heart rate: an optical LED sensor, a wrist-motion sensor, and a small ECG strip. Each one is a little bit wrong on its own. The band mixes all three together to get the final BPM number you see on screen.</p>
     <p>But nobody has told the band <i>how much to trust each sensor</i>. That's today's job.</p>
-
     <div class="note">Socho: teen dost tumhe teen alag guess dete hain ki abhi tumhara heart rate kya hai. Sabki baat kitni maanni hai — yeh weight tumhe nikaalna hai.</div>
-
     <h3>Try it by hand first</h3>
     <p>A lab technician tested the band 3 times against a real hospital-grade heart monitor. We know exactly what each sensor said, and what the <i>true</i> BPM was.</p>
     <table>
@@ -213,31 +194,26 @@
     <p>If <code>True_BPM = w1&times;Sensor1 + w2&times;Sensor2 + w3&times;Sensor3</code>, you now have <b>3 equations, 3 unknowns</b> (w1, w2, w3). Grab a pen. Try to solve it by elimination.</p>
     <p><b>Question to keep in your head:</b> if this took you several minutes for 3 unknowns... how would you solve this for <b>3,000 wearables</b>, each with slightly different sensors, before lunch?</p>
   </section>
-
   <!-- MEET THE TOOL -->
   <section class="panel" id="tab-tool">
     <span class="badge">MEET THE TOOL</span>
     <h2>The Backslash Operator: <code>\</code></h2>
     <p>MATLAB has one operator that solves <code>Ax = b</code> for x — instantly, and safely, no matter how many unknowns.</p>
     <div class="note">Jitne bhi equations ho, MATLAB ek line mein solve kar deta hai — <code>x = A \ b</code></div>
-
     <h3>Tiny example (unrelated to our wearable — just for practice)</h3>
     <pre>A = [2 1; 1 3];
 b = [8; 13];
 x = A \ b;
 disp(x)</pre>
     <p>This solves: <code>2x1 + x2 = 8</code> and <code>x1 + 3x2 = 13</code>. Try typing this into MATLAB right now before moving on.</p>
-
     <div class="calc-box">
       <b>Quick mental check:</b> what do you think <code>x</code> will be? Type your guess, then run it in MATLAB to check.
-      <br><input type="text" id="guessbox" placeholder="e.g. 2.2, 3.6"> 
+      <br><input type="text" id="guessbox" placeholder="e.g. 2.2, 3.6">
       <button class="reveal-btn" onclick="document.getElementById('quickans').style.display='block'">Show answer</button>
       <div id="quickans" style="display:none; margin-top:8px; font-family:'IBM Plex Mono',monospace;">x1 = 2.2, x2 = 3.6</div>
     </div>
-
     <p><b>Note:</b> <code>A\b</code> does NOT literally invert A. Internally it factorizes A (breaks it into simpler pieces — this is the "matrix factorization" idea) and solves directly. This is faster and more reliable than <code>inv(A)*b</code>. Avoid <code>inv()</code> for solving equations.</p>
   </section>
-
   <!-- DATASET -->
   <section class="panel" id="tab-dataset">
     <span class="badge">DATASET</span>
@@ -246,11 +222,9 @@ disp(x)</pre>
     <pre>A = [72  68  75;
      98  90  101;
      142 130 148];
-
 b = [74; 96; 138];</pre>
     <p>Later exercises also use a second wearable's data — that table appears when you need it.</p>
   </section>
-
   <!-- EXERCISE 1 -->
   <section class="panel" id="tab-ex1">
     <span class="badge">EXERCISE 1 — Scaffolded</span>
@@ -259,19 +233,18 @@ b = [74; 96; 138];</pre>
       <b>Task:</b> Fill in the blanks to solve for w = [w1; w2; w3].
       <pre>A = [72  68  75; 98 90 101; 142 130 148];
 b = [74; 96; 138];
-
 w = ____ \ ____;
 disp(w)</pre>
-      Run it. Are the weights roughly positive and sensible (not huge negative numbers)?
+      Run it. Look closely at the three numbers — does anything about them surprise you?
     </div>
     <button class="reveal-btn" onclick="document.getElementById('sol1').classList.toggle('show')">Show / hide solution</button>
     <div class="solution" id="sol1">
       <pre>w = A \ b;
 disp(w)
-% w ≈ [0.35; 0.29; 0.36]  (values will vary slightly by method)</pre>
+% w ≈ [-0.60; 1.93; -0.19]   (exact solution — A@w reproduces b precisely)</pre>
+      <p style="margin-top:10px;">Notice w1 and w3 came out <b>negative</b>, and w2 is way above 1. That's not a mistake — it's because Sensors 1, 2 and 3 all move together so closely across the 3 sessions that MATLAB has very little independent information to pin each weight down separately (<code>rcond(A) ≈ 0.002</code> — small). The fit still passes through all 3 points exactly, but the individual weights are fragile. Exercise 4 digs into exactly why.</p>
     </div>
   </section>
-
   <!-- EXERCISE 2 -->
   <section class="panel" id="tab-ex2">
     <span class="badge">EXERCISE 2 — Guided</span>
@@ -280,7 +253,6 @@ disp(w)
       <b>Task:</b> Complete this script. A 4th real calibration session was recorded — NOT used to find w. Use your weights to predict BPM and check the error.
       <pre>new_reading = [110 100 115];
 true_bpm_4  = 105;
-
 predicted_bpm = ____ * ____;
 err = abs(predicted_bpm - true_bpm_4);
 disp(predicted_bpm)
@@ -292,21 +264,21 @@ disp(err)</pre>
 err = abs(predicted_bpm - true_bpm_4);
 disp(predicted_bpm)
 disp(err)
-% error should be small (a few BPM) if w was found correctly</pre>
+% predicted_bpm ≈ 105.48, err ≈ 0.48 — small, even though the individual
+% weights themselves looked odd. A fragile w can still predict well on
+% data that resembles the calibration sessions.</pre>
     </div>
-
     <h3>Try your own numbers</h3>
     <div class="calc-box">
-      Enter 3 sensor readings and see the predicted BPM live (uses w ≈ 0.35, 0.29, 0.36):
+      Enter 3 sensor readings and see the predicted BPM live (uses w ≈ -0.60, 1.93, -0.19):
       <br>
-      <input type="number" id="s1" placeholder="Sensor1"> 
-      <input type="number" id="s2" placeholder="Sensor2"> 
+      <input type="number" id="s1" placeholder="Sensor1">
+      <input type="number" id="s2" placeholder="Sensor2">
       <input type="number" id="s3" placeholder="Sensor3">
       <button class="calc-btn" onclick="livePredict()">Predict BPM</button>
       <div class="calc-result" id="predictResult"></div>
     </div>
   </section>
-
   <!-- EXERCISE 3 -->
   <section class="panel" id="tab-ex3">
     <span class="badge">EXERCISE 3 — No Scaffold</span>
@@ -315,37 +287,41 @@ disp(err)
       <b>Task:</b> Unit B has its own calibration data below. Build the matrices yourself and solve for its weights. No template this time.
       <table>
         <tr><th>Session</th><th>Sensor 1</th><th>Sensor 2</th><th>Sensor 3</th><th>True BPM</th></tr>
-        <tr><td>1</td><td>70</td><td>71</td><td>69</td><td>70</td></tr>
+        <tr><td>1</td><td>66</td><td>71</td><td>69</td><td>70</td></tr>
         <tr><td>2</td><td>95</td><td>97</td><td>93</td><td>95</td></tr>
         <tr><td>3</td><td>150</td><td>152</td><td>148</td><td>150</td></tr>
       </table>
     </div>
     <button class="reveal-btn" onclick="document.getElementById('sol3').classList.toggle('show')">Show / hide solution</button>
     <div class="solution" id="sol3">
-      <pre>A_B = [70 71 69; 95 97 93; 150 152 148];
+      <pre>A_B = [66 71 69; 95 97 93; 150 152 148];
 b_B = [70; 95; 150];
 w_B = A_B \ b_B;
-disp(w_B)</pre>
+disp(w_B)
+% w_B ≈ [0; 0.5; 0.5]  — Unit B ends up trusting Sensor 2 and Sensor 3
+% equally and ignoring Sensor 1 entirely. Much cleaner than Unit A's
+% weights, but keep this number in mind for Exercise 4.</pre>
     </div>
   </section>
-
   <!-- EXERCISE 4 -->
   <section class="panel" id="tab-ex4">
     <span class="badge">EXERCISE 4 — Stretch</span>
     <h2>What If a Sensor Gets Stuck?</h2>
     <div class="task">
       <b>Task:</b> Imagine Unit B's Sensor 2 and Sensor 3 readings in Sessions 2 and 3 came out almost identical (a stuck sensor). Change two rows of A_B so they're nearly equal, then run:
-      <pre>A_B_bad = [70 71 69; 95 97 96.9; 150 152 151.9];
+      <pre>A_B_bad = [66 71 69; 95 97 96.9; 150 152 151.9];
 w_B_bad = A_B_bad \ b_B;
 rcond(A_B_bad)</pre>
       <b>Before you run it:</b> write one sentence predicting what will happen and why.
     </div>
     <button class="reveal-btn" onclick="document.getElementById('sol4').classList.toggle('show')">Show / hide solution</button>
     <div class="solution" id="sol4">
-      MATLAB will likely print a warning that the matrix is close to singular, and <code>rcond</code> will be a very small number (close to 0). This means the weights w_B_bad cannot be trusted — the sensors were giving almost the same information, so there isn't enough independent data to separate their individual weights.
+      <pre>% rcond(A_B) in Exercise 3 (healthy)  ≈ 0.0027
+% rcond(A_B_bad) here (stuck sensor)  ≈ 0.00066   — about 4× smaller
+% w_B_bad ≈ [1.11; 2.17; -2.29]        vs the clean w_B ≈ [0; 0.5; 0.5]</pre>
+      <p>The weights swing to much larger, messier values once Sensor 2 and Sensor 3 stop giving independent information — that's the real warning sign, not necessarily an on-screen MATLAB error. <code>rcond</code> doesn't need to be near machine-precision-small to already tell you the weights can't be trusted: a clear drop from the healthy baseline is enough. This is exactly why you check <code>rcond</code> instead of just trusting whatever number <code>\</code> hands back.</p>
     </div>
   </section>
-
   <!-- LAB TASKS -->
   <section class="panel" id="tab-labtasks">
     <span class="badge">OPTIONAL</span>
@@ -355,16 +331,13 @@ rcond(A_B_bad)</pre>
     <div class="task">2. Try <code>inv(A)*b</code> instead of <code>A\b</code> on today's data. Do you get the same answer as before?</div>
     <div class="task">3. Use <code>rcond(A)</code> on today's original (non-stuck) A matrix and compare its value to Exercise 4's stuck-sensor case.</div>
   </section>
-
   <!-- EVALUATION -->
   <section class="panel" id="tab-eval">
     <span class="badge">EVALUATION</span>
     <h2>Quiz</h2>
     <p> Be ready to take today's quiz once you've finished all 4 exercises.</p>
   </section>
-
 </main>
-
 <script>
   const TAB_ORDER = ['warmup','tool','dataset','ex1','ex2','ex3','ex4','labtasks','eval'];
   const TAB_LABELS = {
@@ -372,7 +345,6 @@ rcond(A_B_bad)</pre>
     ex1:'4. Exercise 1', ex2:'5. Exercise 2', ex3:'6. Exercise 3', ex4:'7. Exercise 4',
     labtasks:'8. Lab Tasks', eval:'9. Evaluation'
   };
-
   const nav = document.getElementById('tabnav');
   TAB_ORDER.forEach(id => {
     const btn = document.createElement('button');
@@ -381,7 +353,6 @@ rcond(A_B_bad)</pre>
     btn.onclick = () => showTab(id);
     nav.appendChild(btn);
   });
-
   function showTab(id){
     TAB_ORDER.forEach(t => {
       document.getElementById('tab-' + t).classList.remove('active');
@@ -392,7 +363,6 @@ rcond(A_B_bad)</pre>
     appendPrevNext(id);
     window.scrollTo({top:0, behavior:'smooth'});
   }
-
   function appendPrevNext(id){
     document.querySelectorAll('.navbtns').forEach(e => e.remove());
     const idx = TAB_ORDER.indexOf(id);
@@ -410,18 +380,15 @@ rcond(A_B_bad)</pre>
     div.appendChild(nextBtn);
     document.getElementById('tab-' + id).appendChild(div);
   }
-
   function livePredict(){
     const s1 = parseFloat(document.getElementById('s1').value) || 0;
     const s2 = parseFloat(document.getElementById('s2').value) || 0;
     const s3 = parseFloat(document.getElementById('s3').value) || 0;
-    const w1=0.35, w2=0.29, w3=0.36;
+    const w1=-0.5952, w2=1.9286, w3=-0.1905;
     const pred = (s1*w1 + s2*w2 + s3*w3).toFixed(1);
     document.getElementById('predictResult').textContent = 'Predicted BPM ≈ ' + pred;
   }
-
   showTab('warmup');
 </script>
-
 </body>
 </html>
