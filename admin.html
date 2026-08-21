@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · MATLAB Lab Quizzes · K.P. Singh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital,wght@0,400;1,400&family=DM+Sans:wght@400;500;600;700&family=Inconsolata:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --acc:#16a34a;--acc-pale:#f0fdf4;--acc-deep:#15803d;--acc-mid:#22c55e;
+  --ink:#1e293b;--ink-soft:#64748b;
+  --paper:#f8fafc;--cream:#f0fdf4;--border:#e2e8f0;
+  --rose:#e11d48;--rose-pale:#ffe4e6;--rose-deep:#be123c;
+  --mono:'Inconsolata',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(150deg,var(--paper) 0%,#ecfdf5 100%);
+  min-height:100vh;color:var(--ink);}
+.wrap{max-width:520px;margin:0 auto;padding:60px 20px 80px;}
+h1{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:4px;}
+.sub{font-family:var(--mono);font-size:11px;color:var(--ink-soft);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:28px;}
+
+/* LOGIN CARD */
+.login-card{background:#fff;border:1px solid var(--border);border-radius:14px;
+  padding:26px 28px;box-shadow:0 6px 20px rgba(22,163,74,.1);}
+.login-card label{display:block;font-family:var(--mono);font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:6px;}
+.login-card input{width:100%;padding:12px 14px;border:1.5px solid var(--border);
+  border-radius:8px;font-family:'DM Sans',sans-serif;font-size:15px;margin-bottom:14px;}
+.login-card input:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-pale);}
+.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--acc),var(--acc-deep));
+  color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
+.login-btn:hover{opacity:.92;}
+.login-err{color:var(--rose);font-size:13px;margin-top:10px;display:none;}
+.login-err.show{display:block;}
+
+/* QUIZ LIST */
+#quiz-list{display:none;}
+.quiz-card{background:#fff;border:1px solid var(--border);border-radius:14px;
+  padding:18px 22px;margin-bottom:14px;box-shadow:0 2px 8px rgba(22,163,74,.06);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.quiz-id{font-family:var(--mono);font-weight:700;font-size:15px;}
+.quiz-status{font-family:var(--mono);font-size:11px;margin-top:4px;}
+.quiz-status.open{color:var(--acc-deep);}
+.quiz-status.closed{color:var(--rose-deep);}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
+.dot.open{background:var(--acc);}
+.dot.closed{background:var(--rose);}
+
+.toggle-btn{padding:10px 18px;border-radius:8px;border:none;font-weight:700;
+  font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;
+  transition:opacity .15s;}
+.toggle-btn:hover{opacity:.88;}
+.toggle-btn.to-open{background:var(--acc);color:#fff;}
+.toggle-btn.to-close{background:var(--rose);color:#fff;}
+.toggle-btn:disabled{opacity:.5;cursor:default;}
+
+.refresh-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.refresh-btn{font-family:var(--mono);font-size:11px;color:var(--ink-soft);background:none;
+  border:1px solid var(--border);border-radius:20px;padding:6px 14px;cursor:pointer;}
+.refresh-btn:hover{border-color:var(--acc);color:var(--acc);}
+
+.empty-note{background:var(--cream);border-radius:10px;padding:18px;text-align:center;
+  color:var(--ink-soft);font-size:14px;}
+.spinner{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--acc);
+  border-radius:50%;animation:spin .8s linear infinite;margin:30px auto;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;
+  opacity:0;pointer-events:none;transition:opacity .25s;font-family:var(--mono);}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Quiz Admin</h1>
+  <div class="sub">SGT University · MATLAB Lab · Open/Close Control</div>
+
+  <!-- LOGIN -->
+  <div class="login-card" id="login-card">
+    <label>Admin Password</label>
+    <input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')unlock()">
+    <button class="login-btn" onclick="unlock()">Unlock →</button>
+    <div class="login-err" id="login-err">Incorrect password. Try again.</div>
+  </div>
+
+  <!-- QUIZ LIST -->
+  <div id="quiz-list">
+    <div class="refresh-row">
+      <span class="sub" style="margin-bottom:0">Tap to open or close a quiz</span>
+      <button class="refresh-btn" onclick="loadQuizzes()">↻ Refresh</button>
+    </div>
+    <div id="quiz-cards"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== CONFIG ===== */
+const API_URL = 'https://script.google.com/macros/s/AKfycbwt6Ns52cxvtSvguPioFno8qprEXRZStpN71Y22_xwCftg3IS-u-GRphIjQMkuc7AFHng/exec';
+
+let ADMIN_PW = ''; // held only in memory for this session, never stored
+
+async function unlock() {
+  const pw = document.getElementById('pw-input').value.trim();
+  const err = document.getElementById('login-err');
+  err.classList.remove('show');
+  if (!pw) return;
+  ADMIN_PW = pw;
+  const ok = await loadQuizzes();
+  if (ok) {
+    document.getElementById('login-card').style.display = 'none';
+    document.getElementById('quiz-list').style.display = 'block';
+  } else {
+    err.classList.add('show');
+    ADMIN_PW = '';
+  }
+}
+
+async function loadQuizzes() {
+  const cardsEl = document.getElementById('quiz-cards');
+  cardsEl.innerHTML = '<div class="spinner"></div>';
+  try {
+    const r = await fetch(`${API_URL}?action=admin_list&password=${encodeURIComponent(ADMIN_PW)}`);
+    const j = await r.json();
+    if (!j.success) { cardsEl.innerHTML = ''; return false; }
+    renderQuizzes(j.data);
+    return true;
+  } catch (e) {
+    cardsEl.innerHTML = '<div class="empty-note">Could not reach the server. Check your connection and try again.</div>';
+    return false;
+  }
+}
+
+function renderQuizzes(list) {
+  const cardsEl = document.getElementById('quiz-cards');
+  if (!list || !list.length) {
+    cardsEl.innerHTML = '<div class="empty-note">No quizzes found. Add Quiz IDs to the <code>quiz_list</code> row in the Config tab.</div>';
+    return;
+  }
+  cardsEl.innerHTML = list.map(q => `
+    <div class="quiz-card" id="card-${q.quizId}">
+      <div>
+        <div class="quiz-id">${esc(q.quizId)}</div>
+        <div class="quiz-status ${q.status === 'OPEN' ? 'open' : 'closed'}" id="status-${q.quizId}">
+          <span class="dot ${q.status === 'OPEN' ? 'open' : 'closed'}"></span>${q.status === 'OPEN' ? 'OPEN — students can attempt' : 'CLOSED — attempts blocked'}
+        </div>
+      </div>
+      <button class="toggle-btn ${q.status === 'OPEN' ? 'to-close' : 'to-open'}"
+        id="btn-${q.quizId}"
+        onclick="toggleQuiz('${q.quizId}', '${q.status === 'OPEN' ? 'CLOSED' : 'OPEN'}')">
+        ${q.status === 'OPEN' ? 'Close Quiz' : 'Open Quiz'}
+      </button>
+    </div>
+  `).join('');
+}
+
+async function toggleQuiz(quizId, newStatus) {
+  const btn = document.getElementById(`btn-${quizId}`);
+  btn.disabled = true;
+  const original = btn.textContent;
+  btn.textContent = '…';
+  try {
+    const r = await fetch(`${API_URL}?action=admin_set_status&password=${encodeURIComponent(ADMIN_PW)}&quiz=${encodeURIComponent(quizId)}&status=${newStatus}`);
+    const j = await r.json();
+    if (j.success) {
+      showToast(`${quizId} is now ${newStatus}`);
+      await loadQuizzes();
+    } else {
+      showToast('Failed: ' + (j.message || 'unknown error'));
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  } catch (e) {
+    showToast('Network error — please try again.');
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+</script>
+</body>
+</html>
