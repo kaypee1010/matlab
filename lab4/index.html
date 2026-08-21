@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practical 4 — Polynomial Operations, Roots & Curve Fitting | MATLAB Lab</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;600&family=Dancing+Script:wght@600&display=swap');
+  :root{
+    --cream:#FAF6EC;
+    --teal:#08414A;
+    --orange:#E2662B;
+    --red:#A3294F;
+    --green:#1e7a4a;
+    --green-bg:#e9f6ee;
+    --red-bg:#faeaf0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:var(--cream);
+    color:var(--teal);
+    font-family:'Source Sans 3', sans-serif;
+    margin:0;
+    padding:0;
+  }
+  header{
+    background:var(--teal);
+    color:var(--cream);
+    padding:22px 28px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+  header img{height:44px; border-radius:6px;}
+  header h1{
+    font-family:'Fraunces', serif;
+    font-size:1.4rem;
+    margin:0;
+  }
+  header p{margin:2px 0 0; font-size:.85rem; opacity:.85;}
+  nav{
+    display:flex;
+    flex-wrap:wrap;
+    background:#fff;
+    border-bottom:2px solid var(--teal);
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  nav button{
+    font-family:'IBM Plex Mono', monospace;
+    background:none;
+    border:none;
+    padding:12px 16px;
+    cursor:pointer;
+    font-size:.82rem;
+    color:var(--teal);
+    border-right:1px solid #eee;
+  }
+  nav button.active{
+    background:var(--teal);
+    color:var(--cream);
+    font-weight:600;
+  }
+  main{max-width:880px; margin:0 auto; padding:26px 20px 60px;}
+  .panel{display:none; animation:fade .3s ease-in;}
+  .panel.active{display:block;}
+  @keyframes fade{from{opacity:0} to{opacity:1}}
+  h2{font-family:'Fraunces', serif; color:var(--orange); font-size:1.5rem;}
+  h3{font-family:'Fraunces', serif; color:var(--teal); font-size:1.15rem; margin-top:28px;}
+  .note{
+    font-family:'Dancing Script', cursive;
+    font-size:1.3rem;
+    color:var(--red);
+    background:#fff8e8;
+    border-left:4px solid var(--orange);
+    padding:10px 16px;
+    margin:16px 0;
+  }
+  table{border-collapse:collapse; width:100%; margin:14px 0; font-size:.92rem;}
+  th, td{border:1px solid #ccc; padding:8px 10px; text-align:center;}
+  th{background:var(--teal); color:var(--cream); font-family:'IBM Plex Mono', monospace;}
+  tr:nth-child(even){background:#f2ede0;}
+  .task{
+    background:var(--red-bg);
+    border-left:4px solid var(--red);
+    padding:14px 18px;
+    margin:16px 0;
+    border-radius:4px;
+  }
+  .task b{color:var(--red);}
+  .solution{
+    background:var(--green-bg);
+    border-left:4px solid var(--green);
+    padding:14px 18px;
+    margin:10px 0 20px;
+    border-radius:4px;
+    display:none;
+  }
+  .solution.show{display:block;}
+  pre{
+    background:#fff;
+    border:1px solid #ddd;
+    border-radius:6px;
+    padding:12px 14px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.85rem;
+    overflow-x:auto;
+  }
+  code{font-family:'IBM Plex Mono', monospace; background:#f0ece0; padding:1px 5px; border-radius:3px;}
+  .reveal-btn, .calc-btn{
+    background:var(--orange);
+    color:#fff;
+    border:none;
+    padding:8px 16px;
+    border-radius:5px;
+    font-family:'Source Sans 3', sans-serif;
+    font-weight:600;
+    cursor:pointer;
+    font-size:.85rem;
+  }
+  .reveal-btn:hover, .calc-btn:hover{background:#c9541c;}
+  .calc-box{
+    background:#fff;
+    border:2px dashed var(--teal);
+    border-radius:8px;
+    padding:16px;
+    margin:16px 0;
+  }
+  .calc-box input{
+    width:80px;
+    padding:6px;
+    margin:4px 6px 4px 0;
+    border:1px solid #999;
+    border-radius:4px;
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .calc-result{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    color:var(--teal);
+    margin-top:10px;
+    font-size:1rem;
+  }
+  .navbtns{display:flex; justify-content:space-between; margin-top:32px;}
+  .navbtns button{
+    background:var(--teal);
+    color:var(--cream);
+    border:none;
+    padding:10px 20px;
+    border-radius:5px;
+    cursor:pointer;
+    font-family:'Source Sans 3', sans-serif;
+    font-weight:600;
+  }
+  .navbtns button:disabled{opacity:.3; cursor:default;}
+  .badge{
+    display:inline-block;
+    background:var(--teal);
+    color:var(--cream);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.75rem;
+    padding:3px 9px;
+    border-radius:12px;
+    margin-bottom:8px;
+  }
+</style>
+</head>
+<body>
+<header>
+  <img src="KP_Singh.png" alt="logo" onerror="this.style.display='none'">
+  <div>
+    <h1>Practical 4 — Polynomial Operations, Roots &amp; Curve Fitting</h1>
+    <p>BTech Sem V &middot; MATLAB Lab (130205120) &middot; Section C &middot; Track: Smart Fitness Wearable</p>
+  </div>
+</header>
+<nav id="tabnav"></nav>
+<main>
+  <!-- WARMUP -->
+  <section class="panel" id="tab-warmup">
+    <span class="badge">START HERE</span>
+    <h2>The Problem: Will the Runner Cross the Redline?</h2>
+    <p>In Practical 3 you calibrated Unit A's fusion weights so it can turn 3 noisy sensor readings into one trustworthy fused BPM number. That fused BPM is only computed every <b>20 seconds</b> — the band's processor is small, and running the full sensor fusion continuously would drain the battery in an hour.</p>
+    <p>A runner wearing Unit A does a graded jog test. Over the first 100 seconds, the band logs 6 fused BPM readings:</p>
+    <table>
+      <tr><th>Time (s)</th><td>0</td><td>20</td><td>40</td><td>60</td><td>80</td><td>100</td></tr>
+      <tr><th>Fused BPM</th><td>92</td><td>100</td><td>110</td><td>124</td><td>144</td><td>172</td></tr>
+    </table>
+    <p>The runner's coach has set a safety redline: BPM must not exceed <b>178</b>. If it does, the band should buzz a haptic warning (the motor you'll actually design a control loop for, later in the syllabus) — but the next fused reading isn't due for another 20 seconds. By the time it arrives, the runner may already be well past the redline.</p>
+    <div class="note">Socho: teen dost (yaani teen sensors) ne mil kar ek number diya — BPM. Lekin wo number sirf har 20 second mein aata hai. Agle 20 second mein kya hoga, ye tumhe abhi, in 6 purane numbers se hi nikaalna hai.</div>
+    <h3>Try it by hand first</h3>
+    <p>Plot the 6 (time, BPM) points on the board. Draw a trend line by eye and extend it forward to guess when — if ever — it crosses 178.</p>
+    <p><b>Question to keep in your head:</b> your ruler-and-eye extension took a couple of minutes for 6 points on one runner. The band ships to <b>thousands</b> of runners, each generating a fresh 6-point (or 600-point) history every session. How do you get a trustworthy answer to "will this cross the redline, and when" without redrawing a line by hand every single time?</p>
+  </section>
+
+  <!-- MEET THE TOOL -->
+  <section class="panel" id="tab-tool">
+    <span class="badge">MEET THE TOOL</span>
+    <h2><code>polyfit</code>, <code>polyval</code> &amp; <code>roots</code></h2>
+    <p><code>polyfit</code> fits the best smooth polynomial curve through noisy data — using all the points at once, not just the last two. <code>polyval</code> evaluates that curve at any new input, past or future. <code>roots</code> tells you exactly where that curve crosses zero (or, with a small shift, any target value like 178).</p>
+    <div class="note">polyfit se curve banao, polyval se future value nikaalo, roots se "kab cross karega" pata karo — teeno saath mein ek prediction system bante hain.</div>
+    <h3>Tiny example (unrelated to the wearable — just for practice)</h3>
+    <pre>x = [1 2 3 4 5];
+y = [2.1 3.9 9.2 15.8 25.3];   % looks roughly quadratic
+
+p = polyfit(x, y, 2);   % fit a degree-2 polynomial
+y6 = polyval(p, 6);     % evaluate the fitted curve at x = 6</pre>
+    <p><code>polyfit(x, y, n)</code> returns <code>n+1</code> coefficients, highest power first — <code>[a b c]</code> means <code>a·x² + b·x + c</code>. <code>roots(p)</code> finds where that polynomial equals zero, e.g. <code>roots([1 -3 2])</code> gives the roots of <code>x² - 3x + 2</code>.</p>
+    <div class="calc-box">
+      <b>Quick mental check:</b> what do you think <code>roots([1 -3 2])</code> will print? Type your guess, then run it in MATLAB to check.
+      <br><input type="text" id="guessbox" placeholder="e.g. 1, 2">
+      <button class="reveal-btn" onclick="document.getElementById('quickans').style.display='block'">Show answer</button>
+      <div id="quickans" style="display:none; margin-top:8px; font-family:'IBM Plex Mono',monospace;">2 and 1</div>
+    </div>
+    <p><b>Note:</b> a degree-<code>n</code> fit needs at least <code>n+1</code> data points to be well-determined. With exactly <code>n+1</code> points, the curve is forced through every single one — zero averaging, zero noise-cancelling. Keep that in mind for later.</p>
+  </section>
+
+  <!-- DATASET -->
+  <section class="panel" id="tab-dataset">
+    <span class="badge">DATASET</span>
+    <h2>Today's Data</h2>
+    <p>Same 6-point jog history from the warm-up — type this into MATLAB. You'll reuse it in every exercise below.</p>
+    <pre>t   = [0 20 40 60 80 100];        % seconds since the jog test started
+bpm = [92 100 110 124 144 172];   % fused BPM from Unit A (Practical 3 weights)
+redline = 178;                    % coach's safety limit, in BPM</pre>
+    <p>Exercise 4 also briefly reuses this table with a different polynomial degree — no new data needed.</p>
+  </section>
+
+  <!-- EXERCISE 1 -->
+  <section class="panel" id="tab-ex1">
+    <span class="badge">EXERCISE 1 — Scaffolded</span>
+    <h2>Fit a Curve Through the BPM History</h2>
+    <div class="task">
+      <b>Task:</b> Fill in the blanks to fit a degree-2 (quadratic) polynomial and plot it against the data.
+      <pre>t   = [0 20 40 60 80 100];
+bpm = [92 100 110 124 144 172];
+
+p2 = polyfit(____, ____, ____);
+disp(p2)
+
+figure
+plot(t, bpm, 'o', 'MarkerFaceColor', 'r'); hold on
+tt = linspace(0, 100, 50);
+plot(tt, polyval(____, tt), 'b-');
+xlabel('Time (s)'); ylabel('Fused BPM');
+legend('Measured', 'Fitted curve');</pre>
+      Run it. Does the blue curve pass smoothly near all 6 red points, without necessarily hitting every one exactly?
+    </div>
+    <button class="reveal-btn" onclick="document.getElementById('sol1').classList.toggle('show')">Show / hide solution</button>
+    <div class="solution" id="sol1">
+      <pre>p2 = polyfit(t, bpm, 2);
+disp(p2)
+% p2 ≈ [0.00625  0.155  93.0]   (a·t² + b·t + c)</pre>
+    </div>
+  </section>
+
+  <!-- EXERCISE 2 -->
+  <section class="panel" id="tab-ex2">
+    <span class="badge">EXERCISE 2 — Guided</span>
+    <h2>Predict 40 Seconds Ahead</h2>
+    <div class="task">
+      <b>Task:</b> Complete this script to predict the BPM at t = 140 (two reading-intervals past the last measurement, i.e. 40 s ahead) and mark it on your Exercise 1 plot.
+      <pre>future_time = 140;
+predicted_bpm = ____(____, ____);
+fprintf('Predicted BPM at t = %d s: %.1f\n', future_time, predicted_bpm);
+
+plot(future_time, predicted_bpm, 'gs', 'MarkerFaceColor', 'g');</pre>
+    </div>
+    <button class="reveal-btn" onclick="document.getElementById('sol2').classList.toggle('show')">Show / hide solution</button>
+    <div class="solution" id="sol2">
+      <pre>predicted_bpm = polyval(p2, future_time);
+fprintf('Predicted BPM at t = %d s: %.1f\n', future_time, predicted_bpm);
+% predicted_bpm ≈ 237.2 — physiologically impossible if the runner really
+% got there unchecked. This raw number is alarming, but by itself it
+% doesn't tell you WHEN the redline actually gets crossed — that's
+% Exercise 3.</pre>
+    </div>
+    <h3>Try your own numbers</h3>
+    <div class="calc-box">
+      Enter any time (seconds) and see the predicted fused BPM live, using today's fitted curve (0.00625·t² + 0.155·t + 93):
+      <br>
+      <input type="number" id="tval" placeholder="time (s)">
+      <button class="calc-btn" onclick="livePredict()">Predict BPM</button>
+      <div class="calc-result" id="predictResult"></div>
+    </div>
+  </section>
+
+  <!-- EXERCISE 3 -->
+  <section class="panel" id="tab-ex3">
+    <span class="badge">EXERCISE 3 — No Scaffold</span>
+    <h2>Exactly When Does It Cross the Redline?</h2>
+    <div class="task">
+      <b>Task:</b> Using <code>roots</code>, find the exact time the fitted curve reaches 178 BPM. You'll need to think about how to turn "when does <code>polyval(p2,t) = 178</code>" into "roots of what polynomial equals zero." Discard any root that isn't physically meaningful and explain why in one line.
+    </div>
+    <button class="reveal-btn" onclick="document.getElementById('sol3').classList.toggle('show')">Show / hide solution</button>
+    <div class="solution" id="sol3">
+      <pre>p_red = p2;
+p_red(end) = p_red(end) - redline;
+roots(p_red)
+% ans = -129.68
+%        104.88   <- only the positive, future root is physically meaningful</pre>
+      <p>The redline gets crossed at <b>t ≈ 104.9 s</b> — only about 5 seconds after the last real reading came in. The band needs to trigger its haptic warning almost immediately, not wait for the next scheduled 20-second reading.</p>
+    </div>
+  </section>
+
+  <!-- EXERCISE 4 -->
+  <section class="panel" id="tab-ex4">
+    <span class="badge">EXERCISE 4 — Stretch</span>
+    <h2>What If You Trusted a Higher-Degree Fit?</h2>
+    <div class="task">
+      <b>Task:</b> Refit the same 6 points with a <b>degree-5</b> polynomial instead of degree-2, and predict the BPM at t = 140 again.
+      <pre>p5 = polyfit(t, bpm, 5);
+pred5 = polyval(p5, 140);
+disp(pred5)</pre>
+      <b>Before you run it:</b> write one sentence predicting whether this new prediction will be more or less trustworthy than Exercise 2's, and why.
+    </div>
+    <button class="reveal-btn" onclick="document.getElementById('sol4').classList.toggle('show')">Show / hide solution</button>
+    <div class="solution" id="sol4">
+      <pre>% pred5 ≈ 260.0 BPM  — even less believable than the degree-2 prediction</pre>
+      <p>With exactly 6 points and 6 coefficients (degree 5), the fit has just enough freedom to thread every single point exactly — including whatever noise was in each reading. It has no averaging power left, so it fits the noise itself, not the underlying trend. Inside <code>t = 0</code> to <code>100</code> it looks perfect; the moment you step outside that range, it's free to swing anywhere. Plot both <code>p2</code> and <code>p5</code> together over <code>t = 0</code> to <code>140</code> and look at how differently they behave past <code>t = 100</code>.</p>
+    </div>
+  </section>
+
+  <!-- LAB TASKS -->
+  <section class="panel" id="tab-labtasks">
+    <span class="badge">OPTIONAL</span>
+    <h2>Lab Tasks (standalone, try anytime)</h2>
+    <p>These are separate one-liners to play with — not required, and not part of the sequential Exercises 1–4 above.</p>
+    <div class="task">1. Fit a degree-1 (straight-line) polynomial to today's data and find where <i>it</i> crosses the redline using <code>roots</code>. Compare that time to Exercise 3's answer — by how many seconds does the straight line make you think you have more time than you actually do?</div>
+    <div class="task">2. How many data points would you need at minimum to fit a degree-3 polynomial without MATLAB being forced to thread it through every single point exactly?</div>
+    <div class="task">3. Try <code>interp1(t, bpm, 50)</code> to estimate the BPM at t = 50 — a time <i>inside</i> the original data range. How is this conceptually different from using <code>polyfit</code>/<code>polyval</code> to reach t = 140, which is <i>outside</i> the range?</div>
+  </section>
+
+  <!-- EVALUATION -->
+  <section class="panel" id="tab-eval">
+    <span class="badge">EVALUATION</span>
+    <h2>Close the Loop</h2>
+    <p>Go back to the warm-up question: could you now answer, with a number and a reason, whether and when the runner crosses the redline? <code>polyfit</code> built the curve, <code>polyval</code> gave the raw future value, and <code>roots</code> gave the one answer that actually mattered — the exact crossing time, using the smallest extrapolation necessary.</p>
+    <div class="note">Lekin Exercise 4 mein dekha — degree badhane se fit "better" nahi hota. Agla sawaal: kaunsa fit sahi hai, ye hum <i>dekh</i> kaise sakte hain? Agle practical mein — Data Visualization — hum multiple curves ko ek hi plot pe label aur legend ke saath compare karna seekhenge. Aur uske baad, jab differentiation aayega, yehi fitted BPM curve se hum dekhenge ki heart rate <i>kitni tezi se</i> badh raha hai — position curve ka derivative, velocity jaisa hi ek concept.</div>
+    <h2>Quiz</h2>
+    <p>Be ready to take today's quiz once you've finished all 4 exercises.</p>
+  </section>
+</main>
+<script>
+  const TAB_ORDER = ['warmup','tool','dataset','ex1','ex2','ex3','ex4','labtasks','eval'];
+  const TAB_LABELS = {
+    warmup:'1. Warm-Up', tool:'2. Meet the Tool', dataset:'3. Dataset',
+    ex1:'4. Exercise 1', ex2:'5. Exercise 2', ex3:'6. Exercise 3', ex4:'7. Exercise 4',
+    labtasks:'8. Lab Tasks', eval:'9. Evaluation'
+  };
+  const nav = document.getElementById('tabnav');
+  TAB_ORDER.forEach(id => {
+    const btn = document.createElement('button');
+    btn.textContent = TAB_LABELS[id];
+    btn.id = 'navbtn-' + id;
+    btn.onclick = () => showTab(id);
+    nav.appendChild(btn);
+  });
+  function showTab(id){
+    TAB_ORDER.forEach(t => {
+      document.getElementById('tab-' + t).classList.remove('active');
+      document.getElementById('navbtn-' + t).classList.remove('active');
+    });
+    document.getElementById('tab-' + id).classList.add('active');
+    document.getElementById('navbtn-' + id).classList.add('active');
+    appendPrevNext(id);
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  function appendPrevNext(id){
+    document.querySelectorAll('.navbtns').forEach(e => e.remove());
+    const idx = TAB_ORDER.indexOf(id);
+    const div = document.createElement('div');
+    div.className = 'navbtns';
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '← Previous';
+    prevBtn.disabled = idx === 0;
+    prevBtn.onclick = () => showTab(TAB_ORDER[idx-1]);
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = 'Next →';
+    nextBtn.disabled = idx === TAB_ORDER.length-1;
+    nextBtn.onclick = () => showTab(TAB_ORDER[idx+1]);
+    div.appendChild(prevBtn);
+    div.appendChild(nextBtn);
+    document.getElementById('tab-' + id).appendChild(div);
+  }
+  function livePredict(){
+    const t = parseFloat(document.getElementById('tval').value) || 0;
+    const a=0.00625, b=0.155, c=93;
+    const pred = (a*t*t + b*t + c).toFixed(1);
+    document.getElementById('predictResult').textContent = 'Predicted BPM ≈ ' + pred;
+  }
+  showTab('warmup');
+</script>
+</body>
+</html>
