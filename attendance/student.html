@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MATLAB Attendance — Sem 5</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Georgia',serif;background:linear-gradient(135deg,#f5f1e8,#e8e3d8);min-height:100vh;padding:16px}
+.card{max-width:460px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.12);overflow:hidden}
+.header{background:linear-gradient(135deg,#8B3A3A,#6B2D2D);color:#fff;padding:20px 24px}
+.header h1{font-size:18px;margin-bottom:2px}
+.header p{font-size:12px;opacity:.9}
+.body{padding:24px}
+.status-banner{border-radius:8px;padding:12px 14px;margin-bottom:18px;font-size:13px;line-height:1.5;display:none}
+.status-open{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.status-closed{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.gps-banner{background:#fff8e1;border:2px solid #f9a825;border-radius:8px;padding:14px 16px;margin-bottom:18px;font-size:12px;color:#555}
+.gps-result{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:16px;display:none}
+.gps-ok{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.gps-warn{background:#fff3cd;color:#856404;border:1px solid #ffeeba}
+.field{margin-bottom:16px}
+label{display:block;font-weight:600;font-size:13px;color:#444;margin-bottom:5px}
+input[type=text]{width:100%;padding:11px 13px;border:1px solid #d0c8b8;border-radius:5px;font-size:15px;background:#fafafa;font-family:inherit}
+input:focus{outline:none;border-color:#8B3A3A;box-shadow:0 0 0 3px rgba(139,58,58,.1);background:#fff}
+.name-box{background:#f0ebe0;border:1px solid #c8b89a;border-radius:5px;padding:11px 13px;font-size:15px;font-weight:600;color:#5a3a1a;min-height:44px;display:flex;align-items:center}
+.name-ok{color:#1a5c2a !important}
+.name-err{color:#7c1c24 !important}
+.hint{font-size:11px;color:#999;margin-top:4px}
+.btn-submit{width:100%;padding:14px;background:#8B3A3A;color:#fff;border:none;border-radius:5px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:4px}
+.btn-submit:disabled{background:#aaa;cursor:not-allowed}
+.msg{padding:14px;border-radius:6px;margin-bottom:16px;font-size:14px;display:none;text-align:center;line-height:1.5}
+.msg.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
+.msg.error{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.footer{text-align:center;font-size:11px;color:#aaa;margin-top:18px;padding-top:14px;border-top:1px solid #eee}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <h1>MATLAB — SEC-III</h1>
+    <p>BTech Sem 5 · Sections 5B &amp; 5E · Dr. Kamalpreet Singh</p>
+  </div>
+  <div class="body">
+    <div id="msg" class="msg" role="alert"></div>
+    <div id="statusBanner" class="status-banner"></div>
+
+    <div class="gps-banner" id="gpsBanner">
+      &#128205; Checking your location for on-campus verification&hellip;
+    </div>
+    <div id="gpsResult" class="gps-result"></div>
+
+    <div class="field">
+      <label for="reg">Registration Number *</label>
+      <input type="text" id="reg" placeholder="e.g. 241302241" maxlength="16" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Name / Section (auto-detected)</label>
+      <div class="name-box" id="nameBox">&mdash;</div>
+    </div>
+    <div class="field">
+      <label for="desk">Lab Desktop / PC Number *</label>
+      <input type="text" id="desk" placeholder="e.g. PC-14" maxlength="10" autocomplete="off">
+      <div class="hint">Used only to confirm you're at your seat — not stored anywhere.</div>
+    </div>
+    <button class="btn-submit" id="submitBtn" onclick="submitAttendance()" disabled>Mark My Attendance</button>
+
+    <div class="footer">
+      Dr. Kamalpreet Singh · SEC-III (MATLAB) · BTech Sem 5<br>
+      Attendance is only accepted while your section's session is open.
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ══════════ CONFIG ══════════
+var GAS_URL = 'PASTE_YOUR_APPS_SCRIPT_/exec_URL_HERE';
+var CAMPUS_LAT = 28.482876235405023, CAMPUS_LNG = 76.90686746329484, RADIUS_M = 400;
+var FETCH_TIMEOUT_MS = 20000;
+var POLL_MS = 8000;
+
+// Roster: regNo -> {n: name, s: section}. Desktop number is intentionally
+// NEVER included in any payload below — it's collected purely so students
+// have to "commit" to a real-looking seat number, which is friction against
+// casual proxy marking, but the server never sees or stores it.
+var ROSTER = {"241302001":{n:"Bhavesh Khullar",s:"5E"},"241302006":{n:"Vaibhav",s:"5B"},"241302007":{n:"Harini Sri",s:"5B"},"241302009":{n:"Kunal",s:"5E"},"241302011":{n:"Tanishq Yadav",s:"5B"},"241302014":{n:"Harsh Shokeen",s:"5E"},"241302015":{n:"Madhoor",s:"5B"},"241302016":{n:"Rohit Sangwan",s:"5B"},"241302018":{n:"Yash Vats",s:"5B"},"241302019":{n:"Tushar Sehrawat",s:"5E"},"241302022":{n:"Pranav Aggarwal",s:"5E"},"241302025":{n:"Prem",s:"5E"},"241302027":{n:"Deepanshu Sharma",s:"5B"},"241302040":{n:"Chakshu Saini",s:"5E"},"241302043":{n:"Sakshi",s:"5E"},"241302044":{n:"Lakshay",s:"5B"},"241302046":{n:"Yash Kumar Singh",s:"5E"},"241302047":{n:"Rahul Sharma",s:"5E"},"241302048":{n:"Atul",s:"5E"},"241302054":{n:"Ipkshita Singh",s:"5B"},"241302060":{n:"Yuvraj Singh",s:"5B"},"241302061":{n:"Jatin Malik",s:"5E"},"241302063":{n:"Lovish Mahajan",s:"5B"},"241302064":{n:"Dipanshu Yadav",s:"5B"},"241302066":{n:"Kunal",s:"5B"},"241302082":{n:"Jatin Kumar",s:"5E"},"241302083":{n:"Ansh Tayal",s:"5E"},"241302084":{n:"Falak Noor",s:"5B"},"241302086":{n:"Nikita",s:"5E"},"241302089":{n:"Anal Bhardwaj",s:"5B"},"241302092":{n:"Lokesh Yadav",s:"5E"},"241302095":{n:"Umesh Yadav",s:"5B"},"241302102":{n:"Yash Yadav",s:"5E"},"241302105":{n:"Yuvraj",s:"5E"},"241302111":{n:"Manthan Gupta",s:"5B"},"241302119":{n:"Arjit Kumar",s:"5B"},"241302120":{n:"Garv Bhardwaj",s:"5E"},"241302121":{n:"Yash",s:"5E"},"241302123":{n:"Om Kumar Singh",s:"5B"},"241302124":{n:"Samarth Saini",s:"5B"},"241302127":{n:"Aaryan Shakalya",s:"5B"},"241302132":{n:"Kushagra Yadav",s:"5E"},"241302134":{n:"Kirti Mittal",s:"5B"},"241302136":{n:"Anmol Yadav",s:"5B"},"241302139":{n:"Saurabh Kumar",s:"5B"},"241302143":{n:"Kartik Yadav",s:"5E"},"241302149":{n:"Shubham Goyat",s:"5B"},"241302155":{n:"Sahil",s:"5E"},"241302161":{n:"Nitin",s:"5E"},"241302164":{n:"Sachin Yadav",s:"5E"},"241302168":{n:"Charu Malik",s:"5B"},"241302171":{n:"Manish",s:"5E"},"241302172":{n:"Ryian Hughe",s:"5E"},"241302174":{n:"Raman",s:"5E"},"241302176":{n:"Harsh Rana",s:"5B"},"241302180":{n:"Riya Sharma",s:"5B"},"241302186":{n:"Anchal Rawat",s:"5E"},"241302193":{n:"Zaib Khan",s:"5E"},"241302195":{n:"Tanmay Goyal",s:"5E"},"241302199":{n:"Chirag Yadav",s:"5E"},"241302204":{n:"Ridhi Narang",s:"5E"},"241302208":{n:"Gaurav Vashisth",s:"5B"},"241302220":{n:"Sakshi Kumari",s:"5B"},"241302224":{n:"Yogender Singh",s:"5E"},"241302225":{n:"Bhagat",s:"5E"},"241302228":{n:"Rana Swan Singh",s:"5B"},"241302229":{n:"Geetanjli",s:"5B"},"241302236":{n:"Garv Kharb",s:"5B"},"241302240":{n:"Sumit Kumar",s:"5E"},"241302241":{n:"Pulkit",s:"5B"},"241302244":{n:"Sudhansu",s:"5B"},"241302245":{n:"Daksh Kumar",s:"5E"},"241302246":{n:"Shubham Negi",s:"5E"},"241302247":{n:"Arav Bazad",s:"5E"},"241302248":{n:"Sumit",s:"5E"},"241302249":{n:"Abhishek Jaiswal",s:"5E"},"241302250":{n:"Aakriti Pandey",s:"5B"},"241302252":{n:"Ansh Gahlawat",s:"5E"},"241302253":{n:"Jatin",s:"5B"},"241302254":{n:"Pari Rani",s:"5B"},"241302255":{n:"Tanisha",s:"5B"},"241302256":{n:"Akshit Bradiya",s:"5B"},"241302257":{n:"Prajyot",s:"5E"},"241302258":{n:"Sourbh Singh",s:"5B"},"241302259":{n:"Priya",s:"5B"},"241302260":{n:"Abhinav Raj",s:"5B"},"241302262":{n:"Varun Kumar",s:"5B"},"241302265":{n:"Vipul Yadav",s:"5E"},"241302266":{n:"Aryan",s:"5E"},"241302268":{n:"Harsh",s:"5B"},"241302269":{n:"Akshat Bhardwaj",s:"5B"},"241302271":{n:"Shivam Saini",s:"5B"},"241302273":{n:"Vishal",s:"5B"},"241302276":{n:"Devshree Pathak",s:"5B"},"241302280":{n:"Sonal",s:"5B"},"241302282":{n:"Vinay Kumar",s:"5B"},"241302286":{n:"Daali Thakur",s:"5B"},"241302288":{n:"Daksh Saini",s:"5E"},"241302290":{n:"Shristi Yadav",s:"5E"},"241302292":{n:"Piyush Thakur",s:"5E"},"241302296":{n:"Prashant Yadav",s:"5B"},"241302297":{n:"Shatakshi Gupta",s:"5B"},"241302298":{n:"Aryan Khatri",s:"5E"},"241302299":{n:"Shubham",s:"5B"},"241302300":{n:"Abhinav Singh",s:"5E"},"241302301":{n:"Himanshu Chhoker",s:"5E"},"241302302":{n:"Rishika Khare",s:"5B"},"241302303":{n:"Mohd Rehan",s:"5B"},"241302305":{n:"Yash Gulliya",s:"5B"},"241302306":{n:"Muskan Kumari",s:"5B"},"241302307":{n:"Gaurav",s:"5B"},"251302193-LEET":{n:"Tanisha Bharti",s:"5B"},"251302265-LEET":{n:"Yash Bhardwaj",s:"5B"},"251302298-LEET":{n:"Monali",s:"5B"}};
+
+// ══════════ STATE ══════════
+var resolvedSection = '', resolvedName = '';
+var gpsStatus = 'pending', gpsChecked = false;
+var sessionOpenForSection = false, submitting = false, pollTimer = null;
+
+function $(id){ return document.getElementById(id); }
+
+function fetchWithTimeout(url, opts) {
+  var controller = new AbortController();
+  var timer = setTimeout(function(){ controller.abort(); }, FETCH_TIMEOUT_MS);
+  opts = opts || {};
+  opts.signal = controller.signal;
+  return fetch(url, opts).finally(function(){ clearTimeout(timer); });
+}
+
+function showMsg(text, type) {
+  var el = $('msg');
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  el.style.display = 'block';
+  if (type === 'success') setTimeout(function(){ el.style.display = 'none'; }, 8000);
+}
+
+function showGPSResult(type, text) {
+  var el = $('gpsResult');
+  el.textContent = text;
+  el.className = 'gps-result ' + (type === 'ok' ? 'gps-ok' : 'gps-warn');
+  el.style.display = 'block';
+}
+
+function haversine(la1, lo1, la2, lo2) {
+  var R = 6371000, dL = (la2-la1)*Math.PI/180, dO = (lo2-lo1)*Math.PI/180;
+  var a = Math.sin(dL/2)*Math.sin(dL/2) +
+          Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dO/2)*Math.sin(dO/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ══════════ GPS — only a status flag ever leaves this device ══════════
+function handleGPSSuccess(pos) {
+  var dist = haversine(pos.coords.latitude, pos.coords.longitude, CAMPUS_LAT, CAMPUS_LNG);
+  gpsStatus = dist <= RADIUS_M ? 'on-campus' : 'off-campus';
+  gpsChecked = true;
+  $('gpsBanner').style.display = 'none';
+  if (gpsStatus === 'on-campus') {
+    showGPSResult('ok', 'Location verified — you appear to be on campus.');
+  } else {
+    showGPSResult('warn', 'You appear to be off campus — this will be flagged (shown in red) for your teacher.');
+  }
+  updateSubmitState();
+}
+
+function handleGPSError() {
+  gpsStatus = 'unavailable';
+  gpsChecked = true;
+  $('gpsBanner').style.display = 'none';
+  showGPSResult('warn', 'Location unavailable — your submission will be marked unverified.');
+  updateSubmitState();
+}
+
+function requestGPS() {
+  if (!navigator.geolocation) { handleGPSError(); return; }
+  navigator.geolocation.getCurrentPosition(handleGPSSuccess, handleGPSError,
+    {enableHighAccuracy: true, timeout: 12000, maximumAge: 0});
+}
+window.addEventListener('load', requestGPS);
+
+// ══════════ ROSTER LOOKUP (auto-detects section) ══════════
+$('reg').addEventListener('input', function() {
+  var reg = $('reg').value.trim();
+  var box = $('nameBox');
+  box.textContent = '\u2014';
+  box.className = 'name-box';
+  resolvedName = ''; resolvedSection = '';
+  clearInterval(pollTimer);
+  $('statusBanner').style.display = 'none';
+  updateSubmitState();
+  if (reg.length < 9) return;
+  var entry = ROSTER[reg];
+  if (entry) {
+    box.textContent = entry.n + '  \u00B7  Section ' + entry.s;
+    box.className = 'name-box name-ok';
+    resolvedName = entry.n;
+    resolvedSection = entry.s;
+    pollSessionStatus();
+    pollTimer = setInterval(pollSessionStatus, POLL_MS);
+  } else {
+    box.textContent = 'Not found in 5B / 5E MATLAB roster';
+    box.className = 'name-box name-err';
+  }
+});
+
+function pollSessionStatus() {
+  if (!resolvedSection) return;
+  fetchWithTimeout(GAS_URL + '?action=get_session_status&section=' + resolvedSection)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      sessionOpenForSection = !!(d && d.open);
+      var el = $('statusBanner');
+      el.style.display = 'block';
+      if (sessionOpenForSection) {
+        el.className = 'status-banner status-open';
+        el.textContent = 'Attendance is OPEN for Section ' + resolvedSection + '. You can mark now.';
+      } else {
+        el.className = 'status-banner status-closed';
+        el.textContent = 'Attendance is not open for Section ' + resolvedSection + ' right now. Wait for your teacher to start the session.';
+      }
+      updateSubmitState();
+    })
+    .catch(function(){ /* keep last known state */ });
+}
+
+// ══════════ SUBMIT GATE ══════════
+function updateSubmitState() {
+  var desk = $('desk').value.trim();
+  var ok = resolvedName && sessionOpenForSection && gpsChecked && desk.length > 0 && !submitting;
+  $('submitBtn').disabled = !ok;
+}
+$('desk').addEventListener('input', updateSubmitState);
+
+function setSubmitting(on) {
+  submitting = on;
+  $('submitBtn').textContent = on ? 'Submitting...' : 'Mark My Attendance';
+  updateSubmitState();
+}
+
+function submitAttendance() {
+  if (submitting) return;
+  var reg = $('reg').value.trim();
+  if (!resolvedName || !resolvedSection) { showMsg('Enter a valid registration number.', 'error'); return; }
+  if (!sessionOpenForSection) { showMsg('Attendance is not open right now.', 'error'); return; }
+  if (!$('desk').value.trim()) { showMsg('Enter your desktop/PC number.', 'error'); return; }
+
+  setSubmitting(true);
+
+  // NOTE: desktop number and raw GPS coordinates are deliberately NOT
+  // included here — only reg no and the on/off-campus flag are sent.
+  var payload = {
+    type: 'mark_attendance',
+    section: resolvedSection,
+    reg: reg,
+    gpsStatus: gpsStatus
+  };
+
+  fetchWithTimeout(GAS_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: {'Content-Type': 'text/plain'},
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(result) {
+    if (result && result.success) {
+      showMsg('Attendance marked! ' + result.name + ' \u00B7 Section ' + result.section, 'success');
+      $('reg').value = ''; $('desk').value = '';
+      $('nameBox').textContent = '\u2014'; $('nameBox').className = 'name-box';
+      resolvedName = ''; resolvedSection = '';
+      clearInterval(pollTimer);
+      $('statusBanner').style.display = 'none';
+    } else {
+      showMsg((result && result.error) || 'Submission failed — try again.', 'error');
+    }
+  })
+  .catch(function(err) {
+    showMsg(err.name === 'AbortError' ? 'Request timed out — try again in a few seconds.' : 'Network problem — check internet and try again.', 'error');
+  })
+  .finally(function(){ setSubmitting(false); });
+}
+</script>
+</body>
+</html>
