@@ -15,6 +15,7 @@ body{font-family:'Georgia',serif;background:linear-gradient(135deg,#f5f1e8,#e8e3
 .status-banner{border-radius:8px;padding:12px 14px;margin-bottom:18px;font-size:13px;line-height:1.5;display:none}
 .status-open{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
 .status-closed{background:#f8d7da;color:#721c24;border:1px solid #f5c6cb}
+.status-marked{background:#cfe2ff;color:#084298;border:1px solid #b6d4fe}
 .gps-banner{background:#fff8e1;border:2px solid #f9a825;border-radius:8px;padding:14px 16px;margin-bottom:18px;font-size:12px;color:#555}
 .gps-result{padding:10px 14px;border-radius:6px;font-size:13px;margin-bottom:16px;display:none}
 .gps-ok{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
@@ -61,6 +62,7 @@ input:focus{outline:none;border-color:#8B3A3A;box-shadow:0 0 0 3px rgba(139,58,5
     <div class="field">
       <label for="desk">Lab Desktop / PC Number *</label>
       <input type="text" id="desk" placeholder="e.g. PC-14" maxlength="10" autocomplete="off">
+      <div class="hint">Used only to confirm you're at your seat — not stored anywhere.</div>
     </div>
     <button class="btn-submit" id="submitBtn" onclick="submitAttendance()" disabled>Mark My Attendance</button>
 
@@ -75,7 +77,7 @@ input:focus{outline:none;border-color:#8B3A3A;box-shadow:0 0 0 3px rgba(139,58,5
 'use strict';
 
 // ══════════ CONFIG ══════════
-var GAS_URL = 'https://script.google.com/macros/s/AKfycbz3ewEoHIAmRDZJuf7mrhbT44PQicRq5vg2fcpYMozjcg2V01Vg_JSDgv39EPA6F9SZtQ/exec';
+var GAS_URL = 'PASTE_YOUR_APPS_SCRIPT_/exec_URL_HERE';
 var CAMPUS_LAT = 28.482876235405023, CAMPUS_LNG = 76.90686746329484, RADIUS_M = 400;
 var FETCH_TIMEOUT_MS = 20000;
 var POLL_MS = 8000;
@@ -89,7 +91,7 @@ var ROSTER = {"241302001":{n:"Bhavesh Khullar",s:"5E"},"241302006":{n:"Vaibhav",
 // ══════════ STATE ══════════
 var resolvedSection = '', resolvedName = '';
 var gpsStatus = 'pending', gpsChecked = false;
-var sessionOpenForSection = false, submitting = false, pollTimer = null;
+var sessionOpenForSection = false, alreadyMarked = false, submitting = false, pollTimer = null;
 
 function $(id){ return document.getElementById(id); }
 
@@ -158,7 +160,7 @@ $('reg').addEventListener('input', function() {
   var box = $('nameBox');
   box.textContent = '\u2014';
   box.className = 'name-box';
-  resolvedName = ''; resolvedSection = '';
+  resolvedName = ''; resolvedSection = ''; alreadyMarked = false;
   clearInterval(pollTimer);
   $('statusBanner').style.display = 'none';
   updateSubmitState();
@@ -169,23 +171,32 @@ $('reg').addEventListener('input', function() {
     box.className = 'name-box name-ok';
     resolvedName = entry.n;
     resolvedSection = entry.s;
-    pollSessionStatus();
-    pollTimer = setInterval(pollSessionStatus, POLL_MS);
+    pollStudentStatus();
+    pollTimer = setInterval(pollStudentStatus, POLL_MS);
   } else {
     box.textContent = 'Not found in 5B / 5E MATLAB roster';
     box.className = 'name-box name-err';
   }
 });
 
-function pollSessionStatus() {
+// Single call returns BOTH the section's open/closed state AND whether this
+// specific student has already been marked present today — shown proactively
+// so a student sees "already marked" before they even try to submit again.
+function pollStudentStatus() {
   if (!resolvedSection) return;
-  fetchWithTimeout(GAS_URL + '?action=get_session_status&section=' + resolvedSection)
+  var reg = $('reg').value.trim();
+  fetchWithTimeout(GAS_URL + '?action=get_student_status&section=' + resolvedSection + '&reg=' + encodeURIComponent(reg))
     .then(function(r){ return r.json(); })
     .then(function(d){
-      sessionOpenForSection = !!(d && d.open);
+      if (!d || !d.success) return;
+      sessionOpenForSection = !!d.open;
+      alreadyMarked = !!d.marked;
       var el = $('statusBanner');
       el.style.display = 'block';
-      if (sessionOpenForSection) {
+      if (alreadyMarked) {
+        el.className = 'status-banner status-marked';
+        el.textContent = '\u2713 You are already marked present today (Section ' + resolvedSection + '). No need to submit again.';
+      } else if (sessionOpenForSection) {
         el.className = 'status-banner status-open';
         el.textContent = 'Attendance is OPEN for Section ' + resolvedSection + '. You can mark now.';
       } else {
@@ -200,19 +211,19 @@ function pollSessionStatus() {
 // ══════════ SUBMIT GATE ══════════
 function updateSubmitState() {
   var desk = $('desk').value.trim();
-  var ok = resolvedName && sessionOpenForSection && gpsChecked && desk.length > 0 && !submitting;
+  var ok = resolvedName && sessionOpenForSection && !alreadyMarked && gpsChecked && desk.length > 0 && !submitting;
   $('submitBtn').disabled = !ok;
+  $('submitBtn').textContent = submitting ? 'Submitting...' : (alreadyMarked ? 'Already Marked' : 'Mark My Attendance');
 }
 $('desk').addEventListener('input', updateSubmitState);
 
 function setSubmitting(on) {
   submitting = on;
-  $('submitBtn').textContent = on ? 'Submitting...' : 'Mark My Attendance';
   updateSubmitState();
 }
 
 function submitAttendance() {
-  if (submitting) return;
+  if (submitting || alreadyMarked) return;
   var reg = $('reg').value.trim();
   if (!resolvedName || !resolvedSection) { showMsg('Enter a valid registration number.', 'error'); return; }
   if (!sessionOpenForSection) { showMsg('Attendance is not open right now.', 'error'); return; }
@@ -239,11 +250,19 @@ function submitAttendance() {
   .then(function(result) {
     if (result && result.success) {
       showMsg('Attendance marked! ' + result.name + ' \u00B7 Section ' + result.section, 'success');
-      $('reg').value = ''; $('desk').value = '';
-      $('nameBox').textContent = '\u2014'; $('nameBox').className = 'name-box';
-      resolvedName = ''; resolvedSection = '';
-      clearInterval(pollTimer);
-      $('statusBanner').style.display = 'none';
+      alreadyMarked = true;
+      $('desk').value = '';
+      updateSubmitState();
+    } else if (result && /already marked/i.test(result.error || '')) {
+      // Two tabs / double-tap race: server caught it even though our last
+      // poll hadn't. Reflect it immediately instead of just showing an error.
+      showMsg(result.error, 'error');
+      alreadyMarked = true;
+      var el = $('statusBanner');
+      el.className = 'status-banner status-marked';
+      el.textContent = '\u2713 You are already marked present today (Section ' + resolvedSection + ').';
+      el.style.display = 'block';
+      updateSubmitState();
     } else {
       showMsg((result && result.error) || 'Submission failed — try again.', 'error');
     }
