@@ -108,7 +108,7 @@ function showMsg(text, type) {
   el.textContent = text;
   el.className = 'msg ' + type;
   el.style.display = 'block';
-  if (type === 'success') setTimeout(function(){ el.style.display = 'none'; }, 8000);
+  if (type === 'success') setTimeout(function(){ el.style.display = 'none'; }, 6000);
 }
 
 function showGPSResult(type, text) {
@@ -116,6 +116,24 @@ function showGPSResult(type, text) {
   el.textContent = text;
   el.className = 'gps-result ' + (type === 'ok' ? 'gps-ok' : 'gps-warn');
   el.style.display = 'block';
+  clearTimeout(gpsHideTimer);
+  gpsHideTimer = setTimeout(function(){ el.style.display = 'none'; }, 6000);
+}
+var gpsHideTimer = null;
+
+// All statusBanner updates go through here so the auto-hide timer is
+// consistent — banner shows, then clears itself out after a few seconds
+// instead of staying stacked on screen indefinitely. The submit button's
+// own "Already Marked" disabled state (see updateSubmitState) is the
+// persistent signal — this banner is just a transient toast.
+var statusHideTimer = null;
+function showStatusBanner(cls, text) {
+  var el = $('statusBanner');
+  el.className = 'status-banner ' + cls;
+  el.textContent = text;
+  el.style.display = 'block';
+  clearTimeout(statusHideTimer);
+  statusHideTimer = setTimeout(function(){ el.style.display = 'none'; }, 6000);
 }
 
 function haversine(la1, lo1, la2, lo2) {
@@ -198,36 +216,26 @@ function pollStudentStatus() {
       });
     })
     .then(function(d){
-      var el = $('statusBanner');
       if (!d || !d.success) {
-        el.style.display = 'block';
-        el.className = 'status-banner status-closed';
-        el.textContent = 'Could not check session status' + (d && d.error ? (': ' + d.error) : '') + '. Pull to refresh or tell your teacher if this persists.';
+        showStatusBanner('status-closed', 'Could not check session status' + (d && d.error ? (': ' + d.error) : '') + '. Pull to refresh or tell your teacher if this persists.');
         return;
       }
       sessionOpenForSection = !!d.open;
       alreadyMarked = !!d.marked;
-      el.style.display = 'block';
       if (alreadyMarked) {
-        el.className = 'status-banner status-marked';
-        el.textContent = '\u2713 You are already marked present today (Section ' + resolvedSection + '). No need to submit again.';
+        showStatusBanner('status-marked', '\u2713 You are already marked present today (Section ' + resolvedSection + '). No need to submit again.');
       } else if (sessionOpenForSection) {
-        el.className = 'status-banner status-open';
-        el.textContent = 'Attendance is OPEN for Section ' + resolvedSection + '. You can mark now.';
+        showStatusBanner('status-open', 'Attendance is OPEN for Section ' + resolvedSection + '. You can mark now.');
       } else {
-        el.className = 'status-banner status-closed';
-        el.textContent = 'Attendance is not open for Section ' + resolvedSection + ' right now. Wait for your teacher to start the session.';
+        showStatusBanner('status-closed', 'Attendance is not open for Section ' + resolvedSection + ' right now. Wait for your teacher to start the session.');
       }
       updateSubmitState();
     })
     .catch(function(err){
       console.error('pollStudentStatus failed:', err);
-      var el = $('statusBanner');
-      el.style.display = 'block';
-      el.className = 'status-banner status-closed';
-      el.textContent = err && err.name === 'AbortError'
+      showStatusBanner('status-closed', err && err.name === 'AbortError'
         ? 'Status check timed out — check your internet connection.'
-        : 'Network problem checking session status — check your internet connection.';
+        : 'Network problem checking session status — check your internet connection.');
     });
 }
 
@@ -274,6 +282,7 @@ function submitAttendance() {
     if (result && result.success) {
       showMsg('Attendance marked! ' + result.name + ' \u00B7 Section ' + result.section, 'success');
       alreadyMarked = true;
+      showStatusBanner('status-marked', '\u2713 You are already marked present today (Section ' + resolvedSection + ').');
       $('desk').value = '';
       updateSubmitState();
     } else if (result && /already marked/i.test(result.error || '')) {
@@ -281,10 +290,7 @@ function submitAttendance() {
       // poll hadn't. Reflect it immediately instead of just showing an error.
       showMsg(result.error, 'error');
       alreadyMarked = true;
-      var el = $('statusBanner');
-      el.className = 'status-banner status-marked';
-      el.textContent = '\u2713 You are already marked present today (Section ' + resolvedSection + ').';
-      el.style.display = 'block';
+      showStatusBanner('status-marked', '\u2713 You are already marked present today (Section ' + resolvedSection + ').');
       updateSubmitState();
     } else {
       showMsg((result && result.error) || 'Submission failed — try again.', 'error');
