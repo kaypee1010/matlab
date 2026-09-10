@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 5 · Data Visualization</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#1b2430;
+    --paper:#f6f4ee;
+    --panel:#ffffff;
+    --line:#d8d3c4;
+    --plot:#2f6f4f;
+    --plot2:#c15b3c;
+    --plot3:#3a5ba0;
+    --accent:#c15b3c;
+    --muted:#6b6558;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: 'Georgia', 'Iowan Old Style', serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* NAV */
+  .nav{
+    position:sticky; top:0; z-index:60;
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(246,244,238,.95);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+    padding:12px 22px;
+    font-family: -apple-system, Helvetica, Arial, sans-serif;
+  }
+  .nav-brand{display:flex; flex-direction:column; line-height:1.2;}
+  .nav-name{font-weight:700; font-size:15px; color:var(--ink);}
+  .nav-sub{font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted);}
+  .nav-links{display:flex; gap:4px;}
+  .nav-link{
+    background:none; border:none; cursor:pointer;
+    padding:8px 16px; font-size:0.9rem; color:var(--muted);
+    border-bottom:3px solid transparent; margin-bottom:-1px;
+    transition:color .2s;
+  }
+  .nav-link.active{color:var(--ink); border-bottom-color:var(--accent); font-weight:600;}
+
+  h1{
+    font-size:1.9rem;
+    margin:0 0 4px;
+    font-weight:600;
+  }
+  .subtitle{color:var(--muted);font-size:0.95rem;margin-bottom:20px;font-family: -apple-system, Helvetica, Arial, sans-serif;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  section{margin-bottom:32px;}
+  h2{
+    font-size:1.25rem;
+    margin:0 0 10px;
+    font-family: -apple-system, Helvetica, Arial, sans-serif;
+  }
+  p{font-family: -apple-system, Helvetica, Arial, sans-serif; font-size:0.98rem; max-width:70ch;}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:20px;
+  }
+
+  /* concept intro */
+  .concept-row{display:flex; gap:20px; flex-wrap:wrap; align-items:stretch;}
+  .concept-text{flex:1; min-width:220px;}
+  .concept-visual{flex:1; min-width:260px;}
+
+  canvas.plot{width:100%; max-width:420px; background:#fff; border:1px solid var(--line); border-radius:6px;}
+
+  /* controls */
+  .controls{
+    display:flex; gap:16px; flex-wrap:wrap; align-items:center;
+    font-family: -apple-system, Helvetica, Arial, sans-serif;
+    font-size:0.9rem; margin-top:12px;
+  }
+  .controls label{display:flex; flex-direction:column; gap:4px; color:var(--muted);}
+  select, input[type=range]{font-family:inherit;}
+  button.action{
+    background:var(--ink); color:#fff; border:none; padding:8px 16px;
+    border-radius:5px; cursor:pointer; font-family: -apple-system, Helvetica, Arial, sans-serif;
+    font-size:0.9rem;
+  }
+  button.action:hover{background:#000;}
+
+  /* 3D demo */
+  #cube3d{width:100%; max-width:420px; aspect-ratio:1/1; margin:0 auto; display:block;}
+
+  /* steps */
+  ol.steps{padding-left:20px; font-family: -apple-system, Helvetica, Arial, sans-serif; font-size:0.95rem;}
+  ol.steps li{margin-bottom:10px;}
+  code.snippet{
+    display:block; background:#242b25; color:#d7f2df; padding:10px 12px;
+    border-radius:5px; font-family: 'SF Mono', Menlo, monospace; font-size:0.85rem;
+    margin-top:6px; white-space:pre-wrap;
+  }
+
+  /* flip cards */
+  .flip-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px;}
+  .flip-card{perspective:800px; height:120px; cursor:pointer;}
+  .flip-inner{position:relative; width:100%; height:100%; transition:transform .5s; transform-style:preserve-3d;}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-front, .flip-back{
+    position:absolute; inset:0; backface-visibility:hidden;
+    border-radius:6px; display:flex; align-items:center; justify-content:center;
+    text-align:center; padding:10px; font-family: -apple-system, Helvetica, Arial, sans-serif;
+    font-size:0.88rem;
+  }
+  .flip-front{background:#eef0e6; border:1px solid var(--line); color:var(--ink);}
+  .flip-back{background:var(--plot); color:#fff; transform:rotateY(180deg);}
+
+  /* quiz */
+  .quiz-q{margin-bottom:18px;}
+  .quiz-opts{display:flex; flex-direction:column; gap:6px; margin-top:8px; font-family: -apple-system, Helvetica, Arial, sans-serif;}
+  .quiz-opt{
+    text-align:left; padding:8px 12px; border:1px solid var(--line); background:#fff;
+    border-radius:5px; cursor:pointer; font-size:0.9rem;
+  }
+  .quiz-opt.correct{background:#dff0e2; border-color:var(--plot);}
+  .quiz-opt.wrong{background:#f5dcd4; border-color:var(--plot2);}
+  #quizScore{font-family: -apple-system, Helvetica, Arial, sans-serif; font-weight:600; margin-top:10px;}
+
+  /* exercises */
+  .ex-item{margin-bottom:22px; padding-bottom:18px; border-bottom:1px solid var(--line);}
+  .ex-item:last-child{border-bottom:none;}
+  .toggle-btn{
+    background:#fff; border:1px solid var(--accent); color:var(--accent);
+    padding:6px 14px; border-radius:5px; cursor:pointer; font-family: -apple-system, Helvetica, Arial, sans-serif;
+    font-size:0.85rem; margin-top:8px;
+  }
+  .toggle-btn:hover{background:var(--accent); color:#fff;}
+  .toggle-btn.locked{border-color:var(--muted); color:var(--muted);}
+  .toggle-btn.locked:hover{background:var(--muted); color:#fff;}
+  .lock-hint{font-size:0.8rem; color:var(--muted); font-family:-apple-system, Helvetica, Arial, sans-serif; margin-top:6px;}
+  .solution{
+    display:none; margin-top:10px; background:#f1eee3; padding:12px; border-radius:5px;
+    font-family: -apple-system, Helvetica, Arial, sans-serif; font-size:0.9rem;
+  }
+  .solution.show{display:block;}
+  code.inline{background:#eee; padding:1px 5px; border-radius:3px; font-family:'SF Mono', Menlo, monospace; font-size:0.85em;}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-name">Lab 5 · Data Visualization</div>
+    <div class="nav-sub">MATLAB · 2D & 3D Plots</div>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link active" data-tab="learn">Learn & Try</button>
+    <button class="nav-link" data-tab="practice">Practice</button>
+  </div>
+</nav>
+<div class="wrap">
+
+  <!-- ===================== LEARN TAB ===================== -->
+  <div class="tab-panel active" id="learn">
+
+    <section>
+      <div class="card">
+        <h2>What's a plot, really?</h2>
+        <div class="concept-row">
+          <div class="concept-text">
+            <p>A plot turns numbers into a picture. Two lists of numbers — x and y — become dots. Join the dots, and you see a trend you'd never spot by reading a table.</p>
+            <p>Watch the same 8 numbers appear as dots, then get connected into a line.</p>
+            <button class="action" id="animateBtn">Animate it</button>
+          </div>
+          <div class="concept-visual">
+            <canvas id="introCanvas" class="plot" width="400" height="260"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Try it: 2D plot, live</h2>
+        <p>Pick a function and a line color. The plot redraws instantly — this is what <code class="inline">plot(x, y)</code> feels like in MATLAB.</p>
+        <canvas id="liveCanvas" class="plot" width="420" height="280"></canvas>
+        <div class="controls">
+          <label>Function
+            <select id="fnSelect">
+              <option value="sin">sin(x)</option>
+              <option value="cos">cos(x)</option>
+              <option value="x2">x²  (scaled)</option>
+              <option value="damped">damped wave</option>
+            </select>
+          </label>
+          <label>Line color
+            <select id="colorSelect">
+              <option value="#2f6f4f">Green</option>
+              <option value="#c15b3c">Terracotta</option>
+              <option value="#3a5ba0">Blue</option>
+            </select>
+          </label>
+          <label>Show legend
+            <input type="checkbox" id="legendToggle" checked>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Try it: 3D plot, spinning</h2>
+        <p>A 3D plot has one more axis (z). Drag the slider to rotate the surface and see depth — this is the idea behind <code class="inline">surf(X,Y,Z)</code> or <code class="inline">plot3</code>.</p>
+        <canvas id="cube3d" width="400" height="400"></canvas>
+        <div class="controls">
+          <label>Rotate
+            <input type="range" id="rotSlider" min="0" max="360" value="35">
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Labels, legends, annotations — why bother?</h2>
+        <p>A plot with no labels is a puzzle. Toggle these on and off and see the difference.</p>
+        <canvas id="labelCanvas" class="plot" width="420" height="280"></canvas>
+        <div class="controls">
+          <label><input type="checkbox" id="showLabels" checked> Axis labels</label>
+          <label><input type="checkbox" id="showTitle" checked> Title</label>
+          <label><input type="checkbox" id="showAnnotate"> Annotation (peak point)</label>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Hands-on: guided steps</h2>
+        <p>Open MATLAB and follow along. Each step builds on the last.</p>
+        <ol class="steps">
+          <li>Make some data.
+            <code class="snippet">x = 0:0.1:2*pi;
+y = sin(x);</code>
+          </li>
+          <li>Plot it.
+            <code class="snippet">plot(x, y)</code>
+          </li>
+          <li>Add labels so anyone reading it understands the axes.
+            <code class="snippet">xlabel('x (radians)')
+ylabel('sin(x)')
+title('A simple sine wave')</code>
+          </li>
+          <li>Plot a second line and add a legend to tell them apart.
+            <code class="snippet">hold on
+plot(x, cos(x))
+legend('sin(x)', 'cos(x)')</code>
+          </li>
+          <li>Point out something interesting with an annotation.
+            <code class="snippet">text(pi/2, 1, '\leftarrow peak')</code>
+          </li>
+          <li>Now go 3D — a surface plot.
+            <code class="snippet">[X,Y] = meshgrid(-2:0.2:2);
+Z = X.^2 + Y.^2;
+surf(X,Y,Z)
+xlabel('X'); ylabel('Y'); zlabel('Z')</code>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Quick recall — flip the cards</h2>
+        <div class="flip-grid" id="flipGrid"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Check yourself</h2>
+        <div id="quizArea"></div>
+        <div id="quizScore"></div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ===================== PRACTICE TAB ===================== -->
+  <div class="tab-panel" id="practice">
+    <section>
+      <div class="card">
+        <h2>Lab exercises</h2>
+        <p>Try each one yourself first. Tap "Show solution" only after you've had a go.</p>
+        <div id="exerciseArea"></div>
+      </div>
+    </section>
+  </div>
+
+</div>
+
+<script>
+// ---------- TAB SWITCHING ----------
+document.querySelectorAll('.nav-link').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ---------- INTRO ANIMATION: dots -> line ----------
+const introCanvas = document.getElementById('introCanvas');
+const ictx = introCanvas.getContext('2d');
+const introData = [3,5,2,8,6,9,4,7].map((v,i)=>({x: 30 + i*48, y: 230 - v*20}));
+
+function drawIntro(progress){
+  ictx.clearRect(0,0,400,260);
+  // axes
+  ictx.strokeStyle = '#c9c4b4'; ictx.lineWidth=1;
+  ictx.beginPath(); ictx.moveTo(30,20); ictx.lineTo(30,230); ictx.lineTo(390,230); ictx.stroke();
+
+  // dots
+  introData.forEach(p=>{
+    ictx.beginPath();
+    ictx.arc(p.x, p.y, 4, 0, Math.PI*2);
+    ictx.fillStyle = '#c15b3c';
+    ictx.fill();
+  });
+
+  // line grows with progress
+  if(progress > 0){
+    const n = introData.length;
+    const totalSegs = n - 1;
+    const segProgress = progress * totalSegs;
+    ictx.strokeStyle = '#2f6f4f';
+    ictx.lineWidth = 2.5;
+    ictx.beginPath();
+    ictx.moveTo(introData[0].x, introData[0].y);
+    for(let i=0;i<totalSegs;i++){
+      if(segProgress >= i+1){
+        ictx.lineTo(introData[i+1].x, introData[i+1].y);
+      } else if(segProgress > i){
+        const t = segProgress - i;
+        const p0 = introData[i], p1 = introData[i+1];
+        ictx.lineTo(p0.x + (p1.x-p0.x)*t, p0.y + (p1.y-p0.y)*t);
+        break;
+      } else break;
+    }
+    ictx.stroke();
+  }
+}
+drawIntro(0);
+document.getElementById('animateBtn').addEventListener('click', ()=>{
+  let start = null;
+  const duration = 1200;
+  function step(ts){
+    if(!start) start = ts;
+    const progress = Math.min((ts-start)/duration, 1);
+    drawIntro(progress);
+    if(progress < 1) requestAnimationFrame(step);
+  }
+  drawIntro(0);
+  requestAnimationFrame(step);
+});
+
+// ---------- LIVE 2D PLOT ----------
+const liveCanvas = document.getElementById('liveCanvas');
+const lctx = liveCanvas.getContext('2d');
+const fnSelect = document.getElementById('fnSelect');
+const colorSelect = document.getElementById('colorSelect');
+const legendToggle = document.getElementById('legendToggle');
+
+function fnValue(type, x){
+  switch(type){
+    case 'sin': return Math.sin(x);
+    case 'cos': return Math.cos(x);
+    case 'x2': return (x*x)/8 - 1;
+    case 'damped': return Math.sin(x*2) * Math.exp(-x/6);
+    default: return Math.sin(x);
+  }
+}
+
+function drawLive(){
+  const W=420,H=280, padL=40, padB=30, padT=16, padR=16;
+  lctx.clearRect(0,0,W,H);
+  lctx.strokeStyle = '#c9c4b4'; lctx.lineWidth=1;
+  lctx.beginPath(); lctx.moveTo(padL, padT); lctx.lineTo(padL, H-padB); lctx.lineTo(W-padR, H-padB); lctx.stroke();
+
+  const xMin=0, xMax=12.5;
+  const yMin=-1.2, yMax=1.2;
+  const toPx = (x,y) => [
+    padL + (x-xMin)/(xMax-xMin) * (W-padL-padR),
+    (H-padB) - (y-yMin)/(yMax-yMin) * (H-padT-padB)
+  ];
+
+  const type = fnSelect.value;
+  const color = colorSelect.value;
+  lctx.strokeStyle = color;
+  lctx.lineWidth = 2.5;
+  lctx.beginPath();
+  for(let i=0;i<=200;i++){
+    const x = xMin + (xMax-xMin)*i/200;
+    const y = fnValue(type,x);
+    const [px,py] = toPx(x,y);
+    if(i===0) lctx.moveTo(px,py); else lctx.lineTo(px,py);
+  }
+  lctx.stroke();
+
+  // labels
+  lctx.fillStyle = '#6b6558';
+  lctx.font = '12px -apple-system, Arial, sans-serif';
+  lctx.fillText('x', W-padR-6, H-padB+18);
+  lctx.save();
+  lctx.translate(12, padT+10);
+  lctx.fillText('y', 0, 0);
+  lctx.restore();
+
+  if(legendToggle.checked){
+    lctx.fillStyle = '#fff';
+    lctx.strokeStyle = '#d8d3c4';
+    lctx.fillRect(W-140, padT+6, 128, 26);
+    lctx.strokeRect(W-140, padT+6, 128, 26);
+    lctx.strokeStyle = color; lctx.lineWidth=3;
+    lctx.beginPath(); lctx.moveTo(W-132, padT+19); lctx.lineTo(W-108, padT+19); lctx.stroke();
+    lctx.fillStyle = '#1b2430';
+    lctx.fillText(fnSelect.options[fnSelect.selectedIndex].text, W-102, padT+23);
+  }
+}
+[fnSelect,colorSelect,legendToggle].forEach(el=>el.addEventListener('input', drawLive));
+drawLive();
+
+// ---------- 3D SPIN DEMO ----------
+const cube3d = document.getElementById('cube3d');
+const c3ctx = cube3d.getContext('2d');
+const rotSlider = document.getElementById('rotSlider');
+
+// generate a bowl-shaped surface grid
+const gridN = 10;
+const surfacePts = [];
+for(let i=0;i<=gridN;i++){
+  for(let j=0;j<=gridN;j++){
+    const x = (i/gridN - 0.5) * 4;
+    const y = (j/gridN - 0.5) * 4;
+    const z = (x*x + y*y) * 0.4;
+    surfacePts.push({x,y,z,i,j});
+  }
+}
+
+function project(x,y,z, angle){
+  const rad = angle * Math.PI/180;
+  // rotate around vertical axis
+  const rx = x*Math.cos(rad) - y*Math.sin(rad);
+  const ry = x*Math.sin(rad) + y*Math.cos(rad);
+  // simple isometric-ish projection
+  const scale = 42;
+  const px = 200 + rx*scale;
+  const py = 320 - z*scale*1.1 - ry*scale*0.5;
+  return [px,py];
+}
+
+function draw3D(){
+  const angle = parseFloat(rotSlider.value);
+  c3ctx.clearRect(0,0,400,400);
+  c3ctx.strokeStyle = '#2f6f4f';
+  c3ctx.lineWidth = 1;
+
+  // draw grid lines (rows)
+  for(let i=0;i<=gridN;i++){
+    c3ctx.beginPath();
+    for(let j=0;j<=gridN;j++){
+      const p = surfacePts.find(p=>p.i===i && p.j===j);
+      const [px,py] = project(p.x,p.y,p.z,angle);
+      if(j===0) c3ctx.moveTo(px,py); else c3ctx.lineTo(px,py);
+    }
+    c3ctx.stroke();
+  }
+  // columns
+  for(let j=0;j<=gridN;j++){
+    c3ctx.beginPath();
+    for(let i=0;i<=gridN;i++){
+      const p = surfacePts.find(p=>p.i===i && p.j===j);
+      const [px,py] = project(p.x,p.y,p.z,angle);
+      if(i===0) c3ctx.moveTo(px,py); else c3ctx.lineTo(px,py);
+    }
+    c3ctx.stroke();
+  }
+
+  // axis labels
+  c3ctx.fillStyle = '#6b6558';
+  c3ctx.font = '12px -apple-system, Arial, sans-serif';
+  c3ctx.fillText('Z = X² + Y²  (rotate to see depth)', 60, 30);
+}
+rotSlider.addEventListener('input', draw3D);
+draw3D();
+
+// ---------- LABEL/ANNOTATION TOGGLE DEMO ----------
+const labelCanvas = document.getElementById('labelCanvas');
+const lbctx = labelCanvas.getContext('2d');
+const showLabels = document.getElementById('showLabels');
+const showTitle = document.getElementById('showTitle');
+const showAnnotate = document.getElementById('showAnnotate');
+
+function drawLabelDemo(){
+  const W=420,H=280, padL=40, padB=30, padT=30, padR=16;
+  lbctx.clearRect(0,0,W,H);
+  lbctx.strokeStyle = '#c9c4b4'; lbctx.lineWidth=1;
+  lbctx.beginPath(); lbctx.moveTo(padL, padT); lbctx.lineTo(padL, H-padB); lbctx.lineTo(W-padR, H-padB); lbctx.stroke();
+
+  const xMin=0, xMax=10, yMin=0, yMax=1.2;
+  const toPx = (x,y)=>[padL+(x-xMin)/(xMax-xMin)*(W-padL-padR), (H-padB)-(y-yMin)/(yMax-yMin)*(H-padT-padB)];
+
+  lbctx.strokeStyle = '#3a5ba0'; lbctx.lineWidth=2.5;
+  lbctx.beginPath();
+  let peak = {x:0,y:0,px:0,py:0};
+  for(let i=0;i<=200;i++){
+    const x = xMin + (xMax-xMin)*i/200;
+    const y = Math.sin(x) * Math.exp(-x/12) + 0.3;
+    const [px,py] = toPx(x,y);
+    if(i===0) lbctx.moveTo(px,py); else lbctx.lineTo(px,py);
+    if(y > peak.y){ peak = {x,y,px,py}; }
+  }
+  lbctx.stroke();
+
+  if(showLabels.checked){
+    lbctx.fillStyle = '#1b2430';
+    lbctx.font = '12px -apple-system, Arial, sans-serif';
+    lbctx.fillText('time (s)', W-padR-50, H-padB+20);
+    lbctx.save();
+    lbctx.translate(14, padT+30);
+    lbctx.rotate(-Math.PI/2);
+    lbctx.fillText('sensor reading', 0,0);
+    lbctx.restore();
+  }
+  if(showTitle.checked){
+    lbctx.fillStyle = '#1b2430';
+    lbctx.font = 'bold 13px -apple-system, Arial, sans-serif';
+    lbctx.fillText('Sensor Response Over Time', padL, 18);
+  }
+  if(showAnnotate.checked){
+    lbctx.fillStyle = '#c15b3c';
+    lbctx.beginPath(); lbctx.arc(peak.px, peak.py, 4, 0, Math.PI*2); lbctx.fill();
+    lbctx.font = '12px -apple-system, Arial, sans-serif';
+    lbctx.fillText('← peak reading', peak.px+6, peak.py-4);
+  }
+}
+[showLabels,showTitle,showAnnotate].forEach(el=>el.addEventListener('input', drawLabelDemo));
+drawLabelDemo();
+
+// ---------- FLIP CARDS ----------
+const flipData = [
+  {front:'plot(x,y)', back:'Draws a 2D line from x and y data'},
+  {front:'xlabel / ylabel', back:'Names what each axis represents'},
+  {front:'legend(...)', back:'Explains which line/color is which'},
+  {front:'title(...)', back:'Says what the whole plot is about'},
+  {front:'surf(X,Y,Z)', back:'Draws a 3D surface over a grid'},
+  {front:'text(x,y,"...")', back:'Adds a note pointing at a spot'},
+];
+const flipGrid = document.getElementById('flipGrid');
+flipData.forEach(item=>{
+  const card = document.createElement('div');
+  card.className='flip-card';
+  card.innerHTML = `<div class="flip-inner">
+    <div class="flip-front">${item.front}</div>
+    <div class="flip-back">${item.back}</div>
+  </div>`;
+  card.addEventListener('click', ()=>card.classList.toggle('flipped'));
+  flipGrid.appendChild(card);
+});
+
+// ---------- QUIZ ----------
+const quizData = [
+  {
+    q:'Which command draws a simple 2D line plot in MATLAB?',
+    opts:['surf(x,y)','plot(x,y)','legend(x,y)','title(x,y)'],
+    correct:1
+  },
+  {
+    q:'You made two lines on one plot. What tells the viewer which line is which?',
+    opts:['xlabel','legend','grid on','hold off'],
+    correct:1
+  },
+  {
+    q:'A 3D surface plot needs an extra axis compared to a 2D plot. Which one?',
+    opts:['x','y','z','t'],
+    correct:2
+  },
+  {
+    q:'What does the annotation/text command do?',
+    opts:[
+      'Changes the plot color',
+      'Points out or labels a specific spot on the plot',
+      'Deletes the plot',
+      'Rotates the 3D view'
+    ],
+    correct:1
+  }
+];
+let quizScore = 0;
+let answered = 0;
+const quizArea = document.getElementById('quizArea');
+quizData.forEach((item, qi)=>{
+  const block = document.createElement('div');
+  block.className='quiz-q';
+  block.innerHTML = `<div>${qi+1}. ${item.q}</div>
+    <div class="quiz-opts">
+      ${item.opts.map((o,oi)=>`<button class="quiz-opt" data-q="${qi}" data-o="${oi}">${o}</button>`).join('')}
+    </div>`;
+  quizArea.appendChild(block);
+});
+quizArea.addEventListener('click', (e)=>{
+  if(!e.target.classList.contains('quiz-opt')) return;
+  const btn = e.target;
+  if(btn.closest('.quiz-q').dataset.done) return;
+  btn.closest('.quiz-q').dataset.done = '1';
+  const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+  const opts = btn.closest('.quiz-opts').querySelectorAll('.quiz-opt');
+  opts.forEach((o,idx)=>{
+    if(idx === quizData[qi].correct) o.classList.add('correct');
+    else if(idx === oi) o.classList.add('wrong');
+    o.style.pointerEvents='none';
+  });
+  answered++;
+  if(oi === quizData[qi].correct) quizScore++;
+  if(answered === quizData.length){
+    document.getElementById('quizScore').textContent = `Score: ${quizScore} / ${quizData.length}`;
+  }
+});
+
+// ---------- EXERCISES ----------
+const exercises = [
+  {
+    title:'Exercise 1 — Plot a straight line',
+    task:'Create x = 1 to 10. Let y = 2x + 1. Plot it with axis labels and a title.',
+    solution:`x = 1:10;
+y = 2*x + 1;
+plot(x, y)
+xlabel('x')
+ylabel('y')
+title('y = 2x + 1')`
+  },
+  {
+    title:'Exercise 2 — Two lines, one legend',
+    task:'On the same axes, plot sin(x) and cos(x) for x = 0 to 2π. Add a legend so both are labeled.',
+    solution:`x = 0:0.1:2*pi;
+plot(x, sin(x))
+hold on
+plot(x, cos(x))
+legend('sin(x)', 'cos(x)')
+xlabel('x'); ylabel('value')`
+  },
+  {
+    title:'Exercise 3 — Mark the maximum',
+    task:'Plot y = -x^2 + 6x for x = 0 to 6. Find the highest point and mark it with text() or a colored dot.',
+    solution:`x = 0:0.1:6;
+y = -x.^2 + 6*x;
+plot(x, y)
+[maxY, idx] = max(y);
+hold on
+plot(x(idx), maxY, 'ro')
+text(x(idx), maxY, '  peak')
+xlabel('x'); ylabel('y'); title('Finding the peak')`
+  },
+  {
+    title:'Exercise 4 — Your first 3D surface',
+    task:'Make a grid with meshgrid from -3 to 3. Let Z = X.*exp(-X.^2-Y.^2). Plot it with surf and label all three axes.',
+    solution:`[X,Y] = meshgrid(-3:0.2:3);
+Z = X .* exp(-X.^2 - Y.^2);
+surf(X,Y,Z)
+xlabel('X'); ylabel('Y'); zlabel('Z')
+title('A 3D bump surface')`
+  }
+];
+const exerciseArea = document.getElementById('exerciseArea');
+
+// Teacher passcode — change this to whatever you'd like to share with the class when it's time to reveal.
+const SOLUTION_PASSCODE = 'reveal5';
+const unlocked = {}; // tracks which exercises have been unlocked this session
+
+exercises.forEach((ex, i)=>{
+  const div = document.createElement('div');
+  div.className = 'ex-item';
+  div.innerHTML = `
+    <h2 style="font-size:1.05rem;">${ex.title}</h2>
+    <p>${ex.task}</p>
+    <button class="toggle-btn locked" data-i="${i}">🔒 Show solution</button>
+    <div class="lock-hint">Try it yourself first — ask your instructor for the code to unlock.</div>
+    <div class="solution" id="sol-${i}"><code class="snippet" style="margin-top:0;">${ex.solution}</code></div>
+  `;
+  exerciseArea.appendChild(div);
+});
+exerciseArea.addEventListener('click', (e)=>{
+  if(!e.target.classList.contains('toggle-btn')) return;
+  const btn = e.target;
+  const i = btn.dataset.i;
+  const sol = document.getElementById('sol-'+i);
+
+  if(!unlocked[i]){
+    const entered = prompt('Enter the unlock code from your instructor:');
+    if(entered === null) return; // cancelled
+    if(entered.trim().toLowerCase() !== SOLUTION_PASSCODE.toLowerCase()){
+      alert('Not quite the right code — keep trying the exercise, or check with your instructor.');
+      return;
+    }
+    unlocked[i] = true;
+    btn.classList.remove('locked');
+  }
+
+  const showing = sol.classList.toggle('show');
+  btn.textContent = showing ? 'Hide solution' : 'Show solution';
+});
+</script>
+</body>
+</html>
