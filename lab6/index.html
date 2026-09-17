@@ -26,7 +26,7 @@
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   body{
-    margin:0; color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-size:16px; line-height:1.55;
+    margin:0; color:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-size:16px; line-height:1.6;
     background:
       repeating-linear-gradient(0deg, var(--grid) 0 1px, transparent 1px 42px),
       repeating-linear-gradient(90deg, var(--grid) 0 1px, transparent 1px 42px),
@@ -35,17 +35,18 @@
     padding-bottom:60px;
   }
   h1,h2,h3{ font-family:'Fraunces', serif; color:var(--ink); margin:0 0 10px; font-weight:700; }
-  h2{ font-size:1.55rem; }
-  h3{ font-size:1.15rem; }
-  p{ margin:0 0 12px; color:var(--ink-soft); max-width:70ch; }
+  h2{ font-size:1.5rem; }
+  h3{ font-size:1.12rem; }
+  p{ margin:0 0 12px; color:var(--ink-soft); max-width:68ch; }
   code, .mono{ font-family:'IBM Plex Mono', monospace; }
-  .wrap{ max-width:880px; margin:0 auto; padding:0 20px; }
+  .layout{ max-width:1280px; margin:0 auto; padding:0 18px; display:grid; grid-template-columns:190px minmax(0,1fr) 190px; gap:22px; align-items:start; }
+  .center{ min-width:0; max-width:720px; }
 
-  /* ---- nav ---- */
+  /* ---- nav (top bar) ---- */
   .nav{
     display:flex; align-items:center; justify-content:space-between;
     padding:14px 24px; background:var(--glass-bg-strong); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-    border-bottom:1px solid var(--glass-border); position:sticky; top:0; z-index:50;
+    border-bottom:1px solid var(--glass-border); position:sticky; top:0; z-index:60;
   }
   .nav-brand{ display:flex; align-items:center; gap:12px; }
   .nav-logo{ width:38px; height:38px; border-radius:50%; object-fit:cover; }
@@ -53,6 +54,33 @@
   .nav-sub{ font-size:0.78rem; color:var(--ink-soft); }
   .nav-cta{ font-size:0.85rem; color:var(--indigo-deep); text-decoration:none; font-weight:600; padding:6px 10px; border-radius:8px; transition:background .18s, transform .18s; }
   .nav-cta:hover{ background:rgba(52,84,209,0.12); transform:translateY(-1px); }
+
+  /* ---- left course sidebar ---- */
+  .side-left{ position:sticky; top:86px; align-self:start; padding-top:26px; }
+  .side-title{ font-size:0.72rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin-bottom:8px; font-weight:600; }
+  .course-list{ list-style:none; margin:0; padding:0; border-left:2px solid rgba(52,84,209,0.15); }
+  .course-list li{ margin:0; }
+  .course-list a{
+    display:block; padding:7px 14px; font-size:0.88rem; color:var(--ink-soft); text-decoration:none;
+    border-left:2px solid transparent; margin-left:-2px; transition:background .15s, color .15s, border-color .15s, transform .15s;
+  }
+  .course-list a:hover{ background:rgba(52,84,209,0.08); color:var(--indigo-deep); transform:translateX(2px); }
+  .course-list a.current{ color:var(--indigo-deep); font-weight:600; border-left-color:var(--indigo); background:rgba(52,84,209,0.07); }
+
+  /* ---- right on-this-page nav ---- */
+  .side-right{ position:sticky; top:86px; align-self:start; padding-top:26px; }
+  .toc-list{ list-style:none; margin:0; padding:0; border-left:2px solid rgba(52,84,209,0.15); }
+  .toc-list a{
+    display:block; padding:6px 14px; font-size:0.85rem; color:var(--ink-soft); text-decoration:none;
+    border-left:2px solid transparent; margin-left:-2px; transition:background .15s, color .15s, border-color .15s;
+  }
+  .toc-list a:hover{ background:rgba(52,84,209,0.08); color:var(--indigo-deep); }
+  .toc-list a.active{ color:var(--indigo-deep); font-weight:600; border-left-color:var(--indigo); }
+
+  @media (max-width:860px){
+    .layout{ grid-template-columns:1fr; }
+    .side-left, .side-right{ display:none; }
+  }
 
   /* ---- hero ---- */
   .hero{ padding:38px 0 8px; }
@@ -63,7 +91,7 @@
   .card{
     background:var(--glass-bg); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
     border:1px solid var(--glass-border); border-radius:18px; box-shadow:var(--glass-shadow);
-    padding:26px 28px; margin:22px 0;
+    padding:26px 28px; margin:22px 0; scroll-margin-top:90px;
   }
   .card.tight{ padding:18px 22px; }
 
@@ -107,6 +135,12 @@
     font-family:'IBM Plex Mono', monospace; font-size:0.86rem; line-height:1.5;
   }
   pre .cm{ color:#8fa1e0; }
+
+  .explain{
+    background:rgba(242,169,59,0.12); border-left:3px solid var(--amber-deep); border-radius:8px;
+    padding:10px 14px; font-size:0.9rem; margin:10px 0 16px;
+  }
+  .explain b{ color:var(--ink); }
 
   .formula-row{ display:flex; gap:14px; flex-wrap:wrap; margin:14px 0; }
   .formula-card{
@@ -193,7 +227,23 @@
 
 <nav class="nav"><div class="nav-brand"><img class="nav-logo" src="KP_Singh.png" alt="K.P. Singh"/><div><div class="nav-name">K.P. Singh</div><div class="nav-sub">SGT University · MATLAB Lab · Practical 6</div></div></div><a class="nav-cta" href="https://kpsingh.in" target="_blank">kpsingh.in ↗</a></nav>
 
-<div class="wrap">
+<div class="layout">
+
+  <!-- LEFT: course navigation -->
+  <aside class="side-left">
+    <div class="side-title">MATLAB Lab</div>
+    <ul class="course-list">
+      <li><a href="https://kpsingh.in/matlab/lab1/">Lab 1 · Getting started</a></li>
+      <li><a href="https://kpsingh.in/matlab/lab2/">Lab 2 · Matrix operations</a></li>
+      <li><a href="https://kpsingh.in/matlab/lab3/">Lab 3 · Vectors &amp; loops</a></li>
+      <li><a href="https://kpsingh.in/matlab/lab4/">Lab 4 · Functions &amp; scripts</a></li>
+      <li><a href="https://kpsingh.in/matlab/lab5/">Lab 5 · Data visualization</a></li>
+      <li><a href="#" class="current">Lab 6 · Integration &amp; differentiation</a></li>
+    </ul>
+  </aside>
+
+  <!-- CENTER: page content -->
+  <div class="center">
 
   <div class="hero">
     <div class="eyebrow">Practical 6 · Numerical Integration &amp; Differentiation</div>
@@ -221,7 +271,7 @@
   </div>
 
   <!-- HOOK -->
-  <div class="card">
+  <div class="card" id="hook">
     <h2>A bike, a GPS ping every second</h2>
     <p>A campus delivery startup's bike sends only its distance travelled, once a second. No speedometer reading, no odometer — just numbers.</p>
     <table>
@@ -239,7 +289,10 @@
         <p style="margin:0;font-size:0.85rem;">Same calculation, all day, every bike — this is exactly what MATLAB is for.</p>
       </div>
     </div>
-    <p style="margin-top:10px;">Speed-from-distance is <b>differentiation</b>. Distance-from-speed is <b>integration</b>. Both done on sampled numbers, not a clean formula — that's what today's lab is about.</p>
+    <div class="explain">
+      <b>In plain words:</b> "how fast right now" means finding a <i>rate of change</i> — that's what <b>differentiation</b> does. "How far in total" means adding up lots of tiny distances — that's what <b>integration</b> does.
+      Normally you'd get both from a clean formula (like distance = speed × time). Here you only have a table of numbers, so you estimate them from the data instead — that's the whole idea of <i>numerical</i> methods, and it's what this lab teaches.
+    </div>
   </div>
 
   <!-- DIFFERENTIATION -->
@@ -250,6 +303,10 @@
       <div class="formula-card"><div class="f">f'(x) ≈ (f(x+h) − f(x)) / h</div><p class="l"><b>Forward difference</b> — looks ahead only.</p></div>
       <div class="formula-card"><div class="f">f'(x) ≈ (f(x) − f(x−h)) / h</div><p class="l"><b>Backward difference</b> — looks behind only.</p></div>
       <div class="formula-card"><div class="f">f'(x) ≈ (f(x+h) − f(x−h)) / 2h</div><p class="l"><b>Central difference</b> — looks both ways, usually most accurate.</p></div>
+    </div>
+    <div class="explain">
+      <b>In plain words:</b> a derivative is just a slope — "for a tiny step forward, how much does y change?" You can't always compute that slope exactly from data, so you estimate it using two nearby points instead of one perfect formula.
+      Forward difference uses "here and the next point," backward uses "here and the previous point," and central uses "the point before and the point after" — skipping the middle one entirely. Because central looks on both sides, its errors tend to cancel out, which is why it's usually the most accurate of the three.
     </div>
 
     <h3>Watch it, one step at a time</h3>
@@ -279,6 +336,11 @@ fwdbwd  = diff(f) ./ diff(x); <span class="cm">% diff() gives forward difference
       <div class="formula-card"><div class="f">T = h · [ (f₀+fₙ)/2 + Σ fᵢ ]</div><p class="l"><b>Trapezoidal rule</b> — straight-line strips.</p></div>
       <div class="formula-card"><div class="f">S = (h/3) · [f₀+4f₁+2f₂+…+fₙ]</div><p class="l"><b>Simpson's rule</b> — curved (parabola) strips, needs an <i>even</i> number of intervals.</p></div>
     </div>
+    <div class="explain">
+      <b>In plain words:</b> integration here just means "area under the curve," and the trick is to slice that area into thin strips you already know how to measure.
+      Trapezoidal rule slices it into straight-edged strips (like cutting a hill into flat-topped steps) — simple, but slightly off wherever the curve actually bends.
+      Simpson's rule fits a small curved piece (a parabola) over every pair of strips instead of a flat top, hugging the real curve more closely — which is why it's usually more accurate for the same number of points.
+    </div>
 
     <div class="diagram-box">
       <svg id="intSvg" viewBox="0 0 400 220" width="100%" height="220"></svg>
@@ -301,7 +363,7 @@ area = trapz(x, f);   <span class="cm">% built-in trapezoidal integration</span>
   </div>
 
   <!-- PITFALLS -->
-  <div class="card tight">
+  <div class="card tight" id="pitfalls">
     <h3>Common slips</h3>
     <div class="pitfall"><span class="ic">⚠️</span><span>Making h too small doesn't make things "more accurate forever" — past a point, MATLAB's own rounding starts adding noise back in.</span></div>
     <div class="pitfall"><span class="ic">⚠️</span><span>Simpson's rule needs an <b>even</b> number of intervals — odd breaks the paired-parabola pattern it relies on.</span></div>
@@ -327,7 +389,7 @@ area = trapz(x, f);   <span class="cm">% built-in trapezoidal integration</span>
         <tr><th>t (min)</th><td>0</td><td>5</td><td>10</td><td>15</td><td>20</td></tr>
         <tr><th>Current (A)</th><td>2</td><td>4</td><td>7</td><td>5</td><td>3</td></tr>
       </table>
-      <p style="font-size:0.9rem;">Write MATLAB code using <code>trapz</code> to find the total charge. Then answer: <i>would Simpson's rule work directly on this data as-is? Why or why not?</i> (C6 — justify your choice, don't just compute.)</p>
+      <p style="font-size:0.9rem;">Write MATLAB code using <code>trapz</code> to find the total charge. Then answer: <i>would Simpson's rule work directly on this data as-is? Why or why not?</i> (Justify your choice, don't just compute.)</p>
       <textarea class="code-area" placeholder="% your MATLAB code here"></textarea>
 
       <div class="lock">
@@ -375,9 +437,42 @@ rate = (u(4)-u(2)) / (t(4)-t(2));   <span class="cm">% central diff = 50 units/m
   </div>
 
   <footer>K.P. Singh · SGT University · MATLAB Lab, Practical 6</footer>
+  </div>
+
+  <!-- RIGHT: on-this-page navigation -->
+  <aside class="side-right">
+    <div class="side-title">On this page</div>
+    <ul class="toc-list" id="tocList">
+      <li><a href="#instructions" data-target="instructions">How this works</a></li>
+      <li><a href="#hook" data-target="hook">The hook</a></li>
+      <li><a href="#diff" data-target="diff">Differentiation</a></li>
+      <li><a href="#integ" data-target="integ">Integration</a></li>
+      <li><a href="#pitfalls" data-target="pitfalls">Common slips</a></li>
+      <li><a href="#quiz" data-target="quiz">Quick check</a></li>
+      <li><a href="#practice" data-target="practice">Lab evaluation</a></li>
+    </ul>
+  </aside>
+
 </div>
 
 <script>
+/* ---------------- Scrollspy for right-hand TOC ---------------- */
+(function(){
+  const links = [...document.querySelectorAll('#tocList a')];
+  const sections = links.map(l => document.getElementById(l.dataset.target)).filter(Boolean);
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const link = links.find(l => l.dataset.target === entry.target.id);
+      if(!link) return;
+      if(entry.isIntersecting){
+        links.forEach(l=>l.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px -50% 0px', threshold: 0 });
+  sections.forEach(s=>io.observe(s));
+})();
+
 /* ---------------- Differentiation step diagram ---------------- */
 (function(){
   const svg = document.getElementById('diffSvg');
@@ -388,7 +483,6 @@ rate = (u(4)-u(2)) / (t(4)-t(2));   <span class="cm">% central diff = 50 units/m
   function Y(y){ return H-pad - (y/16)*(H-2*pad); }
   let path = 'M';
   for(let i=0;i<=80;i++){ const x=i/20; path += (i===0?'':' L')+X(x)+' '+Y(x*x); }
-  const pts = {1:[1,1],2:[2,4],3:[3,9]};
   function pointDot(x,y,color,label){
     return `<circle cx="${X(x)}" cy="${Y(y)}" r="4" fill="${color}"/><text x="${X(x)}" y="${Y(y)-10}" font-size="11" fill="${color}" text-anchor="middle">${label}</text>`;
   }
